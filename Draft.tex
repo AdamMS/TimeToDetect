@@ -223,11 +223,15 @@ For the first two simulation studies, we choose true parameter values so that: (
 
 \subsection{Model fitting}
 
+\jarad{This should be part of methods.}
+
 We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
 
 For each intercept-only simulation model, we instantiated a single chain running 60,000 iterations.  For the Ovenbird analysis and covariate simulations, we ran chains for 250,000-375,000 iterations.  We discarded half of the iterations as warmup.  We reran models if the effective sample size of for any root parameter was below 1000.  We monitored convergence of the MCMC chains using Geweke diagnostics.  For most models, we accepted the Stan defaults for generating dispersed initial values.  However, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from the posterior means of preliminary short-run models (Ovenbird analysis, incorrect-family simulations) or from true parameter values (correct-family simulations).
 
 \subsection{Model assessment, inference, and between-model comparison}
+
+\jarad{This is also part of methods. Or perhaps make it part of evaluation of simulation studies.}
 
 To assess goodness of fit, we rely on posterior predictive checks \citep{Gelman1996}/adam{Rubin1984?}.  Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  In particular, we are concerned with the goodness of fit for the TTDD distribution, so we define a check statistic for each observation interval:
 \[D(n_i) = \sum\limits_{sr} n_{sri} \big/ \sum\limits_{sri}^{} n_{sri}\]
