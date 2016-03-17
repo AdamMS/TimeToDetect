@@ -76,8 +76,9 @@ One issue related to non-constant detection is detection heterogeneity.  Heterog
 \adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
 
 \begin{figure}[h!]\centering
-\includegraphics[width=0.68\textwidth]{Hazards.pdf}
-\caption{\label{HazardFxns}  Examples of instantaneous rates of detection (hazard functions) from exponential, gamma, lognormal, and Weibull TTDDs. \jarad{Are these setup to have the same mean and variance or anything like that?}
+\includegraphics[width=0.68\textwidth]{Hazards}
+\caption{Examples of instantaneous rates of detection (hazard functions) from exponential, gamma, lognormal, and Weibull TTDDs. \jarad{Are these setup to have the same mean and variance or anything like that?}}
+\label{HazardFxns}
 \end{figure}
 
 In this study, we construct a time-to-detection N-mixture model for estimating abundance from removal-sampled point-count surveys.  We explore model behavior through a series of simulations testing: (i) how well constant-detection models fit non-constant detection data and vice versa, (ii) the utility of a partial finite-mixtures to model detection heterogeneity involving a non-constant detection subgroup, and (iii) model performance with covariates and random effects affecting both abundance and detection.  Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding Bird Project.
@@ -158,7 +159,7 @@ The rest of the model remains the same, except there is no need to calculate int
 
 \subsubsection{Abundance Model}
 
-\jarad{Again, I would introduce this without covariates or random effects first.
+\jarad{Again, I would introduce this without covariates or random effects first.}
 
 For simplicity, we model abundance at each site during each year $N_{sr}$ using a Poisson distribution with a survey-specific expected value of $\lambda_{sr}$, though any non-negative integer-valued distribution may be used.  We can decompose $N_{sr}$ into observed and unobserved portions.  The unobserved portion follows a binomial-Poisson hierarchy, resulting in Equation \ref{eq:binPois}.  We model expected abundance $\lambda_{sr}$ using a mixed effects linear regression with a log link.
 
