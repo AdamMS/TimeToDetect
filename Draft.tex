@@ -25,6 +25,8 @@
      }
      {\end{list}}
 
+\newcommand{\vn}{\textbf{n}}
+
 \begin{document}
 
 %\tableofcontents 
@@ -61,6 +63,8 @@ The framing of our model in terms of time-to-detection leads to two practical di
 
 \adam{Based on further lit review, I think I need to insert a paragraph here about what time-varying modeling has been done.  In the fisheries world, models of time-varying catchability have been implemented -- see Schnute 1983, Scruton and Gibson (ref: Mantyniemi), and Mantyniemi2015 for examples.  Also, Alldredge 2007 implements a complete-history of detection model (technically mark-recapture, not removal) that estimates interval-specific detection probabilities (complete with covariates and detection heterogeneity).  However, it cannot be applied in a removal context, because removal data contains only first times to detection, and the Alldredge model requires subsequent observations -- removal models compensate by specifying a TTDD, thus enabling us to extrapolate beyond the observation period.}  
 
+\jarad{The introduction needs to end earlier. It should be about 1-2 pages covering what has previously been done and outline our approach. So this should probably start a new section and before this there should be an outline of our manuscript. }
+
 \subsection{TTDDs as behavior and methodology}
 
 A TTDD expresses the range of detection patterns possible in an analysis.  The most basic is an exponential TTDD, which imposes a constant detection rate.  If species behavior and/or observation methodology may cause a systematic non-constant detection regime, then we should choose a TTDD accordingly.  For example, we may wish to model an observer effect where: (i) the observer's arrival either suppresses or stimulates detectable cues from organisms at a site, but (ii) as organisms acclimate to the observer, cues gradually return to an undisturbed baseline of constant detection.  As illustrated by the hazard functions in Figure \ref{HazardFxns}, a gamma TTDD would be appropriate for this scenario.
@@ -73,7 +77,7 @@ One issue related to non-constant detection is detection heterogeneity.  Heterog
 
 \begin{figure}[h!]\centering
 \includegraphics[width=0.68\textwidth]{Hazards.pdf}
-\caption{\label{HazardFxns}  Examples of instantaneous rates of detection (hazard functions) from exponential, gamma, lognormal, and Weibull TTDDs.}
+\caption{\label{HazardFxns}  Examples of instantaneous rates of detection (hazard functions) from exponential, gamma, lognormal, and Weibull TTDDs. \jarad{Are these setup to have the same mean and variance or anything like that?}
 \end{figure}
 
 In this study, we construct a time-to-detection N-mixture model for estimating abundance from removal-sampled point-count surveys.  We explore model behavior through a series of simulations testing: (i) how well constant-detection models fit non-constant detection data and vice versa, (ii) the utility of a partial finite-mixtures to model detection heterogeneity involving a non-constant detection subgroup, and (iii) model performance with covariates and random effects affecting both abundance and detection.  Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding Bird Project.
@@ -85,26 +89,37 @@ In this study, we construct a time-to-detection N-mixture model for estimating a
 
 \subsection{Data structure}\label{sec:data}
 
-Our model is formulated for single-visit removal-sampled point-count surveys conducted at a set of sites $s=1,\dotso,S$ repeated across distinct time periods $r=1,\dotso,R$.  We present the model for times to detection censored into $i=1,\dotso,I$ intervals, but it is straight-forward to simplify the model for exact time-to-detection data.  Our data therefore take the form of counts indexed by site, time period, and interval: $n_{sri}$.  For any given survey (uniquely defined by site and time period), we write the vector of counts across all $I$ intervals as $\textbf{n}_{sr}$.
+Our model is formulated for single-visit removal-sampled point-count surveys conducted at a set of sites $s=1,\dotso,S$ repeated across distinct time periods $r=1,\dotso,R$. \jarad{So time periods are R because we already use t for intervals? Argh!}  We present the model for times to detection censored into $i=1,\dotso,I$ intervals \jarad{Why don't we present the exact time-to-detection model first and then censoring it?}, but it is straight-forward to simplify the model for exact time-to-detection data.  
+We denote the number of individual observed at site $s$, time $r$, and in interval $i$ as $n_{sri}$ and define the total number of individuals observed during survey as $\vn_{sr} = (\sum_{i=1}^I n_{sri})n_{sr1},\ldots,n_{srI})$.
+
 
 \subsection{Framework}
 
 We construct a hierarchical model of removal-sampled point-counts patterned after an N-mixture framework \citep{Wyatt2002, Royle2004NMixture}.  We treat the hierarchical model in three pieces: (a) a multinomial data model, (b) a detection model based upon the partitioned cumulative distribution function (cdf) of a regression-modeled TTDD, and (c) an abundance model based upon Poisson regression.  Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
 
+\jarad{We should try to avoid using subsubsections. Perhaps we should provide a data section and then a model section?}
+
 \subsubsection{Data Model}
 We assume that counts from different surveys are conditionally independent.  We also assume that the time-to-detection is independent, identically distributed for all individuals of a species at any given survey.  Given that an organism is detected, we denote the probability it is first detected during interval $i$ as $p_{sri}$ such that $\sum_{i=1}^I p_{sri} = 1$.  We write $\textbf{p}_{sr}$ to denote the vector of interval-specific detection probabilities at any given survey.  The data model is then:
-
 \begin{align}\label{eq:datamodel}
-\textbf{n}_{sr} &\sim \mbox{Multinomial}\left(n_{sr}^{(obs)}, \textbf{p}_{sr}\right)\\
+\vn_{sr} &\sim \mbox{Multinomial}\left(n_{sr}^{(obs)}, \textbf{p}_{sr}\right)\\
 n_{sr}^{(obs)} &\sim \mbox{Binomial}\left(N_{sr}, p_{sr}^{(det)}\right)
 \end{align}
+
+\jarad{Pedogogically, I would introduce the binomial model first and then the multinomial model. Or we could introduce a Multinomial with parameter $N_{sr}$ and an additional bin for non-detection.}
 
 where for each survey, $n_{sr}^{(obs)} = \sum_{i=1}^I n_{sri}$ is the number of individuals counted across all intervals, $N_{sr}$ is the total number of individuals present (counted and uncounted), and $p_{sr}^{(det)}$ is the probability that an individual is detected at any time during the observation period.  The number of uncounted individuals at any survey can be written: $n_{sr}^{(unobs)} = N_{sr} - n_{sr}^{(obs)}$.
 
 
 
 \subsubsection{Detection Model}\label{sec:detectionmodel}
-We model $\textbf{p}_{sr}$ and $p_{sr}^{(det)}$ by means of the partitioned cdf of a TTDD, which we express generically as $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$.  Here, $T$ is a random variable for the first time at which an individual is detected, $\textbf{X}_{sr}^D$ and $\textbf{Z}_{sr}^D$ are detection-related covariates and random effect factor levels to be used in a mixed effects linear regression, and $\boldsymbol{\theta}$ is a vector of parameters appropriate to the TTDD being used.  In this study, we consider eight different forms for the TTDD.  The first four TTDDs we employ are:
+
+\jarad{I think you should introduce just the exponential model first with no covariates. Thus, relative to what has been done before, you are only adding in the time-to-detection distribution. Later you can introduce other TTDDs and covariates.}
+
+We model $\textbf{p}_{sr}$ and $p_{sr}^{(det)}$ by means of the partitioned cdf of a TTDD, which we express generically as $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$. 
+\jarad{Do we want to introduce explanatory variables already? Perhaps it would be smoother to wait until later to introduce them.}
+Here, $T$ is a random variable for the first time at which an individual is detected, $\textbf{X}_{sr}^D$ and $\textbf{Z}_{sr}^D$ are detection-related covariates and random effect factor levels to be used in a mixed effects linear regression, and $\boldsymbol{\theta}$ is a vector of parameters appropriate to the TTDD being used.  In this study, we consider eight different forms for the TTDD.  The first four TTDDs we employ are:
+\jarad{You don't need an enumerate here. Would it be easier to introduce the exponential first and then the other 3 altogether later?}
 \begin{enumerate}
 \item $T_{srq} \overset{ind}{\sim} \text{Exponential}(\varphi_{sr})$
 \item $T_{srq} \overset{ind}{\sim} \text{Gamma}(\alpha, \varphi_{sr})$
@@ -122,16 +137,17 @@ For exponential, gamma, and Weibull TTDDs, we model the log of the rate paramete
 &\text{Weibull:}  &&\log(\varphi_{sr}) &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}]) + \log\left(\Gamma\left(1 + 1/k\right)\right)\\
 &\text{LogNormal:} &&-\mu_{sr} &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}]) + \sigma_{det}^2/2
 \end{alignat}
+\jarad{Are these necessary?}
 where $\boldsymbol{\beta}^D$ is a vector of fixed effects, and $\xi_i^D \overset{ind}{\sim} N(0,\sigma_{D[i]}^2)$ are random effects, with $\sigma_{D[i]}^2$ denoting the variance associated with $\xi_i^D$.  When the TTDD is a mixture distribution, we model $F_{T1}$ portion of the mixture according to the above link functions and treat the mixing parameter $\gamma$ as constant across all surveys.
 
-For interval-censored data, we denote the cutoffs for each observation interval with $C_i$, where $C_0 = 0 \text{ and } C_I = \text{the survey duration}$.  Conditioned on an individual being detected, we calculate interval-specific detection probabilities $p_{sri}$ by partitioning the cdf of the TTDD at the observation interval cutoffs and normalizing by the binomial detection probability $p_{sr}^{(det)}$.  In summary, the detection model is:
+For interval-censored data, we denote the cutoffs for each observation interval with $C_i$, where $C_0 = 0 \text{ and } C_I = \text{the survey duration}$.  Conditioned on an individual being detected \jarad{Would this be easier to introduce without conditioning on individuals being detected?}, we calculate interval-specific detection probabilities $p_{sri}$ by partitioning the cdf of the TTDD at the observation interval cutoffs and normalizing by the binomial detection probability $p_{sr}^{(det)}$.  In summary, the detection model is:
 \begin{align}
 p_{sri} &= \left[F_T(C_i|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) - F_T(C_{i-1}|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})\right]\big/p_{sr}^{(det)}\\
 \label{eq:pdet}p_{sr}^{(det)} &= F_T(C_I|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})\\
 F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) &= \text{a TTDD as described above}
 \end{align}
 
-To adapt our model for exact time-to-detection data, we only need to replace the multinomial distribution in Eq. (\ref{eq:datamodel}).  Instead of modeling the interval-specific counts $\textbf{n}_{sr}$, we model the times to detection directly.  Defining $\textbf{T}_{sr}$ as a vector of all observed detection times for a given survey, and continuing to treat all detections as independent, we write
+To adapt our model for exact time-to-detection data, we only need to replace the multinomial distribution in Eq. (\ref{eq:datamodel}).  Instead of modeling the interval-specific counts $\vn_{sr}$, we model the times to detection directly.  Defining $\textbf{T}_{sr}$ as a vector of all observed detection times for a given survey, and continuing to treat all detections as independent, we write
 \[
 Pr\left(\textbf{T}_{sr}|n_{sr}^{(obs)}\right) = \prod\limits_{q=1}^{n_{sr}^{(obs)}} f_T(t_{srq}|t_{srq}<C_I)
 \]
@@ -141,6 +157,9 @@ The rest of the model remains the same, except there is no need to calculate int
 
 
 \subsubsection{Abundance Model}
+
+\jarad{Again, I would introduce this without covariates or random effects first.
+
 For simplicity, we model abundance at each site during each year $N_{sr}$ using a Poisson distribution with a survey-specific expected value of $\lambda_{sr}$, though any non-negative integer-valued distribution may be used.  We can decompose $N_{sr}$ into observed and unobserved portions.  The unobserved portion follows a binomial-Poisson hierarchy, resulting in Equation \ref{eq:binPois}.  We model expected abundance $\lambda_{sr}$ using a mixed effects linear regression with a log link.
 
 \begin{align}
@@ -149,12 +168,16 @@ For simplicity, we model abundance at each site during each year $N_{sr}$ using 
 \end{align}
 where $\textbf{X}^A$ is a matrix of covariates associated with the vector of fixed effects $\boldsymbol{\beta}^A$, and $\textbf{Z}^A$ is a matrix identifying factor levels for $\xi_i^A \overset{ind}{\sim} N(0,\sigma_{A[i]}^2)$ random effects. 
 
+\jarad{Put a discussion of priors in a new section. You should introduce the general form of the priors with specific values and specify the specific values in the simulation study and real data analysis sections.}
+
 Since we use this hierarchical model in a Bayesian context, the complete model formulation requires priors for $\text{Intercept}^D, \boldsymbol{\beta}^D, \sigma_{D}^2, \boldsymbol{\theta}, \text{Intercept}^A, \boldsymbol{\beta}^A, \text{ and } \sigma_{A}^2$, such as we specify in Section \ref{sec:priors}.
 
-
+\jarad{You need to include a section about the MCMC, e.g. Stan/JAGS how to monitor convergence, etc.}
 
 
 \subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
+
+\jarad{This should not be a model (or methods section). I think you should put a Data section earlier that introduces the data collection methods. Then the rest of this section should go much later, after the simulation study, in a real data analysis section. } 
 
 We analyze point-count surveys conducted in Chippewa National Forest over a six-year period from 2008-2013 as part of the Minnesota Forest Breeding Bird Project (MNFB).  The MNFB design is described in \citet{Hanowski1995}, and we only summarize relevant details here.  Point-count time-to-detection surveys are conducted by trained observers at a fixed set of sampling locations once annually.  Forest stands follow a stratified random design, with three survey sites in each stand.  Survey durations are 10 minutes, with times to detection being censored into nine intervals -- a two-minute interval followed by eight one-minute intervals.  We restrict survey sites in our analysis to those of the most abundant habitat type (sawtimber red pine); in so doing, we focus modeling efforts upon the detection model and skirt the complication of modeling abundance across habitat types.  We further constrain analysis to 65 sites with a site origin year between 1870-1970.  In total, we use 381 site-year surveys in our analysis with a total of 947 Ovenbirds counted, and a maximum of eight birds counted in any single survey.
 
@@ -174,6 +197,7 @@ We fit eight models to the Ovenbird data, once using each of the time-to-detecti
 
 \subsubsection{Priors}\label{sec:priors}
 Our goal in selecting priors is to be non-informative within a reasonable range of values.  Priors for Intercept$^D$ are centered so that the median detection probability is $p_{sr}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{sr}^{(det)} \in (0.01, 1.0)$.  Priors for Intercept$^A$ center at a median abundance of about 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  Because covariates are centered and scaled, priors for effect parameters are centered at zero with standard deviations matching the appropriate intercept term.  For all shape and variance parameters, we choose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a uniform prior.  All priors are independent.
+\jarad{This takes up too much space.}
 \begin{align*}
 \text{Intercept}^D &\sim N(-2.7, 2.25^2) \text{ or } N(-2.3, 1.2^2)\\
 \text{Intercept}^A &\sim N(1, 1)\\
@@ -183,7 +207,7 @@ Our goal in selecting priors is to be non-informative within a reasonable range 
 \gamma &\sim \text{Beta}(1,1)
 \end{align*}
 
-
+\jarad{New section for simulation studies with the results.}
 
 \subsection{Simulation studies}
 
