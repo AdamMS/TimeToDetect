@@ -51,15 +51,15 @@ Abundance estimates from animal point-count surveys require accurate estimates o
 %(v) if using limited radius counts, they are accurate
 % Johnson2008: all birds present are available for detection
 
-Removal sampling is a survey methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.  Assuming that the probability of capturing a not-yet-trapped individual is the same for all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time \citep{Moran1951, Zippin1958, Seber1982}.  \citet{Farnsworth2002} adapted removal sampling to avian point-count surveys, suggesting that observers record just the first time-to-detection for each bird and mentally remove it thereafter.  Analysis proceeds by subdividing the observation period into intervals of equal duration and assuming that the rate of detection is the same at all times (i.e., following a Poisson process); then, each interval can be treated as a trapping event, and the interval-specific probability of detection can be estimated as with conventional removal sampling.
+Removal sampling is a species abundance surveying methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.  Assuming that the probability of capturing a not-yet-trapped individual is the same for all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time \citep{Moran1951, Zippin1958, Seber1982}.  \citet{Farnsworth2002} adapted removal sampling to avian point-count surveys, suggesting that observers record just the first time-to-detection for each bird and mentally remove it thereafter.  Analysis proceeds by subdividing the observation period into intervals of equal duration and assuming that the rate of detection is the same at all times (i.e., following a Poisson process); then, each interval can be treated as a trapping event, and the interval-specific probability of detection can be estimated as with conventional removal sampling.
 
-However, the assumption of a constant detection rate throughout the observation period is not always justified \citep{Alldredge2007}.  Animal behaviors such as bout singing or intermittent singing in birds and frogs or diving in whales can lead to time-varying rates of detection \citep{Scott2005, Diefenbach2007, Reidy2011}.  The act of observation may affect animal behavior.  Depending upon the study species, the presence of an observer may temporarily either stimulate or suppress detectable cues from the studied species \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}.  Survey methodology itself can affect detection rates.  In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time \citep{Farnsworth2005}.  Observers may also become distracted as the survey progresses \citep{Johnson2008}.  And, depending upon protocol, observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.
+However, the assumption of a constant detection rate throughout the observation period is not always justified \citep{Alldredge2007}.  Animal behaviors such as bout singing or intermittent singing in birds and frogs or diving in whales can lead to time-varying rates of detection \citep{Scott2005, Diefenbach2007, Reidy2011}.  The act of observation may affect animal behavior.  Depending upon the study species, the presence of an observer may temporarily either stimulate or suppress detectable cues \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}.  Survey methodology itself can affect detection rates.  Observers may also become distracted as the survey progresses \citep{Johnson2008}.  And, depending upon protocol, observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time \citep{Farnsworth2005}.
 
-In this study, we model scenarios where detection rates are not constant.  We model time-to-detection as is done in survival analysis, defining a continuous random variable $T$ for each animal's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function $F_T(t)$.  We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  The instantaneous detection rate, a.k.a. hazard function $h(t)$, can be found from the TTDD and vice versa, by observing $h(t) = f_T(t) / (1-F_T(t))$.
+In this study, we develop a model for scenarios where detection rates are not constant.  We model time-to-detection as is done in survival analysis, defining a continuous random variable $T$ for each animal's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function $F_T(t)$.  We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  The instantaneous detection rate or hazard function $h(t)$ can be found from the TTDD as $h(t) = f_T(t) / (1-F_T(t))$.
 
-Our model is different from most survival analysis in that the number of individuals $N$ present at a survey is unknown.  To address this data truncation, we embed the TTDD in a hierarchical framework for multinomial counts sometimes termed an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  An N-mixture model treats abundance as a latent variable modeled according to a Poisson or other discrete distribution, and it models detection probabilities independently.  Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014}.  For our purposes, the N-mixture framework provides three clear benefits.  First, its multinomial data framework accords with the interval censored data collection that is customary in point-count surveys \citep{Ralph1995}.  Second, the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}.  Third, for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).
+Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown.  We embed the TTDD in a hierarchical framework for multinomial counts using an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  For our purposes, the N-mixture framework provides three clear benefits.  First, its multinomial data framework accords with the interval censored data collection that is customary in point-count surveys \citep{Ralph1995}.  Second, the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}.  Third, for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014}.  
 
-The framing of our model in terms of time-to-detection leads to two practical differences vis-a-vis constant-detection models.  First, in order to model covariate and random effects on detection, we perform mixed effects linear regression on the log of the rate parameter as in \citet{Solymos2013}.  Most existing studies have instead constructed regression models on the logit of the equal-interval detection probability \adam{Amundson2014}.  Such an approach is not possible when detection rates are not constant.  Second, because we can obtain interval-specific detection probabilities from the TTDD by partitioning its cdf, we can directly model the data according to their existing interval structure rather than subdividing the observation period into intervals of equal duration.  Indeed, with a few simplifications, our model fits exact time-to-detection data, whereas existing constant-detection removal models only approximate exact data by subdividing the observation interval into a large number of fine intervals \citep{Reidy2011, Amundson2014}.
+Framing a model in terms of time-to-detection leads to two practical differences vis-a-vis constant-detection models.  First, in order to model covariate and random effects on detection, we perform mixed effects linear regression on the log of the rate parameter as in \citet{Solymos2013}, whereas most existing studies instead construct regression models on the logit of the equal-interval detection probability \adam{Amundson2014 and others?}.  Such an approach is not possible when detection rates are not constant.  Second, because we can obtain interval-specific detection probabilities from the TTDD by partitioning its cdf, we can directly model the data according to their existing interval structure rather than subdividing the observation period into intervals of equal duration.  Indeed, with a few simplifications, our model fits exact time-to-detection data, whereas existing constant-detection removal models only approximate exact data by subdividing the observation interval into a large number of fine intervals \citep{Reidy2011, Amundson2014}.
 
 \adam{Based on further lit review, I think I need to insert a paragraph here about what time-varying modeling has been done.  In the fisheries world, models of time-varying catchability have been implemented -- see Schnute 1983, Scruton and Gibson (ref: Mantyniemi), and Mantyniemi2015 for examples.  Also, Alldredge 2007 implements a complete-history of detection model (technically mark-recapture, not removal) that estimates interval-specific detection probabilities (complete with covariates and detection heterogeneity).  However, it cannot be applied in a removal context, because removal data contains only first times to detection, and the Alldredge model requires subsequent observations -- removal models compensate by specifying a TTDD, thus enabling us to extrapolate beyond the observation period.}  
 
@@ -67,11 +67,11 @@ The framing of our model in terms of time-to-detection leads to two practical di
 
 \subsection{TTDDs as behavior and methodology}
 
-A TTDD expresses the range of detection patterns possible in an analysis.  The most basic is an exponential TTDD, which imposes a constant detection rate.  If species behavior and/or observation methodology may cause a systematic non-constant detection regime, then we should choose a TTDD accordingly.  For example, we may wish to model an observer effect where: (i) the observer's arrival either suppresses or stimulates detectable cues from organisms at a site, but (ii) as organisms acclimate to the observer, cues gradually return to an undisturbed baseline of constant detection.  As illustrated by the hazard functions in Figure \ref{HazardFxns}, a gamma TTDD would be appropriate for this scenario.
+A TTDD defines the range of detection patterns possible in an analysis.  The most basic is an exponential TTDD, which imposes a constant first detection rate.  Choosing another TTDD can allow for a systematic non-constant detection regime.  For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate (Figure \ref{HazardFxns}).
 
 Increasing hazard functions result in a probability distribution function (pdf) for $T$ that has a mode away from zero; we term these TTDDs `peaked'.  We contrast these to decreasing hazard functions with a mode at zero, which we term `non-peaked'.  For our purposes, the exponential TTDD is neither peaked nor non-peaked.
 
-One issue related to non-constant detection is detection heterogeneity.  Heterogeneity across population subgroups can be modeled using a mixture of detection distributions \citep{Pledger2000}\adam{longer history here... do I even need a reference? According to NorrisPollock1996, this goes all the way back to Burnham1972}.  In particular, \citet{Farnsworth2002} introduce a partial finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.   Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  A similar marginal detection pattern can be achieved by modeling non-constant detection using a non-peaked TTDD.  Detectability models constructed to address heterogeneity may provide reasonable estimates when detection rates change for behavioral reasons and vice versa \citep{Mantyniemi2005}.
+We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  We reserve `detection heterogeneity' for differences across population subgroups.  It is often modeled using a mixture of detection distributions.  \citet{Farnsworth2002} introduce a partial finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.   Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  We use `non-constant detection' when detection rates for an organism change with time.  Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
 
 \adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
 
@@ -96,7 +96,7 @@ We denote the number of individual observed at site $s$, time $r$, and in interv
 
 \subsection{Framework}
 
-We construct a hierarchical model of removal-sampled point-counts patterned after an N-mixture framework \citep{Wyatt2002, Royle2004NMixture}.  We treat the hierarchical model in three pieces: (a) a multinomial data model, (b) a detection model based upon the partitioned cumulative distribution function (cdf) of a regression-modeled TTDD, and (c) an abundance model based upon Poisson regression.  Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
+We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a multinomial data model, (b) a detection model based upon the partitioned cumulative distribution function (cdf) of a regression-modeled TTDD, and (c) an abundance model based upon Poisson regression.  Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
 
 \jarad{We should try to avoid using subsubsections. Perhaps we should provide a data section and then a model section?}
 
@@ -109,7 +109,7 @@ n_{sr}^{(obs)} &\sim \mbox{Binomial}\left(N_{sr}, p_{sr}^{(det)}\right)
 
 \jarad{Pedogogically, I would introduce the binomial model first and then the multinomial model. Or we could introduce a Multinomial with parameter $N_{sr}$ and an additional bin for non-detection.}
 
-where for each survey, $n_{sr}^{(obs)} = \sum_{i=1}^I n_{sri}$ is the number of individuals counted across all intervals, $N_{sr}$ is the total number of individuals present (counted and uncounted), and $p_{sr}^{(det)}$ is the probability that an individual is detected at any time during the observation period.  The number of uncounted individuals at any survey can be written: $n_{sr}^{(unobs)} = N_{sr} - n_{sr}^{(obs)}$.
+where for each survey, $n_{sr}^{(obs)} = \sum_{i=1}^I n_{sri}$ is the number of individuals counted across all intervals, $N_{sr}$ is the total number of individuals present (counted and uncounted), and $p_{sr}^{(det)}$ is the probability that an individual is detected at any time during the observation period.  The number of uncounted individuals at any survey is then: $n_{sr}^{(unobs)} = N_{sr} - n_{sr}^{(obs)}$.
 
 
 
@@ -117,7 +117,7 @@ where for each survey, $n_{sr}^{(obs)} = \sum_{i=1}^I n_{sri}$ is the number of 
 
 \jarad{I think you should introduce just the exponential model first with no covariates. Thus, relative to what has been done before, you are only adding in the time-to-detection distribution. Later you can introduce other TTDDs and covariates.}
 
-We model $\textbf{p}_{sr}$ and $p_{sr}^{(det)}$ by means of the partitioned cdf of a TTDD, which we express generically as $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$. 
+We model $\textbf{p}_{sr}$ and $p_{sr}^{(det)}$ by partitioning the cdf of a TTDD, which we express generically as $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$. 
 \jarad{Do we want to introduce explanatory variables already? Perhaps it would be smoother to wait until later to introduce them.}
 Here, $T$ is a random variable for the first time at which an individual is detected, $\textbf{X}_{sr}^D$ and $\textbf{Z}_{sr}^D$ are detection-related covariates and random effect factor levels to be used in a mixed effects linear regression, and $\boldsymbol{\theta}$ is a vector of parameters appropriate to the TTDD being used.  In this study, we consider eight different forms for the TTDD.  The first four TTDDs we employ are:
 \jarad{You don't need an enumerate here. Would it be easier to introduce the exponential first and then the other 3 altogether later?}
@@ -175,6 +175,17 @@ Since we use this hierarchical model in a Bayesian context, the complete model f
 
 \jarad{You need to include a section about the MCMC, e.g. Stan/JAGS how to monitor convergence, etc.}
 
+\subsubsection{Priors}\label{sec:priors}
+Our goal in selecting priors is to be non-informative within a reasonable range of values.  Priors for Intercept$^D$ are centered so that the median detection probability is $p_{sr}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{sr}^{(det)} \in (0.01, 1.0)$.  Priors for Intercept$^A$ center at a median abundance of about 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  Because covariates are centered and scaled, priors for effect parameters are centered at zero with standard deviations matching the appropriate intercept term.  For all shape and variance parameters, we choose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a uniform prior.  All priors are independent.
+\jarad{This takes up too much space.}
+\begin{align*}
+\text{Intercept}^D &\sim N(-2.7, 2.25^2) \text{ or } N(-2.3, 1.2^2)\\
+\text{Intercept}^A &\sim N(1, 1)\\
+\boldsymbol{\beta}^D &\sim N(0, 2.25^2)\\
+\boldsymbol{\beta}^A &\sim N(0, 1)\\
+\sigma_D, \sigma_A, \alpha, \sigma_{det}, k &\sim \text{half-Cauchy}(0,1)\\
+\gamma &\sim \text{Beta}(1,1)
+\end{align*}
 
 \subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
 
@@ -194,25 +205,19 @@ For the abundance half of our model, we use four covariates plus two random effe
 % Year (on detection!) - Reidy11, see also Norvell03
 % See Table 1 of Johnson2008, see McShea and Rappole, lit review from Warren2013, Rosenstock02
 
-We fit eight models to the Ovenbird data, once using each of the time-to-detection distributions described in Section \ref{sec:detectionmodel}.
+We fit eight models to the Ovenbird data representing each of the time-to-detection distributions described in Section \ref{sec:detectionmodel}.
 
-\subsubsection{Priors}\label{sec:priors}
-Our goal in selecting priors is to be non-informative within a reasonable range of values.  Priors for Intercept$^D$ are centered so that the median detection probability is $p_{sr}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{sr}^{(det)} \in (0.01, 1.0)$.  Priors for Intercept$^A$ center at a median abundance of about 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  Because covariates are centered and scaled, priors for effect parameters are centered at zero with standard deviations matching the appropriate intercept term.  For all shape and variance parameters, we choose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a uniform prior.  All priors are independent.
-\jarad{This takes up too much space.}
-\begin{align*}
-\text{Intercept}^D &\sim N(-2.7, 2.25^2) \text{ or } N(-2.3, 1.2^2)\\
-\text{Intercept}^A &\sim N(1, 1)\\
-\boldsymbol{\beta}^D &\sim N(0, 2.25^2)\\
-\boldsymbol{\beta}^A &\sim N(0, 1)\\
-\sigma_D, \sigma_A, \alpha, \sigma_{det}, k &\sim \text{half-Cauchy}(0,1)\\
-\gamma &\sim \text{Beta}(1,1)
-\end{align*}
+\subsection{Model fitting}
+
+We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
+
+For each intercept-only simulation model, we instantiated a single chain running 60,000 iterations.  For the Ovenbird analysis and covariate simulations, we ran chains for 250,000-375,000 iterations.  We discarded half of the iterations as warmup and then thinned by 1 in 10.  We reran models if the effective sample size for any parameter was below 1000.  We monitored convergence of the MCMC chains using Geweke diagnostics.  For most models, we accepted the Stan defaults for generating dispersed initial values.  However, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from the posterior means of preliminary short-run models (Ovenbird analysis, incorrect-family simulations) or from true parameter values (correct-family simulations).
 
 \jarad{New section for simulation studies with the results.}
 
 \subsection{Simulation studies}
 
-We conduct three simulation studies, the first two of which implement intercept-only models.  The objectives for the studies are to assess: (i) the importance of modeling detection heterogeneity via a partial finite-mixture component, (ii) the impact of misspecifying the TTDD family (e.g., fitting an exponential TTDD model to a dataset simulated from a Weibull TTDD), and (iii) model performance in a more complete scenario when both data generation and model fitting include covariates and random effects for abundance and detection.  Because model behavior may differ between datasets with peaked and non-peaked TTDDs, we simulate both kinds of dataset for gamma, Weibull, and lognormal models.  For all families, we simulate both mixture and non-mixture datasets.  In total, we simulate 14 different dataset types.  Counts are censored into nine-intervals as with the Ovenbird dataset.
+We conduct three simulation studies to assess: (Sim 1) the importance of modeling detection heterogeneity via a partial finite-mixture component, (Sim 2) the impact of misspecifying the TTDD family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD), and (Sim 3) model performance in a more complete scenario when both data generation and model fitting include covariates and random effects for abundance and detection.  Because model behavior may differ between datasets with peaked and non-peaked TTDDs, we simulate both kinds of dataset for gamma, Weibull, and lognormal models.  For all families, we simulate both mixture and non-mixture datasets.  In total, we simulate 14 different dataset types.  Counts are censored into nine-intervals as with the Ovenbird dataset.
 
 In the first simulation study (Sim 1), for all 14 dataset types, we fit models with both mixture and non-mixture TTDD where the family is correctly specified.  In Sim 2, we consider only mixture TTDD datasets, and we fit them with mixture TTDD models from all four families.  For both Sim 1 and Sim 2, we simulate and model 16 replicates.  In Sim 3, we repeat both the first two studies, but: (i) we include covariates and random effects described in Section \ref{sec:ovenbirdanalysis}, and (ii) we perform only a single replicate, because each gamma model takes an average of 5 days to fit.
 
@@ -221,13 +226,6 @@ For the first two simulation studies, we choose true parameter values so that: (
 
 
 
-\subsection{Model fitting}
-
-\jarad{This should be part of methods.}
-
-We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
-
-For each intercept-only simulation model, we instantiated a single chain running 60,000 iterations.  For the Ovenbird analysis and covariate simulations, we ran chains for 250,000-375,000 iterations.  We discarded half of the iterations as warmup.  We reran models if the effective sample size of for any root parameter was below 1000.  We monitored convergence of the MCMC chains using Geweke diagnostics.  For most models, we accepted the Stan defaults for generating dispersed initial values.  However, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from the posterior means of preliminary short-run models (Ovenbird analysis, incorrect-family simulations) or from true parameter values (correct-family simulations).
 
 \subsection{Model assessment, inference, and between-model comparison}
 
@@ -235,7 +233,7 @@ For each intercept-only simulation model, we instantiated a single chain running
 
 To assess goodness of fit, we rely on posterior predictive checks \citep{Gelman1996}/adam{Rubin1984?}.  Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  In particular, we are concerned with the goodness of fit for the TTDD distribution, so we define a check statistic for each observation interval:
 \[D(n_i) = \sum\limits_{sr} n_{sri} \big/ \sum\limits_{sri}^{} n_{sri}\]
-which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  The posterior predictive p-value associated with each $D(n_i)$ is the proportion of replicate check statistics that have a larger value than the check statistic for the actual data.  Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.  We simulate replicate datasets at each iteration of our retained MCMC samples.
+which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  The posterior predictive p-value associated with each $D(n_i)$ is the proportion of replicate check statistics that have a larger value than the check statistic for the actual data.  We simulate replicate datasets and calculate the check statistic at each iteration of our MCMC samples.  Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.
 
 We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{sri}n_{sri}\big/$ $\sum\limits_{sri}N_{sri}$.  Because some posterior distributions are skewed, we emphasize posterior medians.  Within simulation studies, we compare model estimates to true $p^{(det)}$ values by coverage and by posterior p-values --- the proportion of MCMC samples that have a smaller value than the true value.  We do not focus on estimation of individual detection parameters, since different sets of parameters can yield similar density functions for time-to-detection conditional upon being detected: $f_T(t\;|\;t<C_I)$.
 
@@ -260,30 +258,30 @@ In the first simulation study, we simulated intercept-only datasets from 14 TTDD
 %(5) Note that plots of TTDD at the median are indistinguishable from the truth except in the blatant fail scenario
 
 \begin{table}[ht]\centering\small
-\begin{tabular}{ll|l|cccc|cccc||c}
- \multicolumn{3}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c||}{\underline{Mixture model}} & \\
- \multicolumn{3}{c|}{Dataset} & Med. $p$ & Q($p$) & 50\% & 90\% & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC \\ 
+\begin{tabular}{l|l|l|l|cccc|cccc||c}
+ \multicolumn{4}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c||}{\underline{Mixture model}} & \\
+ \multicolumn{4}{c|}{ } & Med. $p$ & Q($p$) & 50\% & 90\% & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC \\ 
   \hline
   \hline
- \parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Non-mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.76 & 0.41 & 0.75 & 0.88 & 0.84 & 0.66 & 0.56 & 0.94 & 0.24 \\ 
- & &   Lognormal & 0.66 & 0.17 & 0.31 & 0.62 & 0.78 & 0.48 & 0.62 & 1.00 & -0.67 \\ 
- & &   Weibull & 0.69 & 0.25 & 0.38 & 0.75 & 0.79 & 0.51 & 0.75 & 1.00 & 0.37 \\ 
-  \cline{3-12}
- & &   Exponential & 0.80 & 0.54 & 0.44 & 0.94 & 0.79 & 0.38 & 0.31 & 0.88 & 1.48 \\ 
-  \cline{3-12}
- & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} &  Gamma & 0.80 & 0.55 & 0.50 & 1.00 & 0.82 & 0.70 & 0.38 & 0.88 & 0.96 \\ 
- & &   Lognormal & 0.78 & 0.31 & 0.50 & 0.94 & 0.80 & 0.48 & 0.62 & 1.00 & 0.97 \\ 
- & &   Weibull & 0.79 & 0.49 & 0.56 & 0.94 & 0.82 & 0.66 & 0.44 & 0.88 & 1.28 \\ 
-  \hline
-\parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.67 & 0.17 & 0.12 & 0.81 & 0.76 & 0.41 & 0.69 & 1.00 & 0.51 \\ 
- & &   Lognormal & 0.56 & 0.04 & 0.00 & 0.31 & 0.72 & 0.30 & 0.44 & 0.88 & 0.33 \\ 
- & &   Weibull & 0.51 & 0.02 & 0.00 & 0.06 & 0.71 & 0.32 & 0.44 & 1.00 & 2.40 \\ 
-  \cline{3-12}
- & &   Exponential & 0.96 & 1.00 & 0.00 & 0.00 & 0.77 & 0.37 & 0.38 & 0.94 & 122.81 \\ 
-  \cline{3-12}
- & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} & Gamma & 0.28 & 0.00 & 0.00 & 0.00 & 0.74 & 0.33 & 0.31 & 0.88 & 31.84 \\ 
- & &   Lognormal & 0.22 & 0.00 & 0.00 & 0.00 & 0.76 & 0.36 & 0.38 & 0.94 & 63.65 \\ 
- & &   Weibull & 0.22 & 0.00 & 0.00 & 0.00 & 0.70 & 0.29 & 0.56 & 0.94 & 28.30 \\ 
+ \parbox[t]{2mm}{\multirow{14}{*}{\rotatebox[origin=c]{90}{TTDD used to simulate data}}} & \parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Non-mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.76 & 0.41 & 0.75 & 0.88 & 0.84 & 0.66 & 0.56 & 0.94 & 0.24 \\ 
+ & & &   Lognormal & 0.66 & 0.17 & 0.31 & 0.62 & 0.78 & 0.48 & 0.62 & 1.00 & -0.67 \\ 
+ & & &   Weibull & 0.69 & 0.25 & 0.38 & 0.75 & 0.79 & 0.51 & 0.75 & 1.00 & 0.37 \\ 
+  \cline{3-13}
+ & & &   Exponential & 0.80 & 0.54 & 0.44 & 0.94 & 0.79 & 0.38 & 0.31 & 0.88 & 1.48 \\ 
+  \cline{3-13}
+ & & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} &  Gamma & 0.80 & 0.55 & 0.50 & 1.00 & 0.82 & 0.70 & 0.38 & 0.88 & 0.96 \\ 
+ & & &   Lognormal & 0.78 & 0.31 & 0.50 & 0.94 & 0.80 & 0.48 & 0.62 & 1.00 & 0.97 \\ 
+ & & &   Weibull & 0.79 & 0.49 & 0.56 & 0.94 & 0.82 & 0.66 & 0.44 & 0.88 & 1.28 \\ 
+  \cline{2-13}
+& \parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.67 & 0.17 & 0.12 & 0.81 & 0.76 & 0.41 & 0.69 & 1.00 & 0.51 \\ 
+ & & &   Lognormal & 0.56 & 0.04 & 0.00 & 0.31 & 0.72 & 0.30 & 0.44 & 0.88 & 0.33 \\ 
+ & & &   Weibull & 0.51 & 0.02 & 0.00 & 0.06 & 0.71 & 0.32 & 0.44 & 1.00 & 2.40 \\ 
+  \cline{3-13}
+ & & &   Exponential & 0.96 & 1.00 & 0.00 & 0.00 & 0.77 & 0.37 & 0.38 & 0.94 & 122.81 \\ 
+  \cline{3-13}
+ & & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} & Gamma & 0.28 & 0.00 & 0.00 & 0.00 & 0.74 & 0.33 & 0.31 & 0.88 & 31.84 \\ 
+ & & &   Lognormal & 0.22 & 0.00 & 0.00 & 0.00 & 0.76 & 0.36 & 0.38 & 0.94 & 63.65 \\ 
+ & & &   Weibull & 0.22 & 0.00 & 0.00 & 0.00 & 0.70 & 0.29 & 0.56 & 0.94 & 28.30 \\ 
    \hline
 \end{tabular}
 \caption{\label{tbl:sim1} Summary of mixture vs. non-mixture model fits (Sim 1).  In all cases, the model family matches the dataset family.  Med $p$: mean value across simulations of the posterior median of $p^{(det)}$ (true value = 0.80).  Q($p$): proportion of the posterior distribution of $p^{(det)}$ that is larger than the true value on average.  50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $p^{(det)}$ lies within the appropriate credible interval.  $\Delta$ DIC: mean difference in DIC between the incorrect-mixture model minus the true model. \adam{Thoughts on use of bold/italics to highlight some results?}}
@@ -297,7 +295,7 @@ In the second simulation study, we simulated intercept-only datasets from 7 diff
 \small\centering
 \begin{tabular}{l|l|ccccc|ccccc}
  \multicolumn{2}{c}{ } & \multicolumn{5}{c}{\underline{Exponential mixture model}} & \multicolumn{5}{c}{\underline{Gamma mixture model}} \\
- \multicolumn{2}{c}{Dataset} & Med. $p$ & Q($p$) & 50\% & 90\% & DIC Diff & Med. $p$ & Q($p$) & 50\% & 90\% & DIC Diff \\ 
+ \multicolumn{2}{c}{Dataset} & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC \\ 
   \hline
 \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.88 & 0.91 & 0.06 & 0.69 & 1.54 & 0.76 & 0.41 & 0.69 & 1.00 & --- \\ 
 &   Lognormal & 0.92 & 0.99 & 0.00 & 0.12 & 2.08 & 0.85 & 0.72 & 0.44 & 0.69 & 0.93 \\ 
@@ -313,7 +311,7 @@ In the second simulation study, we simulated intercept-only datasets from 7 diff
 \vspace{0.5cm}\\
 \begin{tabular}{l|l|ccccc|ccccc}
  \multicolumn{2}{c}{ } & \multicolumn{5}{c}{\underline{Lognormal mixture model}} & \multicolumn{5}{c}{\underline{Weibull mixture model}} \\
- \multicolumn{2}{c}{Dataset} & Med. $p$ & Q($p$) & 50\% & 90\% & DIC Diff & Med. $p$ & Q($p$) & 50\% & 90\% & DIC Diff \\ 
+ \multicolumn{2}{c}{Dataset} & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC \\ 
   \hline
 \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.65 & 0.16 & 0.19 & 0.81 & 0.51 & 0.67 & 0.24 & 0.31 & 1.00 & 0.03 \\ 
 &   Lognormal & 0.72 & 0.30 & 0.44 & 0.88 & --- & 0.77 & 0.48 & 0.44 & 1.00 & 0.36 \\ 
@@ -344,9 +342,7 @@ In the third simulation study, we generated datasets from models including covar
 
 As in Sim 2, for mixture exponential datasets only, mixture exponential inference models in Sim 3 returned accurate estimates of $p^{(det)}$ and had credible intervals from one-fourth to one-half as wide as from other inference models (Figure \ref{pdet_cater_family}).  However, exponential mixture models were generally biased high for non-peaked datasets and low for peaked datasets.  Lognormal mixture models tended to underestimate detection from non-lognormal datasets.  Gamma models were more accurate than other models for non-peaked mixture datasets; gamma and Weibull both seem equally accurate for peaked mixture datasets.  95\% credible intervals for gamma models were 15-35\% narrower than for both Weibull and lognormal models.
 
-In many situations, individual parameter estimates are of interest.  For every dataset we simulated, estimates of abundance parameters were virtually the same regardless of the TTDD employed.
-
-Estimates of detection parameters varied by context.  In comparisons of mixture and non-mixture models within the same TTDD family (a la Sim 1), estimates were similar except when data derived from peaked mixture TTDDs.  In that case, mixture models yielded narrower credible intervals than non-mixture models --- except in the exponential case, where non-mixture exponential models were overly precise.  In comparisons of models across families (a la Sim 2), estimates across gamma, lognormal, and Weibull mixture inference models are always quite similar to one another.  Credible intervals from exponential mixture models are wider for peaked data but narrower for exponential and non-peaked data.  
+For every dataset we simulated, estimates of abundance covariate coefficients were virtually the same regardless of the TTDD employed.  Estimates of detection parameters varied by context.  In comparisons of mixture and non-mixture models within the same TTDD family (a la Sim 1), estimates were similar except when data derived from peaked mixture TTDDs.  In that case, mixture models yielded narrower credible intervals than non-mixture models --- except in the exponential case, where non-mixture exponential models were overly precise.  In comparisons of models across families (a la Sim 2), estimates across gamma, lognormal, and Weibull mixture inference models are always quite similar to one another.  Credible intervals from exponential mixture models are wider for peaked data but narrower for exponential and non-peaked data.  
 
 % The following plots of posteriors for abundance and detection parameters are just too large (and must be shrunk too small to make fit)
 %\begin{figure}[h!]\centering
@@ -374,7 +370,7 @@ DIC comparisons of TTDD family in the single replicate from Sim 3 were variable.
 
 \section{Ovenbird analysis}
 
-We fit mixture and non-mixture models from each family of TTDD to the Ovenbird dataset.  Posterior predictive check p-values by interval (Table \ref{tbl:ovencounts}) show a clear lack of fit for the straight exponential model over the first three intervals.  Two features of the data proved difficult to fit for all of the models: an increase in counts during the fourth interval, and a decrease during the final interval.  Mixture models were better able to accommodate these features than non-mixture models.
+We fit mixture and non-mixture models from each family of TTDD to the Ovenbird dataset.  Posterior predictive check p-values by interval (Table \ref{tbl:ovencounts}) show a clear lack of fit for the straight exponential model over the first three intervals.  Two features of the data proved difficult to fit for all of the models: an increase in counts during the fourth interval, and a decrease during the final interval.  Mixture models were better able to fit these features than non-mixture models.
 
 \begin{table}[ht]
 \centering
@@ -400,11 +396,11 @@ Expo & 0.000 & 1.000 & 1.000 & 0.347 & 0.590 & 0.372 & 0.007 & 0.006 & 0.190 \\
 
 Ovenbird results reflect several patterns that were observed in the simulation studies for both exponential and non-peaked data.  Figure \ref{ovenposteriors} presents caterpillar plots of posterior estimates for model parameters, overall detection probability $p^{(det)}$, and the log10 number of Ovenbirds uncounted.  Shape parameter estimates from mixture models favor non-peaked distributions --- i.e., detection rates are higher earlier in the observation period --- however, in mixture gamma and Weibull models, an exponential TTDD model ($\alpha=1$ or $k=1$) is well within 95\% credible intervals.  These pattern is similar to our simulations involving non-peaked mixture datasets, especially exponential and lognormal.
 
-Abundance parameter estimates are virtually the same for all TTDD models.  Detection parameter estimates are similar by mixture type across gamma, Weibull, and lognormal TTDD models.  Credible intervals from exponential mixture models are more precise than for non-exponential mixture models.  Within mixture type, estimates of detection probability across all surveys, $p^{(det)}$, are lower and much more uncertain for gamma, Weibull, and lognormal models than for exponential.
+Abundance covariate coefficient estimates are virtually the same for all TTDD models.  Detection parameter estimates are similar by mixture type across gamma, Weibull, and lognormal TTDD models.  Credible intervals from exponential mixture models are more precise than for non-exponential mixture models.  Within mixture type, estimates of detection probability across all surveys, $p^{(det)}$, are lower and much more uncertain for gamma, Weibull, and lognormal models than for exponential.
 
-DIC calculations prefer the exponential mixture TTDD to the lognormal, Weibull, and gamma mixtures (differences of 6.95, 10.7, and 11.5, respectively), and these differences closely mirror those from the exponential mixture dataset in Sim 3.  However, Sim 3 demonstrated that DIC for non-peaked mixture data may not be reliable; indeed, for the simulated non-peak lognormal mixture dataset, the exponential mixture TTDD was favored by over a 4-unit difference; yet, its posterior 95\% credible interval for detection probability did not contained the true value, while it was within a central 60\% credible interval for all three other mixture models.  In short, we DIC may not be trustworthy in this situation.
+DIC calculations prefer the exponential mixture TTDD to the lognormal, Weibull, and gamma mixtures (differences of 6.95, 10.7, and 11.5, respectively), and these differences closely mirror those from the exponential mixture dataset in Sim 3.  However, Sim 3 demonstrated that DIC for non-peaked mixture data may not be reliable; indeed, for the simulated non-peak lognormal mixture dataset, the exponential mixture TTDD was favored by over a 4-unit difference; yet, its posterior 95\% credible interval for detection probability did not contained the true value, while it was within a central 60\% credible interval for all three other mixture models.  In short, DIC may not be trustworthy in this situation.
 
-Credible intervals for two of the abundance parameters do not contain zero, thereby suggesting notable effects.  Select- and partial-cut logging events of the 1990s depressed local Ovenbird abundance during the study perior to roughly 25-50\% it's non-logged level.  Credible intervals for Site Age indicate that each decade of age increases abundance from 1.5-13\%.
+Credible intervals for two of the abundance parameters do not contain zero, thereby suggesting notable effects.  Select- and partial-cut logging events of the 1990s depressed local Ovenbird abundance during the study perior to roughly 25-50\% of the abundance for unlogged sites.  Credible intervals for Site Age indicate that each decade of age increases abundance from 1.5-13\%.
 
 \begin{figure}[h!]
 \includegraphics[width=0.98\textwidth]{OVEN/oven_sum/OVEN_posteriors.pdf}
@@ -447,7 +443,7 @@ At present, Stan does not sample discrete parameters, so the ability to marginal
 % Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate in a fairly high range
 
 
-To improve our choice of TTDD and/or its parameters, it makes sense to obtain more data in one of a few ways.  One approach is to collect complete detection history records, not just first time-to-detection observations \citep{Alldredge2007}.  This may not be feasible in studies like MNFB, where many species are observed.  Another approach is to conduct a longer survey that better assesses the tail distribution of the TTDD; however, the longer the survey is, the greater the risk that individuals enter/depart the study area or are double-counted, which violates removing sampling assumptions \citep{LeeMarsden2008, Reidy2011}.  A third idea is to obtain more precise time-to-detection data, even exact time-to-detection data.  In some early explorations of our model considering just an exponential mixture TTDD, we found that credible intervals for Ovenbird detection probability were 20-25\% narrower using 9-interval surveys compared to more traditional 3-interval surveys (0-3, 3-5, and 5-10 minutes).  For all of the above, a small pilot study may be a practical starting point.  
+To improve our choice of TTDD and/or its parameters, it makes sense to obtain more data in one of a few ways.  One approach is to collect complete detection history records, not just first time-to-detection observations \citep{Alldredge2007}.  This may not be feasible in studies like MNFB, where many species are observed.  Another approach is to conduct a longer survey that better assesses the tail distribution of the TTDD; however, the longer the survey is, the greater the risk that individuals enter/depart the study area or are double-counted, which violates removal sampling assumptions \citep{LeeMarsden2008, Reidy2011}.  A third idea is to obtain more precise time-to-detection data, even exact time-to-detection data.  In some early explorations of our model considering just an exponential mixture TTDD, we found that credible intervals for Ovenbird detection probability were 20-25\% narrower using 9-interval surveys compared to more traditional 3-interval surveys (0-3, 3-5, and 5-10 minutes).  For all of the above, a small pilot study may be a practical starting point.  
 
 With the increasing use of microphone arrays for automated detection \adam{refs}, it is tempting to think TTDD models may be valuable for microphone-collected data.  This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
 
