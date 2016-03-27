@@ -140,85 +140,61 @@ Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding 
 
 \subsection{Data structure}\label{sec:data}
 
-Our model is formulated for single-visit removal-sampled point-count surveys at a set of sites $s=1,\dotso,S$ repeated across distinct sampling periods $r=1,\dotso,R$.  
+Our model is formulated for single-visit removal-sampled point-count surveys $s=1,\dotso,S$.  
 We present the model for exact time-to-detection data and also show how to modify it for interval-censored detection times.  
-We use $n_{sr}^{(obs)}$ to denote the number of individuals observed during a survey.  
-For exact data, times to detection are $t_{srq}$, where $q = 1,\dotso,n_{sr}^{(obs)}$ indexes observed individuals.  
+We use $n_{s}^{(obs)}$ to denote the number of individuals observed during a survey.  
+For exact data, times to detection are $t_{sq}$, where $q = 1,\dotso,n_{s}^{(obs)}$ indexes observed individuals at a survey.  
 For interval-censored data, we enumerate the intervals $i = 1,\dotso,I$ with the cutoff times for each interval written $C_i$, where $C_0 = 0 \text{ and } C_I = \text{the survey duration}$.  
-The number of animals counted during any interval is $n_{sri}$, the vector of counts for a survey is written $\vn_{sr}$, and $n_{sr}^{(obs)} = \sum_{i=1}^I n_{sri}$.
+The number of animals counted during any interval is $n_{si}$, the vector of counts for a survey is written $\vn_{s}$, and $n_{s}^{(obs)} = \sum_{i=1}^I n_{si}$.
 
 \subsection{Framework}
 
-We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a binomial data model, (b) a detection model based upon a TTDD, and (c) an abundance model based upon Poisson regression.  
+We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a data model incorporating binomial detection and time-to-detection pieces, (b) a detection model based upon a TTDD, and (c) an abundance model based upon an integer-valued distribution.  
 Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
 
 \subsection{Data Model}
 We assume that counts from different surveys are conditionally independent.  
-We also assume that the times to detection for all individuals in any given survey are independent, identically distributed according to a TTDD with cdf $F_T(t)$ and pdf $f_T(t)$.  
-The probability of detecting an animal is thus $p_{sr}^{(det)} = Pr(t_{srq} < C_I) = F_T(C_I)$ and the conditional distribution of observed detection times can be written $f_{T|det}(t|t_{srq}<C_I) = f_T(t) / F_T(C_I)$.  
-Given $N_{sr}$ total number animals present at a survey, the data model is:
+We define $T_{sq}$ as a random variable for the first time at which an individual is detected.
+We assume that detection times for individuals at any given survey are independent, identically distributed according to a TTDD with cdf $F_T(t)$ and pdf $f_T(t)$, which may depend on covariates.  
+The probability of detecting an animal is thus $p_{s}^{(det)} = Pr(t_{sq} < C_I) = F_T(C_I)$ and the conditional distribution of observed detection times can be written $f_{T|det}(t|t_{sq}<C_I) = f_T(t) / F_T(C_I)$.  
+Given $N_{s}$ total number animals present at a survey, the data model is:
 \begin{align}\label{eq:datamodel}
-n_{sr}^{(obs)} &\sim \mbox{Binomial}\left(N_{sr}, p_{sr}^{(det)}\right)\\
-\label{eq:Tsrq}T_{srq} &\sim f_{T|det}(t|t_{srq}<C_I)
+n_{s}^{(obs)} &\sim \mbox{Binomial}\left(N_{s}, p_{s}^{(det)}\right)\\
+\label{eq:Tsrq}T_{sq} &\sim f_{T|det}(t|t_{sq}<C_I)
 \end{align}
-When detection times are censored, we replace Eq. \ref{eq:Tsrq} with $\vn_{sr} \sim \mbox{Multinomial}\left(n_{sr}^{(obs)}, \textbf{p}_{sr}\right)$, where $\textbf{p}_{sr}$ is the vector of interval-specific detection probabilities obtained by partitioning the conditional cdf $F_{T|det}(t|t_{srq}<C_I)$ at the interval cutoff times.  
-It follows that $\sum_{i=1}^I p_{sri} = 1$.
+When detection times are censored, we replace Eq. \ref{eq:Tsrq} with $\vn_{s} \sim \mbox{Multinomial}\left(n_{s}^{(obs)}, \textbf{p}_{s}\right)$, where $\textbf{p}_{s}$ is the vector of interval-specific detection probabilities obtained by partitioning the conditional cdf $F_{T|det}(t|t_{sq}<C_I)$ at the interval cutoff times.  
+It follows that $\sum_{i=1}^I p_{si} = 1$.
 
 
 
 \subsection{Detection Model}\label{sec:detectionmodel}
 
-\jarad{I think you should introduce just the exponential model first with no covariates. Thus, relative to what has been done before, you are only adding in the time-to-detection distribution. Later you can introduce other TTDDs and covariates.}
+The two main elements of the detection model for $T_{sq}$ are: (i) the distributional form and (ii) the expectation function.
+$T_{sq}$ should be based on non-negative continuous distributions featuring some variety of rate parameter than can be estimated via regression.  
+In this study, we adopt TTDDs for $T_{sq}$ using the following: Exponential($\varphi_{s}$), Gamma($\alpha, \varphi_{s}$), Weibull($k, \varphi_{s}$), and Lognormal($\mu_{s}, \sigma_{det}^2$).  
+Here, $\varphi_{s}$ and $\mu_{s}$ are survey-specific detection rate parameters, and we consider the shape parameters $\alpha$, $\sigma_{det}^2$, and $k$ to be constant across all surveys.
 
-We model $\textbf{p}_{sr}$ and $p_{sr}^{(det)}$ by partitioning the cdf of a TTDD, which we express generically as $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$. 
-\jarad{Do we want to introduce explanatory variables already? Perhaps it would be smoother to wait until later to introduce them.}
-Here, $T$ is a random variable for the first time at which an individual is detected, $\textbf{X}_{sr}^D$ and $\textbf{Z}_{sr}^D$ are detection-related covariates and random effect factor levels to be used in a mixed effects linear regression, and $\boldsymbol{\theta}$ is a vector of parameters appropriate to the TTDD being used.  
-In this study, we consider eight different forms for the TTDD.  
-The first four TTDDs we employ are:
-\jarad{You don't need an enumerate here. Would it be easier to introduce the exponential first and then the other 3 altogether later?}
-\begin{enumerate}
-\item $T_{srq} \overset{ind}{\sim} \text{Exponential}(\varphi_{sr})$
-\item $T_{srq} \overset{ind}{\sim} \text{Gamma}(\alpha, \varphi_{sr})$
-\item $T_{srq} \overset{ind}{\sim} \text{Weibull}(k, \varphi_{sr})$
-\item $T_{srq} \overset{ind}{\sim} \text{Lognormal}(\mu_{sr}, \sigma_{det}^2)$
-\end{enumerate}
-where $q = 1,\dotso,N_{sr}$ indexes individuals present at survey $sr$, and $\varphi_{sr}$ is always a survey-specific detection rate parameter.  
-We treat the shape parameters $\alpha$, $\sigma_{det}^2$, and $k$ as constant across all surveys.
+We can model detection heterogeneity by defining $T_{sq}$ as a mixture of TTDD components.  
+In this study, in addition to the four above TTDDs (with no mixture component), we consider partial finite-mixtures of a point mass during the first survey interval plus a component from an exponential, gamma, Weibull, or lognormal distribution.  
+We define a constant mixing parameter $\gamma \in [0,1]$ for the proportion of animals not distributed according to the point mass.
 
-The other four TTDDs we use are partial finite-mixtures of a point mass at zero paired with each of the above distributions.  
-They can be written: $F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) = (1-\gamma)\mathbb{I}(t>0) + \gamma F_{T1}(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$ where $\gamma \in (0,1)$ is a mixing parameter and $F_{T1}(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$ is one of the four above distributions.  
+We model the expectation function via mixed effects linear regression.  
+For exponential, gamma, and Weibull TTDDs, we model the log of the rate parameter $\varphi_{s}$.  
+In so doing, we equivalently model the log of the expected time-to-detection, which is inversely related to the detection rate.  
+For the lognormal distribution, we fit a regression to $-\mu_{s}$.  
+%Thus, the link functions in our detection model are:
+%\begin{alignat}{3}
+%&\text{Exponential:\;} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}])\\
+%&\text{Gamma:} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \log(\alpha)\\
+%&\text{Weibull:}  &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \log\left(\Gamma\left(1 + 1/k\right)\right)\\
+%&\text{Lognormal:} &&-\mu_{s} &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \sigma_{det}^2/2
+%\end{alignat}
+
+Combining the distribution and expectation function for $T_{s}$, we can describe a partial-mixture TTDD cdf as:
+\[F_T(t|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta}) = (1-\gamma)\mathbb{I}(t>0) + \gamma F_{T1}(t|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta})\]
+where: $F_{T1}$ is the cdf of the non-point-mass component, $\textbf{X}_{sr}^D$ are covariates, $\boldsymbol{\beta}^D$ is a vector of fixed effects, $\textbf{Z}_{sr}^D$ specify random effect levels, $\xi_i^D \overset{ind}{\sim} N(0,\sigma_{D[i]}^2)$ are random effects, with $\sigma_{D[i]}^2$ denoting the variance associated with $\xi_i^D$, and $\boldsymbol{\theta}$ is a vector of parameters appropriate to the TTDD being used.  
+$F_T(t|\cdot)$ becomes a non-mixture TTDD if we fix $\gamma=1$.
 Note that parameters in a mixture TTDD do not share the exact same interpretation as equivalent parameters from a non-mixture TTDD, since they only pertain to the $\gamma$ proportion of individuals that follow $F_{T1}$.
-
-For exponential, gamma, and Weibull TTDDs, we model the log of the rate parameter $\varphi_{sr}$ via mixed effects regression using survey-specific covariates.  
-In so doing, we are equivalently modeling the log of the expected time-to-detection, which is inversely related to the detection rate.  
-For the lognormal distribution, we fit a regression to $-\mu_{sr}$.  
-Thus, the link functions in our detection model are:
-\begin{alignat}{3}
-&\text{Exponential:\;} &&\log(\varphi_{sr}) &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}])\\
-&\text{Gamma:} &&\log(\varphi_{sr}) &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}]) + \log(\alpha)\\
-&\text{Weibull:}  &&\log(\varphi_{sr}) &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}]) + \log\left(\Gamma\left(1 + 1/k\right)\right)\\
-&\text{LogNormal:} &&-\mu_{sr} &&= \text{Intercept}^D + \textbf{X}_{sr}^D\boldsymbol{\beta}^D + \textbf{Z}_{sr}^D\boldsymbol{\xi}^D = -\log(E[T_{srq}]) + \sigma_{det}^2/2
-\end{alignat}
-\jarad{Are these necessary?}
-where $\boldsymbol{\beta}^D$ is a vector of fixed effects, and $\xi_i^D \overset{ind}{\sim} N(0,\sigma_{D[i]}^2)$ are random effects, with $\sigma_{D[i]}^2$ denoting the variance associated with $\xi_i^D$.  
-When the TTDD is a mixture distribution, we model $F_{T1}$ portion of the mixture according to the above link functions and treat the mixing parameter $\gamma$ as constant across all surveys.
-
-Conditioned on an individual being detected \jarad{Would this be easier to introduce without conditioning on individuals being detected?}, we calculate interval-specific detection probabilities $p_{sri}$ by partitioning the cdf of the TTDD at the observation interval cutoffs and normalizing by the binomial detection probability $p_{sr}^{(det)}$.  
-In summary, the detection model is:
-\begin{align}
-p_{sri} &= \left[F_T(C_i|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) - F_T(C_{i-1}|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})\right]\big/p_{sr}^{(det)}\\
-\label{eq:pdet}p_{sr}^{(det)} &= F_T(C_I|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})\\
-F_T(t|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) &= \text{a TTDD as described above}
-\end{align}
-
-To adapt our model for exact time-to-detection data, we only need to replace the multinomial distribution in Eq. (\ref{eq:datamodel}).  
-Instead of modeling the interval-specific counts $\vn_{sr}$, we model the times to detection directly.  
-Defining $\textbf{T}_{sr}$ as a vector of all observed detection times for a given survey, and continuing to treat all detections as independent, we write
-\[
-Pr\left(\textbf{T}_{sr}|n_{sr}^{(obs)}\right) = \prod\limits_{q=1}^{n_{sr}^{(obs)}} f_T(t_{srq}|t_{srq}<C_I)
-\]
-The rest of the model remains the same, except there is no need to calculate interval-specific times to detection.  
-Partial finite-mixture TTDDs clearly only make sense in the interval-censored case.
 
 
 
@@ -227,14 +203,14 @@ Partial finite-mixture TTDDs clearly only make sense in the interval-censored ca
 
 \jarad{Again, I would introduce this without covariates or random effects first.}
 
-For simplicity, we model abundance at each site during each year $N_{sr}$ using a Poisson distribution with a survey-specific expected value of $\lambda_{sr}$, though any non-negative integer-valued distribution may be used.  
-We can decompose $N_{sr}$ into observed and unobserved portions.  
+For simplicity, we model abundance at each site during each year $N_{s}$ using a Poisson distribution with a survey-specific expected value of $\lambda_{s}$, though any non-negative integer-valued distribution may be used.  
+We can decompose $N_{s}$ into observed and unobserved portions.  
 The unobserved portion follows a binomial-Poisson hierarchy, resulting in Equation \ref{eq:binPois}.  
-We model expected abundance $\lambda_{sr}$ using a mixed effects linear regression with a log link.
+We model expected abundance $\lambda_{s}$ using a mixed effects linear regression with a log link.
 
 \begin{align}
-\label{eq:binPois} n_{sr}^{(unobs)} = N_{sr} - n_{sr}^{(obs)} &\sim \mbox{Poisson}\left(\lambda_{sr}(1-p_{sr}^{(det)})\right)\\
-\log (\lambda_{sr}) &= \text{Intercept}^A + \textbf{X}_{sr}^A\boldsymbol{\beta}^A + \textbf{Z}_{sr}^A\boldsymbol{\xi}^A
+\label{eq:binPois} n_{s}^{(unobs)} = N_{s} - n_{s}^{(obs)} &\sim \mbox{Poisson}\left(\lambda_{s}(1-p_{s}^{(det)})\right)\\
+\log (\lambda_{s}) &= \text{Intercept}^A + \textbf{X}_{s}^A\boldsymbol{\beta}^A + \textbf{Z}_{s}^A\boldsymbol{\xi}^A
 \end{align}
 where $\textbf{X}^A$ is a matrix of covariates associated with the vector of fixed effects $\boldsymbol{\beta}^A$, and $\textbf{Z}^A$ is a matrix identifying factor levels for $\xi_i^A \overset{ind}{\sim} N(0,\sigma_{A[i]}^2)$ random effects. 
 
@@ -246,8 +222,8 @@ Since we use this hierarchical model in a Bayesian context, the complete model f
 
 \subsection{Priors}\label{sec:priors}
 Our goal in selecting priors is to be non-informative within a reasonable range of values.  
-Priors for Intercept$^D$ are centered so that the median detection probability is $p_{sr}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  
-Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{sr}^{(det)} \in (0.01, 1.0)$.  
+Priors for Intercept$^D$ are centered so that the median detection probability is $p_{s}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  
+Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{s}^{(det)} \in (0.01, 1.0)$.  
 Priors for Intercept$^A$ center at a median abundance of about 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
 Because covariates are centered and scaled, priors for effect parameters are centered at zero with standard deviations matching the appropriate intercept term.  
 For all shape and variance parameters, we choose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a uniform prior.  
@@ -341,13 +317,13 @@ Unlike Sims 1 \& 2, overall detection probabilities in Sim 3 are not the same fo
 To assess goodness of fit, we rely on posterior predictive checks \citep{Gelman1996}/adam{Rubin1984?}.  
 Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
 In particular, we are concerned with the goodness of fit for the TTDD distribution, so we define a check statistic for each observation interval:
-\[D(n_i) = \sum\limits_{sr} n_{sri} \big/ \sum\limits_{sri}^{} n_{sri}\]
+\[D(n_i) = \sum\limits_{s} n_{si} \big/ \sum\limits_{si}^{} n_{si}\]
 which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  
 The posterior predictive p-value associated with each $D(n_i)$ is the proportion of replicate check statistics that have a larger value than the check statistic for the actual data.  
 We simulate replicate datasets and calculate the check statistic at each iteration of our MCMC samples.  
 Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.
 
-We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{sri}n_{sri}\big/$ $\sum\limits_{sri}N_{sri}$.  
+We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{si}n_{si}\big/$ $\sum\limits_{si}N_{si}$.  
 Because some posterior distributions are skewed, we emphasize posterior medians.  
 Within simulation studies, we compare model estimates to true $p^{(det)}$ values by coverage and by posterior p-values --- the proportion of MCMC samples that have a smaller value than the true value.  
 We do not focus on estimation of individual detection parameters, since different sets of parameters can yield similar density functions for time-to-detection conditional upon being detected: $f_T(t\;|\;t<C_I)$.
@@ -519,7 +495,7 @@ For all other models, posterior predictive checks did not consistently indicate 
 
 \begin{figure}[h!]\centering
 \includegraphics[width=0.78\textwidth]{Sims/SimZero/PostPredP_corr.pdf}
-\caption{\label{postpredmix} Posterior predictive p-values by interval -- Pr$\left(p_{sri}^{(rep)} > p_{sri}\right)$ -- for peaked mixture datasets fit with non-mixture inference models of the correct TTDD family over 16 replicates (Sim 1).  
+\caption{\label{postpredmix} Posterior predictive p-values by interval -- Pr$\left(p_{si}^{(rep)} > p_{si}\right)$ -- for peaked mixture datasets fit with non-mixture inference models of the correct TTDD family over 16 replicates (Sim 1).  
 Trendlines show mean posterior predictive p-values.  
 Dashed lines show central 95\% intervals.  
 P-values near 0 or 1 potentially indicate poor model fit.}
@@ -641,7 +617,7 @@ The pattern of counts in our Ovenbird data actually reflect underdispersion, so 
 % NB: Royle04(?)
 
 
-At present, Stan does not sample discrete parameters, so the ability to marginalize out the discrete-valued latent variables $N_{sr}$, as we did, can greatly facilitate MCMC sampling.
+At present, Stan does not sample discrete parameters, so the ability to marginalize out the discrete-valued latent variables $N_{s}$, as we did, can greatly facilitate MCMC sampling.
 
 % \adam{I have contemplated on and off including a discussion of broad priors and the limit behavior as $\varphi \to 0$, but I think it's not really on topic.  
 % Note: now that I've seen van Dishoeck and Manntyniemi, perhaps I should worry about informativeness in priors.}
@@ -685,13 +661,13 @@ Multiple studies have demonstrated that failure to incorporate distance leads to
 The time-to-detection model as presented here in our study does not incorporate distance.  
 Consequently, our definition of a TTDD necessarily represents an averaging across distance classes and a consequent loss of information if distance data are available.  
 We can modify our model to account for distance.  
-To be consistent with earlier distance-removal studies \citep{Farnsworth2005, Amundson2014}, we could: (i) define a time-to-\textit{availability} distribution $F_T^A(t)$ in the same manner that we have defined a TTDD in this study, (ii) modify Equation \ref{eq:pdet} to reflect the detection distance to individual $q$: $p_{srq}^{(det)} = g(d_q) F_T^A(C_I|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta})$, and (iii) tweak our data model accordingly.
+To be consistent with earlier distance-removal studies \citep{Farnsworth2005, Amundson2014}, we could: (i) define a time-to-\textit{availability} distribution $F_T^A(t)$ in the same manner that we have defined a TTDD in this study, (ii) modify Equation \ref{eq:pdet} to reflect the detection distance to individual $q$: $p_{sq}^{(det)} = g(d_q) F_T^A(C_I|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta})$, and (iii) tweak our data model accordingly.
 
 However, our analysis makes possible a different strategy that is more consistent with a time-to-event conceptualization of the problem.  
 Rather than define availability and perceptibility as independent detection events over the course of the observation period, we can define them at the event level.  
-In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{srq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{sr}^A(t)$ and the perceptibility function $g(d/`8-_q)$.  
-So, $h_{srq}(t) = g(d_q) h_{sr}^A(t)$.  
-From standard survival analysis results, $p_{srq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{sr}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\textbf{X}_{sr}^D, \textbf{Z}_{sr}^D, \boldsymbol{\theta}) \right]^{g(d_q)}$.
+In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{sq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{s}^A(t)$ and the perceptibility function $g(d/`8-_q)$.  
+So, $h_{sq}(t) = g(d_q) h_{s}^A(t)$.  
+From standard survival analysis results, $p_{sq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{s}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta}) \right]^{g(d_q)}$.
 
 In short, the time-to-event conceptualization frames perceptibility as a rate-of-availability multiplier rather than as a probability-of-availability multiplier.  
 In a context where rates of availability are allowed to vary from individual to individual, this makes an intuitive sense --- a bird that sings twenty times during the observation period should have its overall detection probability discounted much less than a bird at the same distance which only sings once.  
