@@ -136,9 +136,16 @@ Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding 
 
 
 
-\section{Model}\label{sec:model}
+\section{Methods}\label{sec:model}
 
-\subsection{Data structure}\label{sec:data}
+\subsection{Data}\label{sec:data}
+
+Our analysis is motivated by point-count surveys conducted in Chippewa National Forest over a six-year period from 2008-2013 as part of the Minnesota Forest Breeding Bird Project (MNFB).  
+The MNFB design is described in \citet{Hanowski1995}, and we summarize only essential details here.  
+Single-visit time-to-first-detection point-count surveys are conducted by trained observers at a fixed set of sampling locations once annually.  
+Survey durations are 10 minutes, with times to first detection for over 50 species being censored into nine intervals -- a two-minute interval followed by eight one-minute intervals.  
+The relatively fine-scale interval sizes should provide more information about TTDDs than the three-interval methodology (0-3, 3-5, and 5-10 minutes) that characterizes many avian point count surveys \citep{Ralph1995}.
+There is no prescribed settling-in period between the observer's arrival and the time they begin observing.  
 
 Our model is formulated for single-visit removal-sampled point-count surveys $s=1,\dotso,S$.  
 We present the model for exact time-to-detection data and also show how to modify it for interval-censored detection times.  
@@ -175,7 +182,7 @@ In this study, we adopt TTDDs for $T_{sq}$ using the following: Exponential($\va
 Here, $\varphi_{s}$ and $\mu_{s}$ are survey-specific detection rate parameters, and we consider the shape parameters $\alpha$, $\sigma_{det}^2$, and $k$ to be constant across all surveys.
 
 We can model detection heterogeneity by defining $T_{sq}$ as a mixture of TTDD components.  
-In this study, in addition to the four above TTDDs (with no mixture component), we consider partial finite-mixtures of a point mass during the first survey interval plus a component from an exponential, gamma, Weibull, or lognormal distribution.  
+In this study, we use interval-censored observations, so in addition to the four above TTDDs (with no mixture component), we consider partial finite-mixtures of a point mass during the first survey interval plus a component from an exponential, gamma, Weibull, or lognormal distribution.  
 We define a constant mixing parameter $\gamma \in [0,1]$ for the proportion of animals not distributed according to the point mass.
 
 We model the expectation function via mixed effects linear regression.  
@@ -201,64 +208,27 @@ Note that parameters in a mixture TTDD do not share the exact same interpretatio
 
 \subsection{Abundance Model}
 
-\jarad{Again, I would introduce this without covariates or random effects first.}
+For simplicity, we model total abundance at each survey $N_{s}$ using a Poisson distribution, though any non-negative integer-valued distribution may be used.  
+We model the expected survey abundance $\lambda_{s}$ via mixed effects linear regression with a log link: $\log (\lambda_{s}) = \textbf{X}_{s}^A\boldsymbol{\beta}^A + \textbf{Z}_{s}^A\boldsymbol{\xi}^A$.  As with the detection model, $\textbf{X}_{sr}^A$ are covariates, $\boldsymbol{\beta}^A$ is a vector of fixed effects, $\textbf{Z}_{sr}^A$ specify random effect levels, and $\xi_i^A \overset{ind}{\sim} N(0,\sigma_{A[i]}^2)$ are random effects.  
+We can decompose $N_{s}$ into observed and unobserved portions; the latent unobserved portion follows a binomial-Poisson hierarchy, with the result that $n_{s}^{(unobs)} \sim \mbox{Poisson}\left(\lambda_{s}(1-p_{s}^{(det)})\right)$.  
 
-For simplicity, we model abundance at each site during each year $N_{s}$ using a Poisson distribution with a survey-specific expected value of $\lambda_{s}$, though any non-negative integer-valued distribution may be used.  
-We can decompose $N_{s}$ into observed and unobserved portions.  
-The unobserved portion follows a binomial-Poisson hierarchy, resulting in Equation \ref{eq:binPois}.  
-We model expected abundance $\lambda_{s}$ using a mixed effects linear regression with a log link.
 
-\begin{align}
-\label{eq:binPois} n_{s}^{(unobs)} = N_{s} - n_{s}^{(obs)} &\sim \mbox{Poisson}\left(\lambda_{s}(1-p_{s}^{(det)})\right)\\
-\log (\lambda_{s}) &= \text{Intercept}^A + \textbf{X}_{s}^A\boldsymbol{\beta}^A + \textbf{Z}_{s}^A\boldsymbol{\xi}^A
-\end{align}
-where $\textbf{X}^A$ is a matrix of covariates associated with the vector of fixed effects $\boldsymbol{\beta}^A$, and $\textbf{Z}^A$ is a matrix identifying factor levels for $\xi_i^A \overset{ind}{\sim} N(0,\sigma_{A[i]}^2)$ random effects. 
 
-\jarad{Put a discussion of priors in a new section. You should introduce the general form of the priors with specific values and specify the specific values in the simulation study and real data analysis sections.}
-
-Since we use this hierarchical model in a Bayesian context, the complete model formulation requires priors for $\text{Intercept}^D, \boldsymbol{\beta}^D, \sigma_{D}^2, \boldsymbol{\theta}, \text{Intercept}^A, \boldsymbol{\beta}^A, \text{ and } \sigma_{A}^2$, such as we specify in Section \ref{sec:priors}.
-
-\jarad{You need to include a section about the MCMC, e.g. Stan/JAGS how to monitor convergence, etc.}
-
-\subsection{Priors}\label{sec:priors}
-Our goal in selecting priors is to be non-informative within a reasonable range of values.  
-Priors for Intercept$^D$ are centered so that the median detection probability is $p_{s}^{(det)} = 0.50$, based on an intercept-only non-mixture model with scale parameter 1.  
-Standard deviations are chosen so that 95\% of the prior detection probability rests within $p_{s}^{(det)} \in (0.01, 1.0)$.  
-Priors for Intercept$^A$ center at a median abundance of about 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
-Because covariates are centered and scaled, priors for effect parameters are centered at zero with standard deviations matching the appropriate intercept term.  
-For all shape and variance parameters, we choose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a uniform prior.  
-All priors are independent.
-\jarad{This takes up too much space.}
-\begin{align*}
-\text{Intercept}^D &\sim N(-2.7, 2.25^2) \text{ or } N(-2.3, 1.2^2)\\
-\text{Intercept}^A &\sim N(1, 1)\\
-\boldsymbol{\beta}^D &\sim N(0, 2.25^2)\\
-\boldsymbol{\beta}^A &\sim N(0, 1)\\
-\sigma_D, \sigma_A, \alpha, \sigma_{det}, k &\sim \text{half-Cauchy}(0,1)\\
-\gamma &\sim \text{Beta}(1,1)
-\end{align*}
 
 \subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
+To demonstrate our model, we fit counts of Ovenbirds (\textit{Seiurus aurocapilla}) from the MNFB.
+We restricted survey sites in our analysis to those of the most abundant habitat type (sawtimber red pine); in so doing, we focused modeling efforts upon the detection model and skirted the complication of modeling abundance across habitat types.  
+We further constrained analysis to 65 sites with a site origin year between 1870-1970.  
+In total, we used 381 site-year surveys in our analysis with a total of 947 Ovenbirds counted and a maximum of eight birds counted in any single survey.
 
-\jarad{This should not be a model (or methods section). I think you should put a Data section earlier that introduces the data collection methods. Then the rest of this section should go much later, after the simulation study, in a real data analysis section. } 
-
-We analyze point-count surveys conducted in Chippewa National Forest over a six-year period from 2008-2013 as part of the Minnesota Forest Breeding Bird Project (MNFB).  
-The MNFB design is described in \citet{Hanowski1995}, and we only summarize relevant details here.  
-Point-count time-to-detection surveys are conducted by trained observers at a fixed set of sampling locations once annually.  
-Forest stands follow a stratified random design, with three survey sites in each stand.  
-Survey durations are 10 minutes, with times to detection being censored into nine intervals -- a two-minute interval followed by eight one-minute intervals.  
-We restrict survey sites in our analysis to those of the most abundant habitat type (sawtimber red pine); in so doing, we focus modeling efforts upon the detection model and skirt the complication of modeling abundance across habitat types.  
-We further constrain analysis to 65 sites with a site origin year between 1870-1970.  
-In total, we use 381 site-year surveys in our analysis with a total of 947 Ovenbirds counted, and a maximum of eight birds counted in any single survey.
-
-For the abundance half of our model, we use four covariates plus two random effects.  
-The covariates are: (a) site age, (b) survey year, (c) an indicator of whether the site stock density is over 70\%, and (d) an indicator of whether the site experienced select-/partial-cut logging during the 1990s.  
-We associate random effects with each survey year and each stand.  
-For the detection half of our model, we use covariates for: (a) Julian date, (b) time of day, (c) temperature, (d) an indicator of whether it is the observer's first year in the database, and (e) an interaction between (a) and (d) to approximate a new observer's learning curve \citep{Alldredge2007}.  
-69\% of surveys in our dataset involve observers in their first year at MNFB.  
+For the abundance half of our model, we used four covariates plus two random effects.  
+The covariates were: (a) site age, (b) survey year, (c) an indicator of whether the site stock density is over 70\%, and (d) an indicator of whether the site experienced select-/partial-cut logging during the 1990s.  
+We associated random effects with each survey year and each stand, with most stands consisting of three survey sites.  
+For the detection half of our model, we used covariates for: (a) Julian date, (b) time of day, (c) temperature, (d) an indicator of whether it is the observer's first year in the database, and (e) an interaction between (a) and (d) to approximate a new observer's learning curve \citep{Alldredge2007}.  
+69\% of surveys in our dataset involved observers in their first year at MNFB.  
 Preliminary model fits did not support the inclusion of quadratic terms for any detection covariates.  
-Finally, we associate random effects with each observer.  
-We center and standardize all continuous covariates prior to fitting models.
+We associated random effects with each observer.  
+We centered and standardized all continuous covariates prior to fitting models.
 
 % Effects: * - means signif
 % Observer variation - Farnsworth2002, LinkSauer98, LinkSauer97, Dief07 cites Sauer94 & Dief03, Simons et al03
@@ -270,24 +240,48 @@ We center and standardize all continuous covariates prior to fitting models.
 % Year (on detection!) - Reidy11, see also Norvell03
 % See Table 1 of Johnson2008, see McShea and Rappole, lit review from Warren2013, Rosenstock02
 
-We fit eight models to the Ovenbird data representing each of the time-to-detection distributions described in Section \ref{sec:detectionmodel}.
-
-\subsection{Model fitting}
-
-We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
 
 
-For each intercept-only simulation model, we instantiated a single chain running 60,000 iterations.  
-For the Ovenbird analysis and covariate simulations, we ran chains for 250,000-375,000 iterations.  
+
+
+\subsection{Model fitting}\adam{Looking at other papers, the following all tend to get bundled into the same paragraph or two.  It should follow presentation of our data and of our simulation scheme.}
+
+We fit the models by MCMC sampling in the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
+For intercept-only simulations, we instantiated a single chain running 60,000 iterations; for the Ovenbird analysis and simulations with covariates, chains were 250,000-375,000 iterations.  
 We discarded half of the iterations as warmup and then thinned by 1 in 10.  
+We monitored convergence of the MCMC chains using Geweke diagnostics \citep{Geweke1991}.  
 We reran models if the effective sample size for any parameter was below 1000.  
-We monitored convergence of the MCMC chains using Geweke diagnostics.  
-For most models, we accepted the Stan defaults for generating dispersed initial values.  
-However, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from the posterior means of preliminary short-run models (Ovenbird analysis, incorrect-family simulations) or from true parameter values (correct-family simulations).
+For most models, we accepted Stan defaults for dispersed initial values; however, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from true parameter values when known or from the posterior means of preliminary short-run models.
 
-\jarad{New section for simulation studies with the results.}
+We selected priors to be non-informative within a reasonable range of values.  
+Normal priors for the detection model intercept term, Intercept$^D$, were chosen so that, based on an intercept-only non-mixture model with scale parameter of 1: (i) median detection probability was $p_{s}^{(det)} = 0.50$, and (ii) 95\% of the prior detection probability was within $p_{s}^{(det)} \in (0.01, 1.0)$.  
+Normal priors for Intercept$^A$ centered at a median abundance of 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
+Because covariates were centered and scaled to mean zero and variance one, normal priors for effect parameters were centered at zero with standard deviations matching the appropriate intercept term.  
+For all shape and variance parameters, we chose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a Uniform(0,1) prior.  
+All priors were independent.
 
-\subsection{Simulation studies}
+To assess goodness of fit, we relied on posterior predictive checks \citep{Gelman1996}.  
+Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
+In particular, we are concerned with the goodness of fit for the TTDD distribution, so we defined a check statistic for each observation interval:
+\[D(n_i) = \sum\limits_{s} n_{si} \big/ \sum\limits_{si} n_{si}\]
+which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  
+The posterior predictive p-value associated with each $D(n_i)$ is the proportion of replicate check statistics that have a larger value than the check statistic for the actual data.  
+We simulated replicate datasets and calculated the check statistic at each iteration of our MCMC sampling.  
+Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.
+
+We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{s}n_{s}^{(obs)}\big/$ $\sum\limits_{s}N_{s}$.  
+Within simulation studies, we compared model estimates to true $p^{(det)}$ values by percent coverage and by posterior p-values --- the proportion of MCMC samples having a smaller value than the true value.  
+
+We compared different models by means of their goodness of fit and deviance information criterion (DIC) \citep{Spiegelhalter2002}.  
+For the full model with random effects, which is a missing data model, we used formulation DIC$_7$ from \citet{Celeux2006} for its ease of computation, but we acknowledge that it suffers some difficulties \citep{Celeux2006, Li2014}.
+
+
+
+
+
+\section{Simulation studies}
+
+\jarad{Not really Jarad's comment.  But he left notes that there should be a separate Sim section with results bundled within it.}
 
 We conduct three simulation studies to assess: (Sim 1) the importance of modeling detection heterogeneity via a partial finite-mixture component, (Sim 2) the impact of misspecifying the TTDD family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD), and (Sim 3) model performance in a more complete scenario when both data generation and model fitting include covariates and random effects for abundance and detection.  
 Because model behavior may differ between datasets with peaked and non-peaked TTDDs, we simulate both kinds of dataset for gamma, Weibull, and lognormal models.  
@@ -309,34 +303,6 @@ Unlike Sims 1 \& 2, overall detection probabilities in Sim 3 are not the same fo
 
 
 
-
-\subsection{Model assessment, inference, and between-model comparison}
-
-\jarad{This is also part of methods. Or perhaps make it part of evaluation of simulation studies.}
-
-To assess goodness of fit, we rely on posterior predictive checks \citep{Gelman1996}/adam{Rubin1984?}.  
-Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
-In particular, we are concerned with the goodness of fit for the TTDD distribution, so we define a check statistic for each observation interval:
-\[D(n_i) = \sum\limits_{s} n_{si} \big/ \sum\limits_{si}^{} n_{si}\]
-which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  
-The posterior predictive p-value associated with each $D(n_i)$ is the proportion of replicate check statistics that have a larger value than the check statistic for the actual data.  
-We simulate replicate datasets and calculate the check statistic at each iteration of our MCMC samples.  
-Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.
-
-We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{si}n_{si}\big/$ $\sum\limits_{si}N_{si}$.  
-Because some posterior distributions are skewed, we emphasize posterior medians.  
-Within simulation studies, we compare model estimates to true $p^{(det)}$ values by coverage and by posterior p-values --- the proportion of MCMC samples that have a smaller value than the true value.  
-We do not focus on estimation of individual detection parameters, since different sets of parameters can yield similar density functions for time-to-detection conditional upon being detected: $f_T(t\;|\;t<C_I)$.
-
-We compare different model fits by means of their goodness of fit and deviance information criterion (DIC) \citep{Spiegelhalter2002}.  
-For the full model with random effects, which is a missing data model, we use formulation DIC$_7$ from \citet{Celeux2006} for its ease of computation, but we acknowledge that it suffers some difficulties \citep{Celeux2006, Li2014}.
-
-
-
-
-\section{Results}\label{sec:results}
-
-\subsection{Simulation studies}
 
 \subsection{Mixture vs. non-mixture TTDD}\label{sec:mixture}
 
@@ -513,6 +479,12 @@ For non-peaked mixture datasets, models were generally within 4 units of one ano
 Considering that exponential models were biased for detection in non-peaked models (Figure \ref{pdet_cater_family}), we have little confidence in our DIC results for non-peaked models.  
 DIC performance in Sim 3 may differ from Sims 1 \& 2 not only because of the addition of fixed and random effects, but also because DIC is calculated according to a different method.
 
+
+
+
+
+
+\section{Results}\label{sec:results}
 
 \section{Ovenbird analysis}
 
