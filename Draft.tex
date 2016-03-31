@@ -283,23 +283,21 @@ For the full model with random effects, which is a missing data model, we used f
 
 \jarad{Not really Jarad's comment.  But he left notes that there should be a separate Sim section with results bundled within it.}
 
-We conduct three simulation studies to assess: (Sim 1) the importance of modeling detection heterogeneity via a partial finite-mixture component, (Sim 2) the impact of misspecifying the TTDD family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD), and (Sim 3) model performance in a more complete scenario when both data generation and model fitting include covariates and random effects for abundance and detection.  
-Because model behavior may differ between datasets with peaked and non-peaked TTDDs, we simulate both kinds of dataset for gamma, Weibull, and lognormal models.  
-For all families, we simulate both mixture and non-mixture datasets.  
-In total, we simulate 14 different dataset types.  
-Counts are censored into nine-intervals as with the Ovenbird dataset.
+We conducted three simulation studies to assess: [Sim 1] the performance of modeling detection heterogeneity via a partial finite-mixture TTDD relative to a non-mixture TTDD, [Sim 2] the impact of misspecifying the TTDD family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD), and [Sim 3] model performance in a more complete scenario when both data generation and model fitting include covariates and random effects for abundance and detection.  
+Our simulations and models were from exponential, gamma, lognormal, and Weibull TTDD families.  
+Because model behavior may differ between peaked and non-peaked datasets, we simulated both for all TTDD families except exponential.  
+Thus, combined with partial finite-mixtures and non-mixtures, we simulated datasets from 14 different TTDDs in total.  
+Counts were censored into nine-intervals as with the Ovenbird dataset.
 
-In the first simulation study (Sim 1), for all 14 dataset types, we fit models with both mixture and non-mixture TTDD where the family is correctly specified.  
-In Sim 2, we consider only mixture TTDD datasets, and we fit them with mixture TTDD models from all four families.  
-For both Sim 1 and Sim 2, we simulate and model 16 replicates.  
-In Sim 3, we repeat both the first two studies, but: (i) we include covariates and random effects described in Section \ref{sec:ovenbirdanalysis}, and (ii) we perform only a single replicate, because each gamma model takes an average of 5 days to fit.
+In the first simulation study (Sim 1), for all 14 dataset types, we fit models with both mixture and non-mixture TTDD where the family was correctly specified.  
+In Sim 2, we considered only mixture TTDD datasets, and we fit them with mixture TTDD models from all four families.  
+For both Sim 1 and Sim 2, we simulated and modeled 16 replicates.  
+In Sim 3, we repeated both the first two studies, but: (i) we included covariates and random effects described in Section \ref{sec:ovenbirdanalysis}, and (ii) we performed only a single replicate, because gamma models took an average of 5 days to fit.
 
-For the first two simulation studies, we choose true parameter values so that: (i) the expected detection probability is 0.80, (ii) the expected count is the same as observed in the Ovenbird dataset, (iii) when there is a mixture component, we set $\gamma = 0.65$, meaning that 35\% of individuals are immediately detected, (iv) in non-peaked models, 70\% of \textit{detected} individuals are observed during the first two minutes, and (v) in peaked models, the detection mode for `hard to detect' individuals occurs at 5 minutes.  
-For Sim 3, we set true parameter values for each dataset equal to the median posterior values obtained when fitting the same TTDD model to the Ovenbird data.  
-Since all models applied to the Ovenbird data resulted in non-peaked model fits, we simulated peaked dataset variants by: (i) starting with posterior median Ovenbird estimates, (ii) setting the mixing parameter to $\gamma = 0.65$, and (iii) scaling the Intercept$^D$ and $\sigma_D^2$ terms by 0.25 and 1.1, which on average results in peak detection near 5 minutes and 75-85\% detection across all sites.  
-Covariates and random effect levels are taken directly from the Ovenbird dataset.  
-Unlike Sims 1 \& 2, overall detection probabilities in Sim 3 are not the same for each dataset.
-
+Estimates from the Ovenbird analysis were used to inform simulation parameters except as follows.  
+For Sim1 and Sim2, for consistency across simulations, we chose true parameter values so that: (i) the expected detection probability was 0.80, (ii) for mixture datasets, $\gamma = 0.65$ (meaning 35\% of individuals were immediately detected), (iii) in non-peaked models, 70\% of \textit{detected} individuals were observed during the first two minutes, and (iv) in peaked models, the detection mode for `hard to detect' individuals occured at 5 minutes.  
+Since all models applied to the Ovenbird data resulted in non-peaked model fits, for Sim3 we simulated peaked dataset variants by:  (i) setting $\gamma = 0.65$, and (ii) scaling the Intercept$^D$ and $\sigma_D^2$ terms by 0.25 and 1.1, which resulted on average in peak detection near 5 minutes and 75-85\% detection across all sites.  
+Unlike Sim1 and Sim2, overall detection probabilities in Sim 3 were not the same for each dataset.
 
 
 
