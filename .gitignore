@@ -26,6 +26,8 @@ vignettes/*.pdf
 *.blg
 *.log
 *.synctex.gz
+*.aux
+
 
 # final pdf
 Draft.pdf
