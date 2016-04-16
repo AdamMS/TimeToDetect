@@ -453,7 +453,7 @@ Each plot presents one simulated dataset.
 For every dataset we simulated, estimates and credible intervals for abundance covariate coefficients $\beta^A$ were virtually the same regardless of the inference TTDD employed.  
 Estimates of detection parameters $\beta^D$ varied by context.  
 Comparisons of mixture and non-mixture models (like in Sim1) produced similar $\beta^D$ estimates except when fit to mixture peaked datasets, where models without a mixture component produced credible intervals twice as wide as those from mixture models with no benefit in terms of coverage.
-Comparing constant-detection and time-varying models (like in Sim2), time-varying mixture TTDD models generally produced similar posteriors of $\beta^D$ to one another, but posteriors from the exponential mixture model were both location shifted and narrower; they also had lower coverage across all $\beta^D$ parameters (88.5\% vs. 94-97\%).
+Comparing constant-detection to time-varying models (like in Sim2), time-varying mixture TTDD models produced similar posteriors of $\beta^D$ to one another, but posteriors from the exponential mixture model were both location shifted and either narrower (exponential and nonpeaked data) or wider (peaked data).
 Differences in estimates of $\beta^D$ parameters to some degree reflected differing estimation of the $\gamma$ mixing parameter -- the exponential model underestimated $\gamma$ with nonpeaked datasets and overestimated it in peaked datasets.
 Many of the above patterns for nonpeaked datasets can be noted in posterior estimates from the Ovenbird data (Figure \ref{ovenposteriors}).
 
@@ -543,7 +543,7 @@ Black bars are 95\% credible intervals, orange bars are 50\% credible intervals,
 Historically, analysis of removal-sampled data assumes constant detection rates throughout the sampling period.  
 This assumption provides an intuitive null model and is analytically tractable.  
 However, although analysis of removal models has grown more sophisticated in recent years, the constant-detection assumption nonetheless continues unquestioned.  
-In our study, we have formulated a model for non-constant detection patterns using a time-to-event approach within a hierarchical N-mixture framework.  
+We have formulated a model for non-constant detection using a time-to-event approach within a hierarchical N-mixture framework.  
 Our results demonstrate that, for better or worse, the assumption of constant detection is a very strong assumption.  
 When it is correct, it is the most accurate and precise of TTDD models, but when detection rates are not constant, it results in significant bias.  
 Models with non-constant TTDDs, on the other hand, can adapt to a wider variety of detection patterns.
