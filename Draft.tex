@@ -116,7 +116,7 @@ For our purposes, the exponential TTDD is neither peaked nor nonpeaked.
 We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  
 We reserve `detection heterogeneity' for differences across population subgroups.  
 It is often modeled using a mixture of detection distributions.  
-\citet{Farnsworth2002} introduce a partial finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
+\citet{Farnsworth2002} introduce a finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
  Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  
 We use `non-constant detection' when detection rates for an organism change with time.  
 Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
@@ -124,7 +124,7 @@ Models constructed to address detection heterogeneity may provide reasonable est
 \adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
 
 In this study, we construct a time-to-detection N-mixture model for estimating abundance from removal-sampled point-count surveys.  
-We explore model behavior through a series of simulations testing: (i) how well constant-detection models fit non-constant detection data and vice versa, (ii) the utility of a partial finite-mixtures to model detection heterogeneity involving a non-constant detection subgroup, and (iii) model performance with covariates and random effects affecting both abundance and detection.  
+We explore model behavior through a series of simulations testing: (i) how well constant-detection models fit non-constant detection data and vice versa, (ii) the utility of finite-mixtures to model detection heterogeneity involving a non-constant detection subgroup, and (iii) model performance with covariates and random effects affecting both abundance and detection.  
 Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding Bird Project.
 
 
@@ -161,7 +161,7 @@ The probability of detection for an animal is thus $p_{s}^{(det)} = F_T(C_I)$ an
 Denoting $N_{s}$ as the total number animals present at a survey, the data model is:
 \begin{align}\label{eq:datamodel}
 n_{s}^{(obs)} &\sim \mbox{Binomial}\left(N_{s}, p_{s}^{(det)}\right)\\
-\label{eq:Tsrq}T_{sq} &\sim f_{T|det}(t|t_{sq}<C_I)
+\label{eq:Tsrq}T_{sq}|det &\sim f_{T|det}(t|t_{sq}<C_I)
 \end{align}
 When detection times are censored, we replace Eq. \ref{eq:Tsrq} with $\vn_{s} \sim \mbox{Multinomial}\left(n_{s}^{(obs)}, \textbf{p}_{s}\right)$, where $\textbf{p}_{s}$ is the vector of interval-specific detection probabilities obtained by partitioning the conditional cdf $F_{T|det}(t|t_{sq}<C_I)$ at the interval cutoff times.  
 It follows that $\sum_{i=1}^I p_{si} = 1$.
@@ -176,8 +176,7 @@ In this study, we adopt TTDDs for $T_{sq}$ using the following: Exponential($\va
 Here, $\varphi_{s}$ and $\mu_{s}$ are survey-specific detection rate parameters, and we consider the shape parameters $\alpha$, $k$, and $\sigma_{det}^2$ to be constant across all surveys.
 
 We can model detection heterogeneity by defining $F_T(t)$ as a mixture of TTDD components.  
-In this study, we use interval-censored observations, so in addition to the four above TTDDs (with no mixture component), we consider partial finite-mixtures of a point mass during the first survey interval plus a continuous component from an exponential, gamma, Weibull, or lognormal distribution.  
-We define a constant mixing parameter $\gamma \in [0,1]$ for the proportion of animals not distributed according to the point mass.
+In this study, we use interval-censored observations, so in addition to the four above TTDDs (with no mixture component), we consider finite-mixtures of a point mass during the first survey interval plus a continuous component from an exponential, gamma, Weibull, or lognormal distribution.  
 
 We model the expectation function via mixed effects linear regression.  
 For exponential, gamma, and Weibull TTDDs, we model: $\log(\varphi_{s}) = \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D$, where $\textbf{X}_{s}^D$ are covariates, $\boldsymbol{\beta}^D$ is a vector of fixed effects, $\textbf{Z}_{s}^D$ specifies random effect levels, $\xi_i^D \overset{ind}{\sim} N(0,\sigma_{D[i]}^2)$ are random effects, and $\sigma_{D[i]}^2$ denotes the variance associated with $\xi_i^D$.  
@@ -191,9 +190,9 @@ For the lognormal distribution, we fit the same regression model to $-\mu_{s}$.
 %&\text{Lognormal:} &&-\mu_{s} &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \sigma_{det}^2/2
 %\end{alignat}
 
-Combining the distribution and expectation function for $T_{s}$, we can describe a partial-mixture TTDD cdf as:
-\[F_T(t|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta}) = (1-\gamma)\mathbb{I}(t>0) + \gamma F_{T1}(t|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta})\]
-where $F_{T1}$ is the cdf of the continuous component and $\boldsymbol{\theta}$ is a vector of parameters appropriate to $F_{T1}$.  
+Combining the distribution and expectation function for $T_{s}$, we can describe a mixture TTDD cdf as:
+\[F_T(t|\varphi_s, \boldsymbol{\theta}, \gamma) = (1-\gamma)\mathbb{I}(t>0) + \gamma F_{T1}(t|\varphi_s, \boldsymbol{\theta})\]
+where $F_{T1}$ is the cdf of the continuous component, $\boldsymbol{\theta}$ is a vector of parameters appropriate to $F_{T1}$, and $\gamma \in [0,1]$ is the proportion of animals not distributed according to the point mass.
 Note that parameters in a mixture TTDD do not share the exact same interpretation as equivalent parameters from a non-mixture TTDD, since they only pertain to the $\gamma$ proportion of individuals that follow $F_{T1}$.
 
 
@@ -274,7 +273,7 @@ For the full model with random effects (Ovenbirds and Sim3), which is a missing 
 \section{Simulation studies}
 
 We conducted three simulation studies to explore the behavior of models with non-constant TTDDs.
-In Sim1, we compared models with detection heterogeneity via a partial finite-mixture TTDD versus models without detection heterogeneity.
+In Sim1, we compared models with detection heterogeneity via a finite-mixture TTDD versus models without detection heterogeneity.
 We simulated both mixture and non-mixture datasets from exponential, gamma, lognormal, and Weibull TTDD families.  
 Because model behavior may differ between peaked and nonpeaked datasets, we simulated both for each TTDD family except exponential.  
 Thus, combining mixtures, `peakedness' and TTDD families, we simulated datasets from 14 different TTDDs in total.  
@@ -517,7 +516,7 @@ Credible intervals for Site Age indicate that each decade of age increases abund
 
 DIC calculations preferred the exponential mixture TTDD to the lognormal, Weibull, and gamma mixtures (differences of 6.95, 10.7, and 11.5, respectively). These differences closely mirror those from the exponential mixture dataset in Sim3, but they also mirror those from the nonpeaked lognormal mixture dataset, where the exponential mixture 95\% credible interval for abundance did not contain the true value, and its posterior median was negatively biased by 18\% of the actual abundance.
 
-The Ovenbird analysis highlights the ambiguity that emerged from the simulation studies: the results were entirely consistent with data generated from a partial finite-mixture involving a constant-rate $F_{T1}$ TTDD, but they were also consistent with partial finite-mixtures involving a time-varying TTDD.
+The Ovenbird analysis highlights the ambiguity that emerged from the simulation studies: the results were entirely consistent with data generated from a finite-mixture involving a constant-rate $F_{T1}$ TTDD, but they were also consistent with finite-mixtures involving a time-varying TTDD.
 Simulation results demonstrate that the exponential mixture model fits exponential mixture data well, but it does not fit time-varying mixture data well.
 At this point, we have no reliable tool for differentiating field data between the two TTDD types.
 
@@ -623,13 +622,13 @@ Multiple studies have demonstrated that failure to incorporate distance leads to
 The time-to-detection model as presented here in our study does not incorporate distance.  
 Consequently, our definition of a TTDD necessarily represents an averaging across distance classes and a consequent loss of information if distance data are available.  
 We can modify our model to account for distance.  
-To be consistent with earlier distance-removal studies \citep{Farnsworth2005, Amundson2014}, we could: (i) define a time-to-\textit{availability} distribution $F_T^A(t)$ in the same manner that we have defined a TTDD in this study, (ii) modify Equation \ref{eq:pdet} to reflect the detection distance to individual $q$: $p_{sq}^{(det)} = g(d_q) F_T^A(C_I|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta})$, and (iii) tweak our data model accordingly.
+To be consistent with earlier distance-removal studies \citep{Farnsworth2005, Amundson2014}, we could: (i) define a time-to-\textit{availability} distribution $F_T^A(t)$ in the same manner that we have defined a TTDD in this study, (ii) modify the equation for detection probability to reflect the detection distance to individual $q$: $p_{sq}^{(det)} = g(d_q) F_T^A(C_I|\varphi_s, \boldsymbol{\theta})$, and (iii) tweak our data model accordingly.
 
 However, our analysis makes possible a different strategy that is more consistent with a time-to-event conceptualization of the problem.  
 Rather than define availability and perceptibility as independent detection events over the course of the observation period, we can define them at the event level.  
-In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{sq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{s}^A(t)$ and the perceptibility function $g(d/`8-_q)$.  
+In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{sq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{s}^A(t)$ and the perceptibility function $g(d_q)$.  
 So, $h_{sq}(t) = g(d_q) h_{s}^A(t)$.  
-From standard survival analysis results, $p_{sq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{s}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\textbf{X}_{s}^D, \textbf{Z}_{s}^D, \boldsymbol{\theta}) \right]^{g(d_q)}$.
+From standard survival analysis results, $p_{sq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{s}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\varphi_s, \boldsymbol{\theta}) \right]^{g(d_q)}$.
 
 In short, the time-to-event conceptualization frames perceptibility as a rate-of-availability multiplier rather than as a probability-of-availability multiplier.  
 In a context where rates of availability are allowed to vary from individual to individual, this makes an intuitive sense --- a bird that sings twenty times during the observation period should have its overall detection probability discounted much less than a bird at the same distance which only sings once.  
