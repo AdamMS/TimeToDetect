@@ -50,7 +50,13 @@ Models ignoring detection heterogeneity across subgroups yield biased estimates 
 
 \section{Introduction}\label{sec:intro}
 
-\adam{WRITE A SPELLBINDING OPENING PARAGRAPH}\jarad{no need to aim so high}
+Abundance estimates from animal point-count surveys require accurate estimates of detection probabilities.  
+Removal sampling provide adapted to point counts provides one established methodology for estimating detection probabilities.
+% cost-effective in that it requires neither multiple observers nor multiple site visits.
+Removal sampling is a species abundance surveying methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.
+Assuming that individual capture rates remain constant over all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time .  
+\citet{Farnsworth2002} adapted removal sampling to point-count surveys, suggesting that if: (i) observers record only the first time-to-detection for each animal, and (ii) times to first detection are interval-censored, then data will be similar in for to traditional removal sampled data.
+In the analysis of such data, the observation period is subdivided into unit intervals of equal duration, each of which is equivalent to a trapping session.
 
 %Farnsworth's removal assumptions:\\
 %(i) Closed population during survey\\
@@ -60,18 +66,13 @@ Models ignoring detection heterogeneity across subgroups yield biased estimates 
 %(v) if using limited radius counts, they are accurate
 % Johnson2008: all birds present are available for detection
 
-Removal sampling is a species abundance surveying methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.  
-Assuming that the probability of capturing a not-yet-trapped individual is the same for all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time \citep{Moran1951, Zippin1958, Seber1982}.  
-\citet{Farnsworth2002} adapted removal sampling to avian point-count surveys, suggesting that observers record just the first time-to-detection for each bird and mentally remove it thereafter.  
-Analysis proceeds by subdividing the observation period into intervals of equal duration and assuming that the rate of detection is the same at all times (i.e., following a Poisson process); then, each interval can be treated as a trapping event, and the interval-specific probability of detection can be estimated as with conventional removal sampling.
-
-However, the assumption of a constant detection rate throughout the observation period is not always justified \citep{Alldredge2007}.  
-Animal behaviors such as bout singing or intermittent singing in birds and frogs or diving in whales can lead to time-varying rates of detection \citep{Scott2005, Diefenbach2007, Reidy2011}.  
+However, the assumption of a constant detection rate throughout the observation period is not always justified \citep{Alldredge2007}. \adam{Others, like Mantyniemi.}  
+Animal behaviors such as intermittent singing in birds and frogs or diving in whales can lead to time-varying rates of detection \citep{Scott2005, Diefenbach2007, Reidy2011, Borcherspre-print}.  
 The act of observation may affect animal behavior.  
-Depending upon the study species, the presence of an observer may temporarily either stimulate or suppress detectable cues \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}.  
-Survey methodology itself can affect detection rates.  
+The presence of an observer may temporarily either stimulate or suppress detectable cues \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}.  
+Survey methodology itself can affect recording of detection times.  
+Observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  
 Observers may also become distracted as the survey progresses \citep{Johnson2008}.  
-And, depending upon protocol, observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  
 In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time \citep{Farnsworth2005}.
 
 In this study, we develop a model for scenarios where detection rates are not constant.  
@@ -87,6 +88,12 @@ Second, the hierarchical structure readily lends itself to including abundance- 
 Third, for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014}.  
+
+
+
+%Application of this methodology generally assumes that organisms at a survey site are detected at a constant rate \citep{Farnsworth2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}; however, this assumption is often not justified in the field.  
+%Failure to account for non-constant detection leads to biased estimates of detection and therefore of abundance.  
+
 
 
 Framing a model in terms of time-to-detection leads to two practical differences vis-a-vis constant-detection models.  
@@ -557,6 +564,7 @@ Even so, some recent studies have assumed the absence of a mixture \citep{Solymo
 Our study indicates that mixtures are useful even when a non-constant TTDD is used for hard-to-detect individuals.  
 Models that include a mixture generally perform well even when no heterogeneity is present, but models that omit a mixture are biased and overly certain when detection heterogeneity exists.  
 Indeed, for peaked datasets, mixture models can outperform non-mixture models even in the absence of heterogeneity.
+% "It is tempting to choose classes of models that yield narrower confidence intervals for N; however, Coull's (1997) extensive simulation studies (summarized by Coull and Agresti (1999)) clearly reveal that this behavior can produce erroneous inferences." -- Dorazio and Royle 2003
 
 In a limited set of situations, posterior predictive checks and DIC can identify when non-mixture or exponential TTDDs inadequately describe the marginal pattern of detections over time.  
 But in many situations, neither tool points a clear way to select the correct family of TTDD.  
@@ -613,6 +621,7 @@ But the underlying abundance and detection models remain the same.
 The time-to-detection approach in our model is a departure from the probability-of-detection approach that has been used in distance-removal modeling \citep{Farnsworth2005, Diefenbach2007, Solymos2013, Amundson2014}\adam{Alldredge2007?}.  
 In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}\adam{I haven't read Williams2002 -- cited in Royle2004.  
 I'm  beginning to think this may have too-numerous antecedents to cite... in Reidy, the earliest reference is Marsh and Sinclair 1989.  
+Ditto Amundson.
 See also McCallum 2005.}.  
 In avian point-counts, because the overwhelming majority of detections are auditory, $P_a$ is understood to be the probability that a bird vocalizes during the observation period.  
 Meanwhile, perceptibility is treated as a function of distance $d$: $P_b = g(d)$, with nearby available individuals being detected with higher probability than distant individuals.  
