@@ -53,16 +53,16 @@ Finally, we analyze an Overbird data set from the Chippewa National Forest using
 
 \end{abstract}
 
+\newpage
 \section{Introduction}\label{sec:intro}
 
 Abundance estimates from animal point-count surveys require accurate estimates of detection probabilities.  
-Removal sampling provide adapted to point counts provides one established methodology for estimating detection probabilities.
+Removal sampling, where individuals are solely counted on their first capture, provides one established methodology for estimating detection probabilities \citep{Farnsworth2002}.
 % cost-effective in that it requires neither multiple observers nor multiple site visits.
-Removal sampling is a species abundance surveying methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.
-Assuming that individual capture rates remain constant over all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time .  
-\citet{Farnsworth2002} adapted removal sampling to point-count surveys, suggesting that if: (i) observers record only the first time-to-detection for each animal, and (ii) times to first detection are interval-censored, then data will be similar in for to traditional removal sampled data.
-In the analysis of such data, the observation period is subdivided into unit intervals of equal duration, each of which is equivalent to a trapping session.
-
+%Removal sampling is a species abundance surveying methodology in which observers capture and physically remove animals at a survey site over a series of trapping sessions.
+%Assuming that individual capture rates remain constant over all trapping sessions, it is possible to estimate the proportion of individuals still not captured from the pattern of captures over time .  
+%\citet{Farnsworth2002} adapted removal sampling to point-count surveys, suggesting that if: (i) observers record only the first time-to-detection for each animal, and (ii) times to first detection are interval-censored, then data will be similar in for to traditional removal sampled data.
+%In the analysis of such data, the observation period is subdivided into unit intervals of equal duration, each of which is equivalent to a trapping session.
 %Farnsworth's removal assumptions:\\
 %(i) Closed population during survey\\
 %(ii) no double-counting\\
@@ -70,27 +70,23 @@ In the analysis of such data, the observation period is subdivided into unit int
 %(iv) TTDD for hard-to-detect group is correct after the end of the observation period\\
 %(v) if using limited radius counts, they are accurate
 % Johnson2008: all birds present are available for detection
+A typical assumption in removal sampling is a constant detection rate throughout the observation period, but this assumption is often unjustified \citep{Alldredge2007}. %\adam{Others, like Mantyniemi.}  
+In particular, animal behaviors, e.g. intermittent singing in birds and frogswhales \citep{Scott2005, Diefenbach2007, Reidy2011}, observer behaviors, e.g. pre-counting and disturbing species \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007, LeeMarsden2008, Johnson2008}, and survey methodology, e.g. lack of settling in period \jarad{what else were you thinking? ref?}, can all lead to detection heterogeneity \citep{Farnsworth2005}.
+%Survey methodology itself can affect recording of detection times.  
+% Observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  
+% Observers may also become distracted as the survey progresses \citep{Johnson2008}.  
+%In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time .
 
-However, the assumption of a constant detection rate throughout the observation period is not always justified \citep{Alldredge2007}. \adam{Others, like Mantyniemi.}  
-Animal behaviors such as intermittent singing in birds and frogs or diving in whales can lead to time-varying rates of detection \citep{Scott2005, Diefenbach2007, Reidy2011, Borcherspre-print}.  
-The act of observation may affect animal behavior.  
-The presence of an observer may temporarily either stimulate or suppress detectable cues \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}.  
-Survey methodology itself can affect recording of detection times.  
-Observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  
-Observers may also become distracted as the survey progresses \citep{Johnson2008}.  
-In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time \citep{Farnsworth2005}.
-
-In this study, we develop a model for scenarios where detection rates are not constant.  
-We model time-to-detection as is done in survival analysis, defining a continuous random variable $T$ for each animal's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function $F_T(t)$.  
+A common assumption to deal with some of the issues above is to increase the probability of detection in the initial observation period \citep{Etterson2009} \jarad{Adam: add other refs}, although this is not yet the standard \citep{Amundson2014} \jarad{Adam: add other refs}. 
+In this manuscript, we consider the choice of whether to include a mixture component, but we also consider a broader class of non-constant distributions.
+%In this study, we develop a model for scenarios where detection rates are not constant. 
+In particular, we consider time-to-detection as done in survival analysis, defining a continuous random variable $T$ for each animal's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function $F_T(t)$.  
 We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  
-The instantaneous detection rate or hazard function $h(t)$ can be found from the TTDD as $h(t) = f_T(t) / (1-F_T(t))$.
 
-Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown.  
+
+Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
 We embed the TTDD in a hierarchical framework for multinomial counts using an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  
-For our purposes, the N-mixture framework provides three clear benefits.  
-First, its multinomial data framework accords with the interval censored data collection that is customary in point-count surveys \citep{Ralph1995}.  
-Second, the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}.  
-Third, for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
+For our purposes, the N-mixture framework provides three clear benefits: 1) its multinomial data framework accords with the interval censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014}.  
 
@@ -103,84 +99,81 @@ Several previous studies have employed the N-mixture framework to analyze remova
 
 Framing a model in terms of time-to-detection leads to two practical differences vis-a-vis constant-detection models.  
 First, in order to model covariate and random effects on detection, we perform mixed effects linear regression on the log of the rate parameter as in \citet{Solymos2013}, whereas most existing studies instead construct regression models on the logit of the equal-interval detection probability \adam{Amundson2014 and others?}.  
-Such an approach is not possible when detection rates are not constant.  
+The later is not possible when detection rates are not constant.  
 Second, because we can obtain interval-specific detection probabilities from the TTDD by partitioning its cdf, we can directly model the data according to their existing interval structure rather than subdividing the observation period into intervals of equal duration.  
 Indeed, with a few simplifications, our model fits exact time-to-detection data, whereas existing constant-detection removal models only approximate exact data by subdividing the observation interval into a large number of fine intervals \citep{Reidy2011, Amundson2014}.
+% 
+% \adam{Based on further lit review, I think I need to insert a paragraph here about what time-varying modeling has been done.  
+% In the fisheries world, models of time-varying catchability have been implemented -- see Schnute 1983, Scruton and Gibson (ref: Mantyniemi), and Mantyniemi2015 for examples.  
+% Also, Alldredge 2007 implements a complete-history of detection model (technically mark-recapture, not removal) that estimates interval-specific detection probabilities (complete with covariates and detection heterogeneity).  
+% However, it cannot be applied in a removal context, because removal data contains only first times to detection, and the Alldredge model requires subsequent observations -- removal models compensate by specifying a TTDD, thus enabling us to extrapolate beyond the observation period.}  
 
-\adam{Based on further lit review, I think I need to insert a paragraph here about what time-varying modeling has been done.  
-In the fisheries world, models of time-varying catchability have been implemented -- see Schnute 1983, Scruton and Gibson (ref: Mantyniemi), and Mantyniemi2015 for examples.  
-Also, Alldredge 2007 implements a complete-history of detection model (technically mark-recapture, not removal) that estimates interval-specific detection probabilities (complete with covariates and detection heterogeneity).  
-However, it cannot be applied in a removal context, because removal data contains only first times to detection, and the Alldredge model requires subsequent observations -- removal models compensate by specifying a TTDD, thus enabling us to extrapolate beyond the observation period.}  
-
-\jarad{The introduction needs to end earlier. It should be about 1-2 pages covering what has previously been done and outline our approach. So this should probably start a new section and before this there should be an outline of our manuscript. }
-
-\subsection{TTDDs as behavior and methodology}
-
-A TTDD defines the range of detection patterns possible in an analysis.  
-The most basic is an exponential TTDD, which imposes a constant first detection rate.  
-Choosing another TTDD can allow for a systematic non-constant detection regime.  
-For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
-
-Increasing hazard functions result in a pdf for $T$ that has a mode away from zero; we term these TTDDs `peaked'.  
-We contrast these to decreasing hazard functions with a mode at zero, which we term `nonpeaked'.  
-For our purposes, the exponential TTDD is neither peaked nor nonpeaked.
-
-We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  
-We reserve `detection heterogeneity' for differences across population subgroups.  
-It is often modeled using a mixture of detection distributions.  
-\citet{Farnsworth2002} introduce a finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
- Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  
-We use `non-constant detection' when detection rates for an organism change with time.  
-Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
-
-\adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
+\jarad{Need a roadmap. Provide section number in the paragraph below.}
 
 In this study, we construct a time-to-detection N-mixture model for estimating abundance from removal-sampled point-count surveys.  
 We explore model behavior through a series of simulations testing: (i) how well constant-detection models fit non-constant detection data and vice versa, (ii) the utility of finite-mixtures to model detection heterogeneity involving a non-constant detection subgroup, and (iii) model performance with covariates and random effects affecting both abundance and detection.  
 Finally, we apply our model to Ovenbird data from the Minnesota Forest Breeding Bird Project.
 
+\section{Interval-censored avian point counts}\label{sec:data}
+
+Our analysis is motivated by avian point-count surveys in Chippewa National Forest from 2008-2013 as part of the Minnesota Forest Breeding Bird Project (MNFB) \citet{Hanowski1995}.  
+Survey sites were randomly selected from sawtimber red pine stands with no recent logging activity such that each stand had up to three sites with sufficient geographical distance between sites to reduce or eliminate overlapping territories.
+The data include 65 sites and a total of 381 with site specific variables including site age,  stock density, an indicator of select-/partial-cut logging during the 1990s. 
 
 
 
-\section{Methods}\label{sec:model}
-
-\subsection{Data}\label{sec:data}
-
-Our analysis is motivated by point-count surveys conducted in Chippewa National Forest from 2008-2013 as part of the Minnesota Forest Breeding Bird Project (MNFB).  
-The MNFB design is described in \citet{Hanowski1995}, and we summarize only essential details here.  
-Single-visit time-to-first-detection point-count surveys were conducted by trained observers at a fixed set of sampling locations once annually.  
-Survey durations were 10 minutes, with times to first detection for over 50 species censored into nine intervals -- a two-minute interval followed by eight one-minute intervals.  
-These relatively fine-scale intervals should provide more information about TTDDs than the three-interval methodology (0-3, 3-5, and 5-10 minutes) used in many avian point count surveys \citep{Ralph1995}.
-There was no prescribed settling-in period between the observer's arrival and the time they began observing.  
-
-Our model is formulated for single-visit removal-sampled point-count surveys $s=1,\dotso,S$.  
-We present the model for exact time-to-detection data and also show how to modify it for interval-censored detection times.  
-We use $n_{s}^{(obs)}$ to denote the number of individuals observed during a survey.  
-For exact data, times to detection are $t_{sq}$, where $q = 1,\dotso,n_{s}^{(obs)}$ indexes observed individuals at a survey.  
-For interval-censored data, we enumerate the intervals $i = 1,\dotso,I$ with the cutoff times for each interval written $C_i$, where $C_0 = 0 \text{ and } C_I = \text{the survey duration}$.  
-The number of animals counted during any interval is $n_{si}$ such that $n_{s}^{(obs)} = \sum_{i=1}^I n_{si}$, and the vector of counts across all intervals at a survey is written $\vn_{s}$.
-
-\subsection{Framework}
-
-We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a data model incorporating binomial detection and observed times to detection, (b) a detection model based upon a TTDD, and (c) an abundance model based upon an integer-valued count distribution.  
-Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
-
-\subsection{Data Model}
-We assume that counts from different surveys are conditionally independent.  
-We define $T_{sq}$ as a random variable for the first time at which an individual is detected.
-We assume that detection times for individuals at any given survey are independent, identically distributed according to a TTDD with cdf $F_T(t)$ and pdf $f_T(t)$, which may depend on covariates.  
-The probability of detection for an animal is thus $p_{s}^{(det)} = F_T(C_I)$ and the conditional distribution of observed detection times can be written $f_{T|det}(t|t_{sq}<C_I) = f_T(t) \textbf{I}(t<C_I) / F_T(C_I)$.  
-Denoting $N_{s}$ as the total number animals present at a survey, the data model is:
-\begin{align}\label{eq:datamodel}
-n_{s}^{(obs)} &\sim \mbox{Binomial}\left(N_{s}, p_{s}^{(det)}\right)\\
-\label{eq:Tsrq}T_{sq}|det &\sim f_{T|det}(t|t_{sq}<C_I)
-\end{align}
-When detection times are censored, we replace Eq. \ref{eq:Tsrq} with $\vn_{s} \sim \mbox{Multinomial}\left(n_{s}^{(obs)}, \textbf{p}_{s}\right)$, where $\textbf{p}_{s}$ is the vector of interval-specific detection probabilities obtained by partitioning the conditional cdf $F_{T|det}(t|t_{sq}<C_I)$ at the interval cutoff times.  
-It follows that $\sum_{i=1}^I p_{si} = 1$.
+%with a total of 947 Ovenbirds counted and a maximum of eight birds counted in any single survey.
 
 
+\jarad{Adam: How many observers}
 
-\subsection{Detection Model}\label{sec:detectionmodel}
+%The MNFB design is described in , and we summarize only essential details here.  
+Single-visit (per year) point-count surveys were conducted by trained observers at each site once annually (weather permitting).  
+Survey durations were 10 minutes, with times to first detection for over 50 species censored into nine intervals: a two-minute interval followed by eight one-minute intervals.  
+During each survey, the Julian date, time of day, and temperature were recorded. 
+
+\section{Time-to-detection N-mixture models}
+
+Before considering the interval censoring and the explanatory variables, we first consider the scenario of exact time to detections with no explanatory variables. 
+We then incorporate interval censoring and follow with inclusion of fixed and random effects for abundance and detection. 
+
+\subsection{Exact time to detection}
+
+Suppose at each survey location $s$ ($s=1,\dots,S$), the exact time to first detection $t_{sb}$ of individual $b$ (for bird, $b=1,\dots,n_s^{(obs)}$) is recorded.
+Assuming all individuals are observed at a common rate, then $T_{sb}$ is a random variable with cumulative distribution function $F_T(t)$ and probability density function $f_T(t)$. 
+If the times to first detection are censored at $C$, due a finite survey length of $C$, the probability of detection for each individual is $p^{(det)}=F_T(C)$ and the conditional distribution of observed detection times is $f_{T|det}(t)= f_T(t)/F_T(C)$ for $0<t<C$. Denoting $N_{s}\ge n_s^{(obs)}$ as the total number of individuals present at a survey and assuming individuals are independent, we have $n_{s}^{(obs)} \stackrel{ind}{\sim} \mbox{Binomial}\left(N_{s}, p^{(det)}\right)$ and $T_{sb} \stackrel{ind}{\sim} f_{T|det}(t_{sb})$
+where $T_{sb}$ is observed only for those $n_s^{(obs)}$ individuals whose observed time to first detection is less than $C$, i.e. $t_{sb}<C$. 
+The instantaneous detection rate, or hazard function, is $h(t) = f_T(t) / [1-F_T(t)]$.
+
+A common choice for time-to-detection distribution (TTDD) is an exponential distribution, i.e. $T_{sb}\stackrel{ind}{\sim} \mbox{Exp}(\varphi)$, which imposes a constant first detection rate, i.e. $h(t) = \lambda$.
+Choosing another TTDD can allow for a systematic non-constant detection regime. 
+For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
+In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
+
+With exact times to first detection, these times could be used to estimate the parameters in a TTDD and thus estimate $p^{(det)}$. 
+With an estimate and uncertainty for $p^{(det)}$, we are in a scenario of a binomial model with unknown $N$ and ``known'' $p$ and thus can estimate $N$.
+In these models, estimates of $N_s$ are unstable unless $p^{(det)}>0.5$.
+One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\stackrel{ind}{\sim} Po(\lambda)$. 
+Although alternative distributions could be considered, e.g. negative binomial, our experience with avian point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
+\jarad{Adam: add refs$.}
+
+
+\subsection{Interval-censored times to detection}
+
+Due to the harried process of avian point counts, times to first detection are typically not recorded exactly, but are instead censored into $I$ intervals. 
+Let $C_i$ for $i=1,\dots,I$ indicate the right endpoint of the $i$th interval then $C_I$ is the total survey duration and, letting $C_0=0$, the $i$th interval is $(C_{i-1},C_{i}]$. 
+Finally, let $n_{si}$ be the number of animals counted during interval $i$ on survey $s$, $n_{s}^{(obs)} = \sum_{i=1}^I n_{si}$, and $\vn_{s}=(n_{s1},\dots,n_{sI})$.
+Assuming independence amongst individuals and sites, we have $\vn_{s} \sim \mbox{Multinomial}\left(n_{s}^{(obs)}, \textbf{p}_{s}\right)$, where $\textbf{p}_{s}=(p_{s1},\dots,p_{sI})$ and $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
+
+A common observation in avian point counts are increased observations in the first interval relative to an exponential distribution.
+To accommodate this empirical observation, many models include a term to increase the probability of observing 
+\jarad{Adam: add refs.}
+
+
+
+\subsection{Incorporating detection explanatory variables}\label{sec:detectionmodel}
+
+
 
 The two main elements of the detection model for $T_{sq}$ are: (i) the distributional form and (ii) the expectation function.
 $T_{sq}$ should be based on non-negative continuous distributions, preferrably featuring a rate parameter than can be estimated via regression.  
@@ -219,7 +212,53 @@ We can decompose $N_{s}$ into observed and unobserved portions; the latent unobs
 
 
 
+We distinguish two categories of TTDDs: peaked and nonpeaked. 
+A peaked TTDD has an increasing hazard function and therefore a pdf whose mode is not at zero. 
+A nonpeaked TTDD has a decreasing hazard function and therefore a pdf whose mode is at zero.
+Thus, the exponential TTDD is neither peaked nor nonpeaked.
+
+We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  
+We reserve `detection heterogeneity' for differences across population subgroups.  
+It is often modeled using a mixture of detection distributions.  
+\citet{Farnsworth2002} introduce a finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
+ Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  
+We use `non-constant detection' when detection rates for an organism change with time.  
+Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
+
+\adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
+
+
+
+
+
+
+\section{Methods}\label{sec:model}
+
+  
+
+
+\subsection{Framework}
+
+We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a data model incorporating binomial detection and observed times to detection, (b) a detection model based upon a TTDD, and (c) an abundance model based upon an integer-valued count distribution.  
+Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
+
+\subsection{Data Model}
+We assume that counts from different surveys are conditionally independent.  
+We define $T_{sq}$ as a random variable for the first time at which an individual is detected.
+We assume that detection times for individuals at any given survey are independent, identically distributed according to a TTDD with cdf $F_T(t)$ and pdf $f_T(t)$, which may depend on covariates.  
+The probability of detection for an animal is thus $p_{s}^{(det)} = F_T(C_I)$ and the conditional distribution of observed detection times can be written $f_{T|det}(t|t_{sq}<C_I) = f_T(t) \textbf{I}(t<C_I) / F_T(C_I)$.  
+
+When detection times are censored, we replace equation \ref{eq:Tsrq} with 
+It follows that $\sum_{i=1}^I p_{si} = 1$.
+
+
+
+
+
+
+
 \subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
+
 To demonstrate our model, we fit counts of Ovenbirds (\textit{Seiurus aurocapilla}) from the MNFB.
 We restricted survey sites in our analysis to those of the most abundant habitat type (sawtimber red pine); in so doing, we focused modeling efforts upon the detection model and skirted the complication of modeling abundance across habitat types.  
 We further constrained analysis to 65 sites with a site origin year between 1870-1970.  
