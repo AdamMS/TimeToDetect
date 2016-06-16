@@ -36,13 +36,18 @@
 
 Abundance estimates from animal point-count surveys require accurate estimates of detection probabilities.  
 The standard model for estimating detection from removal-sampled point-count surveys assumes that organisms at a survey site are detected at a constant rate; however, this assumption is often not justified.  
-Detection rates can be influenced by organismal behaviors, survey methodology, and observer effort.  
-Failure to account for non-constant detection leads to biased estimates of detection and therefore of abundance.  
-Whereas, under the standard approach, detection probability is modeled by dividing the observation period into equal-duration intervals, we instead model the detection {\it rate} in continuous time via a time-to-detection distribution embedded within a hierarchical N-mixture framework using Bayesian methods.  
+%Detection rates can be influenced by organismal behaviors, survey methodology, and observer effort.  
+%Failure to account for non-constant detection leads to biased estimates of detection and therefore of abundance.  
+We consider a class of N-mixture models that allow for detection heterogeniety through a mixture component, flexible two-parameter time-to-detection distributions (TTDDs), and allows for fixed and random effects for both abundance and detection.
+%Whereas, under the standard approach, detection probability is modeled by dividing the observation period into equal-duration intervals, we instead model the detection {\it rate} in continuous time via a time-to-detection distribution (TTDD) embedded within a hierarchical N-mixture framework.  
 Our model is thus a combination of survival time-to-event analysis with unknown-N, unknown-p abundance estimation.  
-We apply this model to Ovenbird counts from the Chippewa National Forest and to datasets simulated under different time-to-detection patterns.  
-Models assuming constant detection rates produce biased estimates of detection when true detection rates vary with time, whereas models allowing for variable detection (assuming gamma, Weibull, or lognormal distributed times to detection) produce less biased estimates of the detection probability and nominal credible interval coverage.  
-Models ignoring detection heterogeneity across subgroups yield biased estimates of detection when such heterogeneity exists, whereas models accounting for detection heterogeneity (modeled as a mixture) return reasonable coverage rates and can outperform heterogeneity-ignorant models even when there is no heterogeneity.
+We find that TTDDs that include a mixture component resulting in increased probability of detection in the initial observation period are necessary when the data have a chance of arising from distributions of this nature.
+In addition, the flexibility offered by two-parameter distributions, e.g. gamma, can outperform exponential based models when the truth is exponential or non-exponential.
+Finally, we analyze an Overbird data set from the Chippewa National Forest using mixed effect models for both abundance and detection and demonstrate that the effects of explanatory variables on abundance and detection are consistent across mixture TTDDs and that flexible TTDDs result in lower estimated probabilities of detection and therefore higher estimates of abundance. 
+
+% We apply this model to Ovenbird counts from the Chippewa National Forest and to datasets simulated under different time-to-detection patterns.  
+% Models assuming constant detection rates produce biased estimates of detection when true detection rates vary with time, whereas models allowing for variable detection (assuming gamma, Weibull, or lognormal distributed times to detection) produce less biased estimates of the detection probability and nominal credible interval coverage.  
+% Models ignoring detection heterogeneity across subgroups yield biased estimates of detection when such heterogeneity exists, whereas models accounting for detection heterogeneity (modeled as a mixture) return reasonable coverage rates and can outperform heterogeneity-ignorant models even when there is no heterogeneity.
 
 {\bf Keywords:} abundance; availability; N-mixture model; survival analysis; Bayesian
 
