@@ -27,6 +27,18 @@
      {\end{list}}
 
 \newcommand{\vn}{\textbf{n}}
+\newcommand{\vp}{\textbf{p}}
+\newcommand{\vX}{\textbf{X}}
+\newcommand{\vZ}{\textbf{Z}}
+\newcommand{\vbeta}{\boldsymbol{\beta}}
+\newcommand{\vxi}{\boldsymbol{\xi}}
+
+\newcommand{\Exp}{\mbox{Exp}}
+\newcommand{\Ga}{\mbox{Ga}}
+\newcommand{\We}{\mbox{We}}
+\newcommand{\LN}{\mbox{LN}}
+\newcommand{\Po}{\mbox{Po}}
+\newcommand{\Mult}{\mbox{Mult}}
 
 \begin{document}
 
@@ -132,16 +144,25 @@ Single-visit (per year) point-count surveys were conducted by trained observers 
 Survey durations were 10 minutes, with times to first detection for over 50 species censored into nine intervals: a two-minute interval followed by eight one-minute intervals.  
 During each survey, the Julian date, time of day, and temperature were recorded. 
 
+\jarad{Put information about Ovenbird here?}
+
+a total of 947 Ovenbirds counted and a maximum of eight birds counted in any single survey.
+
+
+
+
+
+
 \section{Time-to-detection N-mixture models}
 
-Before considering the interval censoring and the explanatory variables, we first consider the scenario of exact time to detections with no explanatory variables. 
+Before considering interval censoring and explanatory variables, we first consider the scenario of exact time to detections with no explanatory variables. 
 We then incorporate interval censoring and follow with inclusion of fixed and random effects for abundance and detection. 
 
 \subsection{Exact time to detection}
 
 Suppose at each survey location $s$ ($s=1,\dots,S$), the exact time to first detection $t_{sb}$ of individual $b$ (for bird, $b=1,\dots,n_s^{(obs)}$) is recorded.
-Assuming all individuals are observed at a common rate, then $T_{sb}$ is a random variable with cumulative distribution function $F_T(t)$ and probability density function $f_T(t)$. 
-If the times to first detection are censored at $C$, due a finite survey length of $C$, the probability of detection for each individual is $p^{(det)}=F_T(C)$ and the conditional distribution of observed detection times is $f_{T|det}(t)= f_T(t)/F_T(C)$ for $0<t<C$. Denoting $N_{s}\ge n_s^{(obs)}$ as the total number of individuals present at a survey and assuming individuals are independent, we have $n_{s}^{(obs)} \stackrel{ind}{\sim} \mbox{Binomial}\left(N_{s}, p^{(det)}\right)$ and $T_{sb} \stackrel{ind}{\sim} f_{T|det}(t_{sb})$
+Assuming all individuals are observed at a common rate, then $T_{sb}$ is a random variable with cumulative distribution function (cdf) $F_T(t)$ and probability density function (pdf) $f_T(t)$. 
+If the times to first detection are censored at $C$, due to a finite survey length of $C$, the probability of detection for each individual is $p^{(det)}=F_T(C)$ and the conditional distribution of observed detection times has pdf $f_{T|det}(t)= f_T(t)/F_T(C)$ for $0<t<C$ and cdf $F_{T|det}(t) = \int_0^t f_{T|det}(x) dx$. Denoting $N_{s}\ge n_s^{(obs)}$ as the total number of individuals present at a survey and assuming individuals are independent, we have $n_{s}^{(obs)} \stackrel{ind}{\sim} \mbox{Binomial}\left(N_{s}, p^{(det)}\right)$ and $T_{sb} \stackrel{ind}{\sim} f_{T|det}(t_{sb})$
 where $T_{sb}$ is observed only for those $n_s^{(obs)}$ individuals whose observed time to first detection is less than $C$, i.e. $t_{sb}<C$. 
 The instantaneous detection rate, or hazard function, is $h(t) = f_T(t) / [1-F_T(t)]$.
 
@@ -149,11 +170,13 @@ A common choice for time-to-detection distribution (TTDD) is an exponential dist
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
 For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
 In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
+For consistency that will be clear when including explanatory variables, we use the following parameterization: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\varphi \mathrm{\Gamma}(1+1/\alpha)$; and $T\sim \LN(\varphi,\alpha), E[T] = e^{\varphi+\alpha/2}$.
 
-With exact times to first detection, these times could be used to estimate the parameters in a TTDD and thus estimate $p^{(det)}$. 
-With an estimate and uncertainty for $p^{(det)}$, we are in a scenario of a binomial model with unknown $N$ and ``known'' $p$ and thus can estimate $N$.
+With exact times to first detection, these times could be used to estimate the parameters in a TTDD and thus estimate $p^{(det)}$ and its uncertainty. 
+With an estimate and uncertainty for $p^{(det)}$, we are in a scenario of a binomial model with unknown $N_s$ and ``known'' $p$ and thus can estimate $N_s$.
 In these models, estimates of $N_s$ are unstable unless $p^{(det)}>0.5$.
-One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\stackrel{ind}{\sim} Po(\lambda)$. 
+One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\stackrel{ind}{\sim} \Po(\lambda)$. 
+We can decompose $N_{s}$ into observed and unobserved portions; the latent unobserved portion follows a binomial-Poisson hierarchy, with the result that $n_{s}^{(unobs)} \sim \Po\left(\lambda(1-p^{(det)})\right)$.  
 Although alternative distributions could be considered, e.g. negative binomial, our experience with avian point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
 \jarad{Adam: add refs.}
 
@@ -163,93 +186,99 @@ Although alternative distributions could be considered, e.g. negative binomial, 
 Due to the harried process of avian point counts, times to first detection are typically not recorded exactly, but are instead censored into $I$ intervals. 
 Let $C_i$ for $i=1,\dots,I$ indicate the right endpoint of the $i$th interval then $C_I$ is the total survey duration and, letting $C_0=0$, the $i$th interval is $(C_{i-1},C_{i}]$. 
 Finally, let $n_{si}$ be the number of animals counted during interval $i$ on survey $s$, $n_{s}^{(obs)} = \sum_{i=1}^I n_{si}$, and $\vn_{s}=(n_{s1},\dots,n_{sI})$.
-Assuming independence amongst individuals and sites, we have $\vn_{s} \sim \mbox{Multinomial}\left(n_{s}^{(obs)}, \textbf{p}_{s}\right)$, where $\textbf{p}_{s}=(p_{s1},\dots,p_{sI})$ and $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
+Assuming independence amongst individuals and sites, we have $\vn_{s} \sim \Mult \left(n_{s}^{(obs)}, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
 
 A common observation in avian point counts are increased observations in the first interval relative to an exponential distribution.
-To accommodate this empirical observation, many models include a term to increase the probability of observing 
-\jarad{Adam: add refs.}
+To accommodate this empirical observation, many models include a parameter to increase the probability of observing individuals in the first interval. \jarad{Adam: add refs.}
+We augment our model with a mixing parameter $\gamma\in[0,1]$ which updates the following definitions
+$f_{T|det}(t) = f_T(t)/[\gamma+F_T(C)]$\ and $p_{s1} = \gamma + F_{T|det}(C_1)$.
+When including this parameter and these modifications, we refer to the model as a ``mixture'' model. 
+If $\gamma=0$, then the non-mixture model is recovered.
 
 
 
-\subsection{Incorporating detection explanatory variables}\label{sec:detectionmodel}
+
+
+\subsection{Incorporating explanatory variables}\label{sec:covariates}
+
+As discussed in Section \ref{sec:data}, explanatory variables are available for sites and for surveys. 
+Generally, we suspect that site variables, e.g. habitat, will affect abundance and survey variables, e.g. time of day, will affect detection probability. 
+Thus, we allow for incorporating explanatory variables on both the abundance and detection.
+
+To incorporate explanatory variables on abundance, we model the expected survey abundance $\lambda_{s}$ via a mixed effects linear regression with a log link, i.e. $\log (\lambda_{s}) = \vX_{s}^A\vbeta^A + \vZ_{s}^A\vxi^A$ where $\vX_{s}^A$ are explanatory variables, $\vbeta^A$ is a vector of fixed effects, $\vZ_{s}^A$ specifies random effect levels, and $\xi_j^A \overset{ind}{\sim} N(0,\sigma_{A[j]}^2)$ are random effects where $A[j]$ assigns the appropriate variance for the $j$th abundance random effect.  
+
+To incorporate explanatory variables on detection probability, we let the TTDD depend on the explanatory variables through the now site-specific parameter $\varphi_s$. 
+Specifically, we model $\log(\varphi_{s}) = \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D$, where $\vX_{s}^D$ are explanatory variables, $\vbeta^D$ is a vector of fixed effects, $\vZ_{s}^D$ specifies random effect levels, $\xi_j^D \overset{ind}{\sim} N(0,\\tau_{D[j]}^2)$ are random effects where $D[j]$ assigns the appropriate variance for the $j$th detection random effect. 
 
 
 
-The two main elements of the detection model for $T_{sq}$ are: (i) the distributional form and (ii) the expectation function.
-$T_{sq}$ should be based on non-negative continuous distributions, preferrably featuring a rate parameter than can be estimated via regression.  
-In this study, we adopt TTDDs for $T_{sq}$ using the following: Exponential($\varphi_{s}$), Gamma($\alpha, \varphi_{s}$), Weibull($k, \varphi_{s}$), and Lognormal($\mu_{s}, \sigma_{det}^2$).  
-Here, $\varphi_{s}$ and $\mu_{s}$ are survey-specific detection rate parameters, and we consider the shape parameters $\alpha$, $k$, and $\sigma_{det}^2$ to be constant across all surveys.
 
-We can model detection heterogeneity by defining $F_T(t)$ as a mixture of TTDD components.  
-In this study, we use interval-censored observations, so in addition to the four above TTDDs (with no mixture component), we consider finite-mixtures of a point mass during the first survey interval plus a continuous component from an exponential, gamma, Weibull, or lognormal distribution.  
+\subsection{Estimation}
 
-We model the expectation function via mixed effects linear regression.  
-For exponential, gamma, and Weibull TTDDs, we model: $\log(\varphi_{s}) = \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D$, where $\textbf{X}_{s}^D$ are covariates, $\boldsymbol{\beta}^D$ is a vector of fixed effects, $\textbf{Z}_{s}^D$ specifies random effect levels, $\xi_i^D \overset{ind}{\sim} N(0,\sigma_{D[i]}^2)$ are random effects, and $\sigma_{D[i]}^2$ denotes the variance associated with $\xi_i^D$.  
-This regression is equivalent to modeling the log of the expected time-to-detection, which is inversely related to the detection rate.  
-For the lognormal distribution, we fit the same regression model to $-\mu_{s}$.  
+For ease of reference, the final full model is provided in equation \eqref{eq:model} where the conditioning of the TTDD cdf on $\alpha$ and $\varphi_s$ is made explicity. 
+\begin{subequations}
+\begin{eqnarray} \label{eq:model}
+n_s^{(obs)} &\sim& Po(\lambda_s) \\
+\vn_s &\sim& Mult(n_s^{(obs)}, \vp_s), \vp_s = (p_{s1},\dots,p_{sI}) \\
+p_{s1} &=& \gamma + F_{T|det}(C_1|\alpha,\varphi_s),\, p_{si} = F_{T|det}(C_i|\alpha,\varphi_s)-F_{T|det}(C_{i-1}|\alpha,\varphi_s)\\
+\log(\lambda_s) &=& \vX_{s}^A\vbeta^A + \vZ_{s}^A\vxi^A,\, \xi_j^A \overset{ind}{\sim} N(0,\sigma_{A[j]}^2) \\
+\log(\varphi_{s}) &=& \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D,\, \xi_j^D \overset{ind}{\sim} N(0,\tau_{D[j]}^2)
+\end{eqnarray}
+\end{subequations}
+
+
+\jarad{May need to remove subnumbers, but I'll wait to see if we need them.}
+
+ 
+We adopt a Bayesian approach and therefore require a prior over the model parameters.
+To ease construction of a default prior for this model, we standardize all explanatory variables and then construct priors to be diffuse within a reasonable range of values.
+Prior mean and standard deviation (sd) for the abundance intercept was set at a median abundance of 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
+Prior mean and sd for the detection intercept were chosen so that, based on an intercept-only non-mixture model with $\alpha=1$: (i) median prior detection probability was $p_{s}^{(det)} = 0.50$, and (ii) 95\% of the prior detection probability was within $p_{s}^{(det)} \in (0.01, 1.0)$.  
+Normal priors for fixed effect parameters were centered at zero with standard deviations matching the appropriate intercept term.  
+All standard deviations and $\alpha$ were given half-Cauchy priors with location 0 and scale 1 for the untruncated Cauchy and Unif(0,1) prior on the mixture parameter $\gamma$ in the mixture models.
+All scalar parameters were assumed independent \emph{a priori}. 
+
+
+\jarad{Adam: I appreciate that you provided the justification for the priors, but we should also include the exact vaules where possible.}
+
+
+We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
+We discarded half of the iterations as warmup and then thinned by 10.  
+We monitored convergence of the MCMC chains using Geweke diagnostics \citep{Geweke1991}. \jarad{Adam: what did you do with the Geweke diagnostics?}  
+We reran models if the effective sample size for any parameter was below 1000.  
+The number of iterations used depended on the model and is detailed later. 
+For most models, we accepted Stan defaults for initial values; however, gamma and Weibull models sometimes failed \jarad{Adam: how did they fail?} unless we specified initial values, which we supplied from true parameter values when known or from the posterior means of preliminary short-run models. \jarad{Adam: this doesn't make sense. Why would the means from these preliminary short-run models be any better than letting these preliminary short-run models continue? You claim seems to be that letting these preliminary short-runs continue would mean that those models would fail.}
+\jarad{Adam: if you are using Geweke diagnostics, then it would be better for your to start from somewhere "good". For fixed effects, you could start at 0, mixing parameter at 0.5, etc.} 
+
+
+
+
+\jarad{Adam: we should include the Stan models in the supplement.}
+
 %Thus, the link functions in our detection model are:
 %\begin{alignat}{3}
-%&\text{Exponential:\;} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}])\\
-%&\text{Gamma:} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \log(\alpha)\\
-%&\text{Weibull:}  &&\log(\varphi_{s}) &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \log\left(\Gamma\left(1 + 1/k\right)\right)\\
-%&\text{Lognormal:} &&-\mu_{s} &&= \text{Intercept}^D + \textbf{X}_{s}^D\boldsymbol{\beta}^D + \textbf{Z}_{s}^D\boldsymbol{\xi}^D = -\log(E[T_{sq}]) + \sigma_{det}^2/2
+%&\text{Exponential:\;} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D = -\log(E[T_{sq}])\\
+%&\text{Gamma:} &&\log(\varphi_{s}) &&= \text{Intercept}^D + \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D = -\log(E[T_{sq}]) + \log(\alpha)\\
+%&\text{Weibull:}  &&\log(\varphi_{s}) &&= \text{Intercept}^D + \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D = -\log(E[T_{sq}]) + \log\left(\Gamma\left(1 + 1/k\right)\right)\\
+%&\text{Lognormal:} &&-\mu_{s} &&= \text{Intercept}^D + \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D = -\log(E[T_{sq}]) + \sigma_{det}^2/2
 %\end{alignat}
 
-Combining the distribution and expectation function for $T_{s}$, we can describe a mixture TTDD cdf as:
-\[F_T(t|\varphi_s, \boldsymbol{\theta}, \gamma) = (1-\gamma)\mathbb{I}(t>0) + \gamma F_{T1}(t|\varphi_s, \boldsymbol{\theta})\]
-where $F_{T1}$ is the cdf of the continuous component, $\boldsymbol{\theta}$ is a vector of parameters appropriate to $F_{T1}$, and $\gamma \in [0,1]$ is the proportion of animals not distributed according to the point mass.
-Note that parameters in a mixture TTDD do not share the exact same interpretation as equivalent parameters from a non-mixture TTDD, since they only pertain to the $\gamma$ proportion of individuals that follow $F_{T1}$.
+%\subsection{Abundance Model}
 
 
+% We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  
+% We reserve `detection heterogeneity' for differences across population subgroups.  
+% It is often modeled using a mixture of detection distributions.  
+% \citet{Farnsworth2002} introduce a finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
+%  Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  
+% We use `non-constant detection' when detection rates for an organism change with time.  
+% Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
+
+%\adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
 
 
-\subsection{Abundance Model}
-
-For simplicity, we model total abundance at each survey $N_{s}$ using a Poisson distribution, though other non-negative integer-valued distributions may be used.  
-We model the expected survey abundance $\lambda_{s}$ via mixed effects linear regression with a log link: $\log (\lambda_{s}) = \textbf{X}_{s}^A\boldsymbol{\beta}^A + \textbf{Z}_{s}^A\boldsymbol{\xi}^A$.  As with the detection model, $\textbf{X}_{s}^A$ are covariates, $\boldsymbol{\beta}^A$ is a vector of fixed effects, $\textbf{Z}_{s}^A$ specifies random effect levels, and $\xi_i^A \overset{ind}{\sim} N(0,\sigma_{A[i]}^2)$ are random effects.  
-We can decompose $N_{s}$ into observed and unobserved portions; the latent unobserved portion follows a binomial-Poisson hierarchy, with the result that $n_{s}^{(unobs)} \sim \mbox{Poisson}\left(\lambda_{s}(1-p_{s}^{(det)})\right)$.  
-
-
-
-
-We distinguish two categories of TTDDs: peaked and nonpeaked. 
-A peaked TTDD has an increasing hazard function and therefore a pdf whose mode is not at zero. 
-A nonpeaked TTDD has a decreasing hazard function and therefore a pdf whose mode is at zero.
-Thus, the exponential TTDD is neither peaked nor nonpeaked.
-
-We distinguish between non-constant detection and detection heterogeneity, which can be modeled in similar ways but refer to different mechanisms.  
-We reserve `detection heterogeneity' for differences across population subgroups.  
-It is often modeled using a mixture of detection distributions.  
-\citet{Farnsworth2002} introduce a finite-mixture for detection probabilities distinguishing between easy-to-detect individuals, which are always detected in first observation interval, and hard-to-detect individuals, which are detected at a constant rate.  
- Heterogeneity at the individual level can be modeled as random effects in the calculation of detection probabilities \citep{DorazioRoyle2003, Mantyniemi2005}.  
-We use `non-constant detection' when detection rates for an organism change with time.  
-Models constructed to address detection heterogeneity may provide reasonable estimates for non-constant detection scenarios and vice versa \citep{Mantyniemi2005}.
-
-\adam{Individual effects on detection might suffer from identifiability issues. This was the subject of a dust-up between Pledger and Dorazio/Royle from 2003-2005.}
-
-
-
-
-
-
-\section{Methods}\label{sec:model}
-
-  
-
-
-\subsection{Framework}
-
-We construct a hierarchical model of removal-sampled point-counts in three pieces: (a) a data model incorporating binomial detection and observed times to detection, (b) a detection model based upon a TTDD, and (c) an abundance model based upon an integer-valued count distribution.  
-Our model incorporates covariates and random effects for both abundance and detection via mixed effects linear regression.
-
-\subsection{Data Model}
-We assume that counts from different surveys are conditionally independent.  
-We define $T_{sq}$ as a random variable for the first time at which an individual is detected.
-We assume that detection times for individuals at any given survey are independent, identically distributed according to a TTDD with cdf $F_T(t)$ and pdf $f_T(t)$, which may depend on covariates.  
-The probability of detection for an animal is thus $p_{s}^{(det)} = F_T(C_I)$ and the conditional distribution of observed detection times can be written $f_{T|det}(t|t_{sq}<C_I) = f_T(t) \textbf{I}(t<C_I) / F_T(C_I)$.  
-
-When detection times are censored, we replace equation \ref{eq:Tsrq} with 
-It follows that $\sum_{i=1}^I p_{si} = 1$.
+We distinguish two categories of TTDDs: peaked and nonpeaked. \jarad{Adam: I don't like the previous definition because log-normal never has a peak at zero. In addition, if the peak occurs before $C_1$ then we really aren't interested in it.}
+A peaked TTDD has a mode greater than $C_1$ while a non-peaked TTDD has a mode less than $C_1$. \jarad{Adam: do we want a figure demonstrating this point?}
 
 
 
@@ -257,28 +286,9 @@ It follows that $\sum_{i=1}^I p_{si} = 1$.
 
 
 
-\subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
 
-To demonstrate our model, we fit counts of Ovenbirds (\textit{Seiurus aurocapilla}) from the MNFB.
-We restricted survey sites in our analysis to those of the most abundant habitat type (sawtimber red pine); in so doing, we focused modeling efforts upon the detection model and skirted the complication of modeling abundance across habitat types.  
-We further constrained analysis to 65 sites with a site origin year between 1870-1970.  
-In total, we used 381 site-year surveys in our analysis with a total of 947 Ovenbirds counted and a maximum of eight birds counted in any single survey.
 
-For the abundance half of our model, we used four covariates plus two random effects.  
-The covariates were: (a) site age, (b) survey year, (c) an indicator of whether the site stock density is over 70\%, and (d) an indicator of whether the site experienced select-/partial-cut logging during the 1990s.  
-We associated random effects with each survey year and each stand, with most stands consisting of three survey sites.  
-For the detection half of our model, we used covariates for: (a) Julian date, (b) time of day, (c) temperature, (d) an indicator of whether it is the observer's first year in the database, and (e) an interaction between (a) and (d) to approximate a new observer's learning curve \citep{Alldredge2007}.  
-69\% of surveys in our dataset involved observers in their first year at MNFB.  
-Preliminary model fits did not support the inclusion of quadratic terms for any detection covariates.  
-We associated random effects with each observer.  
-We centered and standardized all continuous covariates prior to fitting models.
 
-We selected priors to be non-informative within a reasonable range of values.  
-Normal priors for the detection model intercept term, Intercept$^D$, were chosen so that, based on an intercept-only non-mixture model with scale parameter of one: (i) median prior detection probability was $p_{s}^{(det)} = 0.50$, and (ii) 95\% of the prior detection probability was within $p_{s}^{(det)} \in (0.01, 1.0)$.  
-Normal priors for Intercept$^A$ were centered at a median abundance of 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
-Normal priors for effect parameters were centered at zero with standard deviations matching the appropriate intercept term.  
-For all shape and variance parameters, we chose half-Cauchy(0,1) priors, and for the mixing parameter $\gamma$ we chose a Uniform(0,1) prior.  
-All priors were independent.
 
 
 % Effects: * - means signif
@@ -295,12 +305,7 @@ All priors were independent.
 
 \subsection{Model Fitting}
 
-We fit the models by MCMC sampling in the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
-For intercept-only simulations, we instantiated a single chain running 60,000 iterations; for the Ovenbird analysis and simulations with covariates, chains were 250,000-375,000 iterations.  
-We discarded half of the iterations as warmup and then thinned by 1 in 10.  
-We monitored convergence of the MCMC chains using Geweke diagnostics \citep{Geweke1991}.  
-We reran models if the effective sample size for any parameter was below 1000.  
-For most models, we accepted Stan defaults for dispersed initial values; however, gamma and Weibull models sometimes failed unless we specified initial values, which we supplied from true parameter values when known or from the posterior means of preliminary short-run models.
+
 
 To assess goodness of fit, we relied on posterior predictive checks \citep{Gelman1996}.  
 Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
@@ -322,6 +327,8 @@ For the full model with random effects (Ovenbirds and Sim3), which is a missing 
 
 
 \section{Simulation studies}
+
+For intercept-only simulations, we instantiated a single chain running 60,000 iterations; for the Ovenbird analysis and simulations with covariates, chains were 250,000-375,000 iterations. 
 
 We conducted three simulation studies to explore the behavior of models with non-constant TTDDs.
 In Sim1, we compared models with detection heterogeneity via a finite-mixture TTDD versus models without detection heterogeneity.
@@ -530,6 +537,18 @@ DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addi
 
 
 \section{Ovenbird analysis}\label{sec:ovenbirds}
+
+\subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
+
+For the abundance half of our model, we used four covariates plus two random effects.  
+The covariates were: (a) site age, (b) survey year, (c) an indicator of whether the site stock density is over 70\%, and (d) an indicator of whether the site experienced select-/partial-cut logging during the 1990s.  
+We associated random effects with each survey year and each stand, with most stands consisting of three survey sites.  
+For the detection half of our model, we used covariates for: (a) Julian date, (b) time of day, (c) temperature, (d) an indicator of whether it is the observer's first year in the database, and (e) an interaction between (a) and (d) to approximate a new observer's learning curve \citep{Alldredge2007}.  
+69\% of surveys in our dataset involved observers in their first year at MNFB.  
+Preliminary model fits did not support the inclusion of quadratic terms for any detection covariates.  
+We associated random effects with each observer.  
+We centered and standardized all continuous covariates prior to fitting models.
+
 
 We fit mixture and non-mixture models from each family of TTDD to the Ovenbird dataset.  
 Posterior predictive p-values by interval (Table \ref{tbl:ovencounts}) showed clear lack of fit for the non-mixture exponential model over the first three intervals.  
