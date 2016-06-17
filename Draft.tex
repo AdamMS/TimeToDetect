@@ -40,6 +40,8 @@
 \newcommand{\Po}{\mbox{Po}}
 \newcommand{\Mult}{\mbox{Mult}}
 
+\newcommand{\pdet}{p^{(det)}}
+
 \begin{document}
 
 %\tableofcontents 
@@ -162,7 +164,7 @@ We then incorporate interval censoring and follow with inclusion of fixed and ra
 
 Suppose at each survey location $s$ ($s=1,\dots,S$), the exact time to first detection $t_{sb}$ of individual $b$ (for bird, $b=1,\dots,n_s^{(obs)}$) is recorded.
 Assuming all individuals are observed at a common rate, then $T_{sb}$ is a random variable with cumulative distribution function (cdf) $F_T(t)$ and probability density function (pdf) $f_T(t)$. 
-If the times to first detection are censored at $C$, due to a finite survey length of $C$, the probability of detection for each individual is $p^{(det)}=F_T(C)$ and the conditional distribution of observed detection times has pdf $f_{T|det}(t)= f_T(t)/F_T(C)$ for $0<t<C$ and cdf $F_{T|det}(t) = \int_0^t f_{T|det}(x) dx$. Denoting $N_{s}\ge n_s^{(obs)}$ as the total number of individuals present at a survey and assuming individuals are independent, we have $n_{s}^{(obs)} \stackrel{ind}{\sim} \mbox{Binomial}\left(N_{s}, p^{(det)}\right)$ and $T_{sb} \stackrel{ind}{\sim} f_{T|det}(t_{sb})$
+If the times to first detection are censored at $C$, due to a finite survey length of $C$, the probability of detection for each individual is $\pdet=F_T(C)$ and the conditional distribution of observed detection times has pdf $f_{T|det}(t)= f_T(t)/F_T(C)$ for $0<t<C$ and cdf $F_{T|det}(t) = \int_0^t f_{T|det}(x) dx$. Denoting $N_{s}\ge n_s^{(obs)}$ as the total number of individuals present at a survey and assuming individuals are independent, we have $n_{s}^{(obs)} \stackrel{ind}{\sim} \mbox{Binomial}\left(N_{s}, \pdet\right)$ and $T_{sb} \stackrel{ind}{\sim} f_{T|det}(t_{sb})$
 where $T_{sb}$ is observed only for those $n_s^{(obs)}$ individuals whose observed time to first detection is less than $C$, i.e. $t_{sb}<C$. 
 The instantaneous detection rate, or hazard function, is $h(t) = f_T(t) / [1-F_T(t)]$.
 
@@ -172,11 +174,11 @@ For example, to model an observer effect where: (i) the observer's arrival suppr
 In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
 For consistency that will be clear when including explanatory variables, we use the following parameterization: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\varphi \mathrm{\Gamma}(1+1/\alpha)$; and $T\sim \LN(\varphi,\alpha), E[T] = e^{\varphi+\alpha/2}$.
 
-With exact times to first detection, these times could be used to estimate the parameters in a TTDD and thus estimate $p^{(det)}$ and its uncertainty. 
-With an estimate and uncertainty for $p^{(det)}$, we are in a scenario of a binomial model with unknown $N_s$ and ``known'' $p$ and thus can estimate $N_s$.
-In these models, estimates of $N_s$ are unstable unless $p^{(det)}>0.5$.
+With exact times to first detection, these times could be used to estimate the parameters in a TTDD and thus estimate $\pdet$ and its uncertainty. 
+With an estimate and uncertainty for $\pdet$, we are in a scenario of a binomial model with unknown $N_s$ and ``known'' $p$ and thus can estimate $N_s$.
+In these models, estimates of $N_s$ are unstable unless $\pdet>0.5$.
 One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\stackrel{ind}{\sim} \Po(\lambda)$. 
-We can decompose $N_{s}$ into observed and unobserved portions; the latent unobserved portion follows a binomial-Poisson hierarchy, with the result that $n_{s}^{(unobs)} \sim \Po\left(\lambda(1-p^{(det)})\right)$.  
+We can decompose $N_{s}$ into observed and unobserved portions; the latent unobserved portion follows a binomial-Poisson hierarchy, with the result that $n_{s}^{(unobs)} \sim \Po\left(\lambda(1-\pdet)\right)$.  
 Although alternative distributions could be considered, e.g. negative binomial, our experience with avian point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
 \jarad{Adam: add refs.}
 
@@ -316,8 +318,8 @@ The posterior predictive p-value associated with each $D(n_i)$ is the proportion
 Posterior predictive p-values near to 0 or 1 are potentially indicators of a misspecified model.
 We simulated replicate datasets and calculated the check statistic at each iteration of our MCMC sampling.  
 
-We focus inference on the overall detection probability across all surveys: $p^{(det)} = \sum\limits_{s}n_{s}^{(obs)}\big/$ $\sum\limits_{s}N_{s}$.  
-Within simulation studies, we compared model estimates to true $p^{(det)}$ values by percent coverage and by posterior p-values --- the proportion of MCMC samples having a smaller value than the true value.  
+We focus inference on the overall detection probability across all surveys: $\pdet = \sum\limits_{s}n_{s}^{(obs)}\big/$ $\sum\limits_{s}N_{s}$.  
+Within simulation studies, we compared model estimates to true $\pdet$ values by percent coverage and by posterior p-values --- the proportion of MCMC samples having a smaller value than the true value.  
 
 We compared different models by means of their goodness of fit and deviance information criterion (DIC) \citep{Spiegelhalter2002}.  
 For the full model with random effects (Ovenbirds and Sim3), which is a missing data model, we used formulation DIC$_7$ from \citet{Celeux2006} for its ease of computation, but we acknowledge that it suffers some difficulties \citep{Celeux2006, Li2014}.
@@ -333,6 +335,7 @@ The first study compares mixture vs non-mixture models.
 The second study compares the time to detection distribution families.
 In the first two studies, we utilized intercept only models to focus attention on the time to detection distribution. 
 For the third study, we included fixed and random effects for both abundance and detection and again compared the distribution families. 
+In all simulation studies, we focus on accuracy in estimation of $\pdet$ which then translates into estimation of abundance. 
 
 
 
@@ -360,30 +363,38 @@ For the third study, we included fixed and random effects for both abundance and
 
 \subsection{Sim1 Results: mixture vs. non-mixture TTDDs}\label{sec:mixture}
 
-In Sim1, we simulated 16 intercept-only datasets from 14 TTDDs. 
+In Sim1, we simulated 16 intercept-only datasets from each of 14 TTDDs. 
 We chose true parameter values so that (i) the overall expected detection probability was 0.80, (ii) for mixture datasets, $\gamma = 0.65$ (meaning 35\% of individuals were immediately detected), (iii) in nonpeaked models, 70\% of \textit{detected} individuals were observed during the first two minutes, and (iv) in peaked models, the detection mode for `hard to detect' individuals occured at 5 minutes.
-\jarad{Adam: we need specific values here, perhaps in the supplement.}
+\jarad{Adam: we need specific values here for $\alpha$ and $\varphi$ (or $\beta_0^D$). If it is too much to include here put it in the supplement.}
 
-Each dataset was fit with two models from the correct TTDD family: mixture and non-mixture. 
-Using Stan, we ran 60,000 iterations which showed no evidence of lack of convergence according to the Geweke diagnostic and reached over 1,000 effect samples for all parameters.
+Each dataset was fit with two models: mixture and non-mixture version of the distribution family, e.g. exponential, used to simulate the data.
+We ran 60,000 iterations which showed no evidence of lack of convergence according to the Geweke diagnostic and reached over 1,000 effect samples for all parameters.
+
+Table \ref{tbl:sim1} provides a summary of the mixture and non-mixture models ability to capture the detection probability. 
+When a non-mixture model is used to simulate the data (top half of the figure), there is no clearly discernable differences between the ability of a non-mixture or mixture model to capture. Similarly DIC cannot clearly determine that a non-mixture model should be preferred over a mixture model in this scenario. 
+
+When a mixture model is used to simulate the data (top half of the figure), there is clearly a benefit to using a mixture model. For the non-mixture models, the credible interval coverage is near zero for most of the models with the exponential model overestimating $\pdet$ and the other models underestimating. 
+While DIC could not easily differentiate a mixture from a non-mixture model for inference when a non-peaked simulation model was used, DIC clearly preferred mixture models when the data arose from an exponential distribution or any of the peaked distributions. 
+
+These results support the use of a mixture model unless you are absolutely sure your data arose from a non-mixture distribution.
 
 
+% When data derived from a mixture model, then inference models lacking a mixture component misestimated the detection probability $\pdet$ badly in every case.  
+% This was particularly egregious for datasets featuring exponential and peaked mixtures, where non-mixture model coverage was always negligible.  
+% Conversely, when data derived from a non-mixture model, inference models incorporating a mixture component performed as well as the true model.  
+% Indeed, for nonpeaked non-mixture data, the mixture inference model provided more accurate posterior estimates of $\pdet$ than did the true non-mixture inference model.  
+% The one case where the non-mixture model performed better was the non-mixture exponential dataset, where both inference models estimated $\pdet$ accurately, but the mixture inference model yielded credible intervals about 25\% wider than those from its mixture counterpart.
+% Mixture model posterior medians for $\pdet$ were always lower than non-mixture posterior medians for time-varying datasets and higher for exponential TTDDs.
 
-When data derived from a mixture model, then inference models lacking a mixture component misestimated the detection probability $p^{(det)}$ badly in every case.  
-This was particularly egregious for datasets featuring exponential and peaked mixtures, where non-mixture model coverage was always negligible.  
-Conversely, when data derived from a non-mixture model, inference models incorporating a mixture component performed as well as the true model.  
-Indeed, for nonpeaked non-mixture data, the mixture inference model provided more accurate posterior estimates of $p^{(det)}$ than did the true non-mixture inference model.  
-The one case where the non-mixture model performed better was the non-mixture exponential dataset, where both inference models estimated $p^{(det)}$ accurately, but the mixture inference model yielded credible intervals about 25\% wider than those from its mixture counterpart.
-Mixture model posterior medians for $p^{(det)}$ were always lower than non-mixture posterior medians for time-varying datasets and higher for exponential TTDDs.
+% \adam{Ack!  I'm having a Dickens of a time abbreviating the following paragraph.  I could use a hand.... maybe keep just the first sentence?}
+% \jarad{We shouldn't be talking about results that we are not showing. The results should either be in the manuscript or the supplement.}
+% Because abundance estimates are inversely related to detection estimates, they mirrored the observations for $\pdet$ above and shared the same coverage rates.  
+% Median posterior abundance from mixture models was unbiased for non-mixture data and positively biased by only 4-15\% for mixture data.  
+% Median posterior abundance from non-mixture models applied to non-mixture data were unbiased (exponential and peaked) or biased by 5-24\% (nonpeaked); however, for mixture data, the non-mixture models were biased by 20-60\% (nonpeaked), -17\% (exponential), and 183-265\% (peaked).  
+% For the time-varying distributions, non-mixture models not only had greater bias, but 95\% credible intervals were generally 10-40\% wider (470\% wider for peaked mixture data).
+% For exponential datasets, the non-mixture model credible intervals were 28\% narrower for non-mixture data and an unrealistic 95\% narrower for mixture data.
 
-\adam{Ack!  I'm having a Dickens of a time abbreviating the following paragraph.  I could use a hand.... maybe keep just the first sentence?}
-Because abundance estimates are inversely related to detection estimates, they mirrored the observations for $p^{(det)}$ above and shared the same coverage rates.  
-Median posterior abundance from mixture models was unbiased for non-mixture data and positively biased by only 4-15\% for mixture data.  
-Median posterior abundance from non-mixture models applied to non-mixture data were unbiased (exponential and peaked) or biased by 5-24\% (nonpeaked); however, for mixture data, the non-mixture models were biased by 20-60\% (nonpeaked), -17\% (exponential), and 183-265\% (peaked).  
-For the time-varying distributions, non-mixture models not only had greater bias, but 95\% credible intervals were generally 10-40\% wider (470\% wider for peaked mixture data).
-For exponential datasets, the non-mixture model credible intervals were 28\% narrower for non-mixture data and an unrealistic 95\% narrower for mixture data.
-
-Neither DIC nor posterior predictive checks indicated a clear preference for mixture models with nonpeaked data, even though non-mixture models displayed stronger bias and poorer coverage.  DIC did reveal a preference for mixture models with exponential and peaked datasets.  In these cases, posterior predictive checks clearly showed poor fit from the non-mixture models with p-values of 1.00 in the second and sometimes third observation intervals.  These p-values demonstrated that, relative to the observed data, the estimated TTDD placed too many counts during these intervals and too few in the first and later intervals.
+% Neither DIC nor posterior predictive checks indicated a clear preference for mixture models with nonpeaked data, even though non-mixture models displayed stronger bias and poorer coverage.  DIC did reveal a preference for mixture models with exponential and peaked datasets.  In these cases, posterior predictive checks clearly showed poor fit from the non-mixture models with p-values of 1.00 in the second and sometimes third observation intervals.  These p-values demonstrated that, relative to the observed data, the estimated TTDD placed too many counts during these intervals and too few in the first and later intervals.
 
 
 
@@ -398,7 +409,7 @@ Neither DIC nor posterior predictive checks indicated a clear preference for mix
 %(5) Note that plots of TTDD at the median are indistinguishable from the truth except in the blatant fail scenario
 
 \begin{table}[ht]\centering\small
-\begin{tabular}{l|l|l|l|cccc|cccc||c}
+\begin{tabular}{l|l|l|l|cccc|cccc||r}
  \multicolumn{4}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c||}{\underline{Mixture model}} & \\
  \multicolumn{4}{c|}{ } & Med. $p$ & Q($p$) & 50\% & 90\% & Med. $p$ & Q($p$) & 50\% & 90\% & $\Delta$ DIC \\ 
   \hline
@@ -424,12 +435,15 @@ Neither DIC nor posterior predictive checks indicated a clear preference for mix
  & & &   Weibull & 0.22 & 0.00 & 0.00 & 0.00 & 0.70 & 0.29 & 0.56 & 0.94 & 28.30 \\ 
    \hline
 \end{tabular}
-\caption{\label{tbl:sim1} Summary of mixture vs. non-mixture model fits (Sim1).  
+\caption{Summary of mixture vs. non-mixture model fits (Sim1).  
 In all cases, the inference model family matches the dataset family.  
-Med $p$: average across simulations of the posterior median of $p^{(det)}$ (true value = 0.80).  
-Q($p$): average proportion of the posterior distribution of $p^{(det)}$ that is larger than the true value.  
-50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $p^{(det)}$ lies within the appropriate credible interval.  
-$\Delta$ DIC: mean difference in DIC between the incorrect-mixture model minus the true model.}
+Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
+Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
+50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
+$\Delta$ DIC: mean difference in DIC between the incorrect-mixture model minus the true model.
+\jarad{Adam: we should consider splitting this table in two. The main point is what happens when the data arise from a mixture model but a non-mixture distribution is used. So the bottom half could be included in the main body while the top half could be put in the supplement.}
+}
+\label{tbl:sim1}
 \end{table}
 
 
@@ -439,7 +453,7 @@ $\Delta$ DIC: mean difference in DIC between the incorrect-mixture model minus t
 \subsection{Sim2: constant vs. non-constant detection mixture TTDDs}\label{sec:family}
 
 In Sim2, we simulated intercept-only datasets from the 7 different mixture TTDD models and fit them with mixture models from each of exponential, gamma, lognormal, and Weibull families (Table \ref{tbl:sim2}).  
-Mixture exponential models returned more accurate estimates of $p^{(det)}$ than other models when data came from an exponential mixture, and 95\% credible intervals for $p^{(det)}$ were from one-third to one-half as wide.  
+Mixture exponential models returned more accurate estimates of $\pdet$ than other models when data came from an exponential mixture, and 95\% credible intervals for $\pdet$ were from one-third to one-half as wide.  
 However, mixture exponential models yielded notably biased estimates with poor coverage for all non-exponential data, overestimating detection for nonpeaked datasets and underestimating it for peaked datasets.  
 Differences among non-constant TTDDs were less pronounced.  
 Gamma models were more accurate than others for nonpeaked mixture datasets.  
@@ -490,9 +504,9 @@ In most cases, neither DIC nor posterior predictive checks evidenced preference 
    \hline
 \end{tabular}
 \caption{\label{tbl:sim2} Summary of mixture inference models of all families fit to mixture datasets (Sim2).  
-Med $p$: average across simulations of the posterior median of $p^{(det)}$ (true value = 0.80).  
-Q($p$): average proportion of the posterior distribution of $p^{(det)}$ that is larger than the true value.  
-50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $p^{(det)}$ lies within the appropriate credible interval.  
+Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
+Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
+50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
 $\Delta$ DIC: mean difference in DIC between the incorrect-family model minus the true model.}
 \end{table}
 
@@ -509,13 +523,13 @@ These results indicate that covariates provided significant information for redu
 
 \begin{figure}[h!]\centering
 \includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
-\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $p^{(det)}$.  
+\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
 Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
 Each column presents one family of simulated dataset.  
 Upper plots show non-mixture datasets; lower plots show mixture datasets.  
 `X' marks the expected marginal probability of detection based on true parameter values.}
 \includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
-\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $p^{(det)}$. All data and inference models include mixtures.  
+\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
 Each plot presents one simulated dataset.  
 `X' marks the expected marginal probability of detection based on true parameter values.}
 \end{figure}
@@ -529,7 +543,7 @@ Many of the above patterns for nonpeaked datasets can be noted in posterior esti
 
 Results from DIC and posterior predictive checks suggested mixture models over non-mixture models for peaked data (DIC differences $>10$) and time-varying mixture TTDDs over the exponential mixture for gamma and lognormal peaked data ($>8$).
 DIC preferred exponential mixtures to time-varying mixtures for exponential mixture data ($>6$); however, it also preferred the exponential mixture to time-varying mixtures (by 4-8) for lognormal nonpeaked data.  
-In this last case, the posterior 95\% credible interval for $p^{(det)}$ from the exponential mixture model did not contain the true value of $p^{(det)}$, while the true value was within a central 60\% credible interval for all three other mixture models.  
+In this last case, the posterior 95\% credible interval for $\pdet$ from the exponential mixture model did not contain the true value of $\pdet$, while the true value was within a central 60\% credible interval for all three other mixture models.  
 In conjunction with Sim2 results, this last finding calls into question the utility of DIC for nonpeaked datasets.
 DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addition of fixed and random effects but also because DIC was calculated according to a different method.
 
@@ -591,8 +605,8 @@ Expo & 0.000 & 1.000 & 1.000 & 0.347 & 0.590 & 0.372 & 0.007 & 0.006 & 0.190 \\
 \caption{\label{tbl:ovencounts} Ovenbird counts and posterior predictive p-values -- Pr$\left(D(n_i)^{(rep)} > D(n_i)^{(obs)}\right)$ -- by observation interval for each model across all surveys.  P-values near zero or one may indicate poor model fit.}
 \end{table}
 
-Figure \ref{ovenposteriors} presents caterpillar plots of posterior estimates for model parameters, overall detection probability $p^{(det)}$, and the log10 number of Ovenbirds uncounted.  
-Based on shape parameter estimates and patterns in the estimation of $\gamma$, $\beta^D$, $p^{(det)}$, and total abundance across models, Ovenbird data most likely arose from a exponential or nonpeaked mixture TTDD.
+Figure \ref{ovenposteriors} presents caterpillar plots of posterior estimates for model parameters, overall detection probability $\pdet$, and the log10 number of Ovenbirds uncounted.  
+Based on shape parameter estimates and patterns in the estimation of $\gamma$, $\beta^D$, $\pdet$, and total abundance across models, Ovenbird data most likely arose from a exponential or nonpeaked mixture TTDD.
 As in Sim3, abundance covariate coefficient estimates were virtually the same across all TTDD models.  
 
 Credible intervals for two of the abundance parameters do not contain zero, thereby suggesting notable effects.  
@@ -703,7 +717,7 @@ Ditto Amundson.
 See also McCallum 2005.}.  
 In avian point-counts, because the overwhelming majority of detections are auditory, $P_a$ is understood to be the probability that a bird vocalizes during the observation period.  
 Meanwhile, perceptibility is treated as a function of distance $d$: $P_b = g(d)$, with nearby available individuals being detected with higher probability than distant individuals.  
-The probability of detection is thus formulated as availability times perceptibility: $p^{(det)} = P_aP_b$.  
+The probability of detection is thus formulated as availability times perceptibility: $\pdet = P_aP_b$.  
 Multiple studies have demonstrated that failure to incorporate distance leads to systemic bias in estimates of abundance \citep{EffordDawson2009, Solymos2013}.
 
 The time-to-detection model as presented here in our study does not incorporate distance.  
