@@ -303,12 +303,12 @@ A peaked TTDD has a mode greater than $C_1$ while a non-peaked TTDD has a mode l
 
 
 
-\subsection{Model Fitting}
+\subsection{Model diagnostics}
 
 
 
 To assess goodness of fit, we relied on posterior predictive checks \citep{Gelman1996}.  
-Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
+%Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
 In particular, we are concerned with the goodness of fit for the TTDD distribution, so we defined a check statistic for each observation interval:
 \[D(n_i) = \sum\limits_{s} n_{si} \big/ \sum\limits_{si} n_{si}\]
 which is the proportion of the total count that occurs during interval $i$ marginally across all surveys.  
@@ -328,25 +328,30 @@ For the full model with random effects (Ovenbirds and Sim3), which is a missing 
 
 \section{Simulation studies}
 
-For intercept-only simulations, we instantiated a single chain running 60,000 iterations; for the Ovenbird analysis and simulations with covariates, chains were 250,000-375,000 iterations. 
-
 We conducted three simulation studies to explore the behavior of models with non-constant TTDDs.
-In Sim1, we compared models with detection heterogeneity via a finite-mixture TTDD versus models without detection heterogeneity.
-We simulated both mixture and non-mixture datasets from exponential, gamma, lognormal, and Weibull TTDD families.  
-Because model behavior may differ between peaked and nonpeaked datasets, we simulated both for each TTDD family except exponential.  
-Thus, combining mixtures, `peakedness' and TTDD families, we simulated datasets from 14 different TTDDs in total.  
-In Sim2, we examined the impact of misspecifying the $F_{T1}$ family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD).  
-Of particular interest were scenarios with a time-varying $F_{T1}$ component in the data but a time-constant component in the inference model, and vice versa.
-Based on findings from Sim1, we considered only mixture TTDD datasets, and we fit each with mixture TTDD models from all four families.  
-In Sim3, we modeled a more complete scenario where both data generation and model fitting included covariates and random effects for abundance and detection.  
+The first study compares mixture vs non-mixture models.
+The second study compares the time to detection distribution families.
+In the first two studies, we utilized intercept only models to focus attention on the time to detection distribution. 
+For the third study, we included fixed and random effects for both abundance and detection and again compared the distribution families. 
 
-We used posterior median estimates from the Ovenbird analysis to inform simulation parameters except as follows.  
-For Sim1 and Sim2, we chose true parameter values so that: (i) the overall expected detection probability was 0.80, (ii) for mixture datasets, $\gamma = 0.65$ (meaning 35\% of individuals were immediately detected), (iii) in nonpeaked models, 70\% of \textit{detected} individuals were observed during the first two minutes, and (iv) in peaked models, the detection mode for `hard to detect' individuals occured at 5 minutes.  
-For Sim3, all parameters used for nonpeaked datasets came from the Ovenbird analysis.
-In order to simulate peaked dataset variants, we modified the Ovenbird parameters by:  (i) setting $\gamma = 0.65$, and (ii) scaling the Intercept$^D$ and $\sigma_D^2$ terms by 0.25 and 1.1, resulting on average in a detection mode near 5 minutes and 75-85\% overall detection across all sites.  
-Unlike Sim1 and Sim2, expected detection probabilities in Sim3 were not the same for all datasets.
-Counts were censored into nine-intervals as with the Ovenbird dataset.  
-For both Sim1 and Sim2, we simulated 16 replicates, but for Sim3 we generated only a single replicate, because gamma models took an average of 5 days to fit.
+
+
+% In Sim1, we compared models with detection heterogeneity via a finite-mixture TTDD versus models without detection heterogeneity.
+% We simulated both mixture and non-mixture datasets from exponential, gamma, lognormal, and Weibull TTDD families.  
+% Because model behavior may differ between peaked and nonpeaked datasets, we simulated both for each TTDD family except exponential.  
+% Thus, combining mixtures, `peakedness' and TTDD families, we simulated datasets from 14 different TTDDs in total.  
+% In Sim2, we examined the impact of misspecifying the $F_{T1}$ family (e.g., fitting an exponential TTDD model to data generated from a Weibull TTDD).  
+% Of particular interest were scenarios with a time-varying $F_{T1}$ component in the data but a time-constant component in the inference model, and vice versa.
+% Based on findings from Sim1, we considered only mixture TTDD datasets, and we fit each with mixture TTDD models from all four families.  
+% In Sim3, we modeled a more complete scenario where both data generation and model fitting included covariates and random effects for abundance and detection.  
+% 
+% We used posterior median estimates from the Ovenbird analysis to inform simulation parameters except as follows.  
+% For Sim1 and Sim2,   
+% For Sim3, all parameters used for nonpeaked datasets came from the Ovenbird analysis.
+% In order to simulate peaked dataset variants, we modified the Ovenbird parameters by:  (i) setting $\gamma = 0.65$, and (ii) scaling the Intercept$^D$ and $\sigma_D^2$ terms by 0.25 and 1.1, resulting on average in a detection mode near 5 minutes and 75-85\% overall detection across all sites.  
+% Unlike Sim1 and Sim2, expected detection probabilities in Sim3 were not the same for all datasets.
+% Counts were censored into nine-intervals as with the Ovenbird dataset.  
+% For both Sim1 and Sim2, we simulated 16 replicates, but for Sim3 we generated only a single replicate, because gamma models took an average of 5 days to fit.
 
 
 
@@ -355,7 +360,15 @@ For both Sim1 and Sim2, we simulated 16 replicates, but for Sim3 we generated on
 
 \subsection{Sim1 Results: mixture vs. non-mixture TTDDs}\label{sec:mixture}
 
-In Sim1, we simulated intercept-only datasets from 14 TTDDs and fit each with two models from the correct TTDD family: one allowing for detection heterogeneity in the form of a mixture component and one not (Table \ref{tbl:sim1}).  
+In Sim1, we simulated 16 intercept-only datasets from 14 TTDDs. 
+We chose true parameter values so that (i) the overall expected detection probability was 0.80, (ii) for mixture datasets, $\gamma = 0.65$ (meaning 35\% of individuals were immediately detected), (iii) in nonpeaked models, 70\% of \textit{detected} individuals were observed during the first two minutes, and (iv) in peaked models, the detection mode for `hard to detect' individuals occured at 5 minutes.
+\jarad{Adam: we need specific values here, perhaps in the supplement.}
+
+Each dataset was fit with two models from the correct TTDD family: mixture and non-mixture. 
+Using Stan, we ran 60,000 iterations which showed no evidence of lack of convergence according to the Geweke diagnostic and reached over 1,000 effect samples for all parameters.
+
+
+
 When data derived from a mixture model, then inference models lacking a mixture component misestimated the detection probability $p^{(det)}$ badly in every case.  
 This was particularly egregious for datasets featuring exponential and peaked mixtures, where non-mixture model coverage was always negligible.  
 Conversely, when data derived from a non-mixture model, inference models incorporating a mixture component performed as well as the true model.  
@@ -537,6 +550,8 @@ DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addi
 
 
 \section{Ovenbird analysis}\label{sec:ovenbirds}
+
+for the Ovenbird analysis and simulations with covariates, chains were 250,000-375,000 iterations. 
 
 \subsection{Ovenbird analysis}\label{sec:ovenbirdanalysis}
 
