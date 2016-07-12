@@ -9,9 +9,8 @@
 *-Ex.R
 
 # RStudio files
-.Rproj
+*.Rproj
 .Rproj.user/
-TimeToDetect.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -27,7 +26,15 @@ vignettes/*.pdf
 *.log
 *.synctex.gz
 *.aux
+*.toc
 
+# Directories
+AMRO/
+JSM/
+Logs/
+Misc/
+OVEN_old/
+Sims_old/
 
 # final pdf
 Draft.pdf
