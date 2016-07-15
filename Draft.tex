@@ -42,6 +42,7 @@
 
 \newcommand{\pdet}{p^{(det)}}
 \newcommand{\ind}{\stackrel{ind}{\sim}}
+\newcommand{\Fm}{F_T^{(M)}}
 
 \title{Hierarchical model assessing the impacts of time to detection distribution assumptions on detection probability estimation}
 
@@ -187,17 +188,16 @@ A common choice for TTDD is an exponential distribution, i.e. $T_{sb}\ind \mbox{
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
 For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
 In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
-To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = e^{\alpha/2}/\varphi$.  \adam{Expressing the LN in rate parameterization is a little unconventional... We may prefer to be more explicit about the relationship between $\mu$ and $\varphi$ by writing: $T \sim LN(-\log(\varphi), \alpha)$.}
+To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = e^{\alpha/2}/\varphi$.  
+This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma^2$.  %$\mu = -\log(\varphi)$
 The exponential distribution is a special case of both the gamma and Weibull distributions when $\alpha=1$. 
 
-Given exact times to first detection, we can estimate the parameters in a TTDD and thus estimate $\pdet$ and its uncertainty. 
+Using maximum likelihood, we can estimate the parameters in a TTDD from exact times to first detection and thus estimate $\pdet$ and its uncertainty.
 With an estimate and uncertainty for $\pdet$, we are in a scenario of a binomial model with unknown $N_s$ and ``known'' $p$ and thus can estimate $N_s$.
 In these models, point estimates of $N_s$ are unstable unless $\pdet>0.4$ \citep{Olkin1981}.
 One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\ind \Po(\lambda)$ \citep{Raftery1988, Royle2004NMixture}. 
 With this assumption, we can decompose $N_{s}$ into observed and unobserved portions: $n^{(obs)} \sim Po(\lambda \pdet)$ and, independently, $n_{s}^{(unobs)} \sim \Po\left(\lambda[1-\pdet]\right)$.
-Although alternative distributions could be considered, e.g. negative binomial, our experience with avian point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
-\jarad{Adam: add refs.}
-\adam{The underdispersion finding comes from our own modeling of the Ovenbird dataset.  I recall no discussion of underdispersion in the literature.  The primary source for abundance distributions removal models is Etterson.}
+Although alternative distributions could be considered, e.g. negative binomial, our experience with Ovenbird point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
 
 
 \subsection{Interval-censored times to detection}
@@ -205,15 +205,14 @@ Although alternative distributions could be considered, e.g. negative binomial, 
 Due to the harried process of avian point counts, times to first detection are typically not recorded exactly, but are instead censored into $I$ intervals. 
 Let $C_i$ for $i=1,\dots,I$ indicate the right endpoint of the $i$th interval then $C_I$ is the total survey duration and, letting $C_0=0$, the $i$th interval is $(C_{i-1},C_{i}]$. 
 Finally, let $n_{si}$ be the number of animals counted during interval $i$ on survey $s$, $n_{s}^{(obs)} = \sum_{i=1}^I n_{si}$, and $\vn_{s}=(n_{s1},\dots,n_{sI})$.
-Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(n_{s}^{(obs)}, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
+Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(n_{s}^{(obs)}, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and is calculated from the TTDD: $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
 
 It is common in avian point counts to observe increased detections in the first interval relative to an exponential distribution.
-To accommodate this empirical observation, many models of interval-censored removal times include a parameter to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Etterson2009, Reidy2011}.
-We augment our model with a mixing parameter $\gamma\in[0,1]$ which updates the following definitions
-$f_{T|det}(t) = f_T(t)/[\gamma+F_T(C)]$\ and $p_{s1} = \gamma + F_{T|det}(C_1)$.
+To accommodate this empirical observation, many models of interval-censored removal times define a TTDD that includes a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Etterson2009, Reidy2011}.
+We define a TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time distribution $\Fm(t)$ such that $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
+%\adam{This formulation became messy, but I think we can omit it.} The updated interval-specific detection probabilities become: $p_{s1} = [1 - \gamma + \gamma\Fm(C_1)]/F_T(C_I)$ and $p_{si} = \gamma[\Fm(C_i)-\Fm(C_{i-1})]/F_T(C_I)$, for $i=2\dots I$.
 When including this parameter and these modifications, we refer to the model as a ``mixture'' model. 
-If $\gamma=0$, then the non-mixture model is recovered.
-\adam{Three things that we'll probably want to talk through: (i) you've switched the mixture components -- my $\gamma$ has become (1-$\gamma$) in the new nomenclature; (ii) I feel that $f_T(t)$ and $F_T(t)$ should describe the entire TTDD and that a different function nomenclature should be used for the `hard to detect' birds.  (iii) This dates back to my original draft... but this particular form of mixture -- with the point mass -- is really specific to interval-censoring.  It feels incongruous to be mixing a point-mass and a continuous distribution.  However, writing it propoerly depends upon nomenclature decisions.}
+If $\gamma=1$, then the non-mixture model is recovered.
 
 
 
@@ -235,15 +234,15 @@ For simplicity, we model the shape parameter $\alpha$ as constant across sites.
 
 \subsection{Estimation}
 
-For ease of reference, the final full model is provided in equation \eqref{eq:model} where the conditioning of the TTDD cdf on $\alpha$ and $\varphi_s$ is made explicit. \adam{Which equation?}
-
-\begin{eqnarray*}
-n_s^{(obs)} &\ind& Po(\lambda_s \pdet_s) \\
-\vn_s &\ind& Mult(n_s^{(obs)}, \vp_s), \vp_s = (p_{s1},\dots,p_{sI}) \\
-p_{s1} &=& \gamma + F_{T|det}(C_1|\alpha,\varphi_s),\, p_{si} = F_{T|det}(C_i|\alpha,\varphi_s)-F_{T|det}(C_{i-1}|\alpha,\varphi_s)\\
-\log(\lambda_s) &=& \vX_{s}^A\vbeta^A + \vZ_{s}^A\vxi^A,\, \xi_j^A \ind N(0,\sigma_{A[j]}^2) \\
-\log(\varphi_{s}) &=& \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D,\, \xi_j^D \ind N(0,\tau_{D[j]}^2)
-\end{eqnarray*}
+For ease of reference, the final full model is provided in equation \eqref{eq:model} where the conditioning of the TTDD cdf on $\alpha$ and $\varphi_s$ is made explicit.
+\begin{align}
+n_s^{(obs)} &\ind \Po(\lambda_s \pdet_s) \nonumber\\
+\vn_s &\ind \Mult(n_s^{(obs)}, \vp_s); \qquad \vp_s = (p_{s1},\dots,p_{sI}) \nonumber\\
+p_{s1} &= \left[(1-\gamma) + \gamma\Fm(C_1|\alpha,\varphi_s)\right]/F_T(C_I) \nonumber\\
+p_{si} &= \left[\Fm(C_i|\alpha,\varphi_s) - \Fm(C_{i-1}|\alpha,\varphi_s)\right]/F_T(C_I) \nonumber\\
+\log(\lambda_s) &= \vX_{s}^A\vbeta^A + \vZ_{s}^A\vxi^A; \qquad \xi_j^A \ind N(0,\sigma_{A[j]}^2) \nonumber\\
+\label{eq:model}\log(\varphi_{s}) &= \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D; \qquad \xi_j^D \ind N(0,\tau_{D[j]}^2)
+\end{align}
 We adopt a Bayesian approach and therefore require a prior over the model parameters.
 To ease construction of a default prior for this model, we standardize all explanatory variables and then construct priors to be diffuse within a reasonable range of values.
 Normal prior mean and standard deviation (sd) for the abundance intercept was set at a median abundance of 3 birds per site and a 95\% probability of 0-14 birds present (counted and uncounted).  
@@ -256,10 +255,10 @@ All scalar parameters were assumed independent \emph{a priori}.
 
 We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
 We discarded half of the iterations as warmup and then thinned by 10.  
-We monitored convergence of the MCMC chains using Geweke diagnostics \citep{Geweke1991}. \jarad{Adam: what did you do with the Geweke diagnostics?} \adam{I'm unclear what you intend with this question.  I used them to monitor convergence.  Any time a chains raised a Geweke flag, I re-ran the model.}
+We monitored convergence of the MCMC chains using Geweke z-score diagnostics \citep{Geweke1991} and reran models if lack of convergence was indicated by a non-normal distribution of the z-scores. 
 We reran models if the effective sample size for any parameter was below 1000.  
 The number of iterations used depended on the model and is detailed later. 
-For most models, we accepted Stan defaults for initial values; however, gamma and Weibull models sometimes failed \jarad{Adam: how did they fail?}\adam{I don't remember the error message, but Stan failed with no output generated.} unless we specified initial values, which we supplied from true parameter values when known or from the posterior means of preliminary short-run models. \jarad{Adam: this doesn't make sense. Why would the means from these preliminary short-run models be any better than letting these preliminary short-run models continue? You claim seems to be that letting these preliminary short-runs continue would mean that those models would fail.}\adam{I have brilliantly deleted the original files, but my memory suggests that models tended to fail early.  Some short-run models failed quickly, too, but if I ran a model for 1000 iterations, the results provided stable initial values which I could subsequently used whenever I tweaked the models and had to rerun everything.  I'm thinking maybe these sentences can just be dropped.}
+For most models, we accepted Stan defaults for initial values; however, gamma and Weibull models sometimes failed to run unless care was taken in the specification of initial values.
 
 
 
@@ -289,14 +288,7 @@ For most models, we accepted Stan defaults for initial values; however, gamma an
 
 
 We distinguish two categories of TTDDs: peaked and nonpeaked.  
-A peaked TTDD has a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$). \jarad{Adam: do we want a figure demonstrating this point?}\adam{I don't think a figure is required.}
-
-
-
-
-
-
-
+A peaked TTDD has a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$).
 
 
 
