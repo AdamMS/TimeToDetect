@@ -17,8 +17,12 @@
 \usepackage{setspace}
 \doublespacing
 
+\newif\ifdic   % Type \ifdic at the beginning of any optional section... use \fi to denote the end of the optional section
+  % See: http://tex.stackexchange.com/questions/33576/conditional-typesetting-build
+%\dictrue         % comment out if I want to hide DIC and model fit paragraphs
+
 \newcommand{\adam}[1]{{\color{blue} ADAM: #1}}
-\newcommand{\jarad}[1]{{\color{Orange} #1}}
+\newcommand{\jarad}[1]{{\color{Orange} JARAD: #1}}
 \newenvironment{indpar}[1]%
      {\begin{list}{}%
              {\setlength{\leftmargin}{#1}}%
@@ -182,7 +186,6 @@ The conditional distribution of observed detection times then has pdf $f_{T|det}
 We model the number of individuals for which $t_{sb}$ is actually observed as $n_{s}^{(obs)} \ind \mbox{Binomial}\left(N_{s}, \pdet\right)$.
 %$T_{sb|det} \ind f_{T|det}(t_{sb})$ where $T_{sb|det}$ is observed only for those $n_s^{(obs)}$ individuals whose observed time to first detection is less than $C$, i.e. $t_{sb}<C$. 
 The instantaneous detection rate, or hazard function, is $h(t) = f_T(t) / [1-F_T(t)]$.
-\adam{I liked the structure that was imparted in the earlier draft by having a data model, abundance model, and detection model.}
 
 A common choice for TTDD is an exponential distribution, i.e. $T_{sb}\ind \mbox{Exp}(\varphi)$, which imposes a constant first detection rate, i.e. $h(t) = \varphi$.
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
@@ -197,7 +200,7 @@ With an estimate and uncertainty for $\pdet$, we are in a scenario of a binomial
 In these models, point estimates of $N_s$ are unstable unless $\pdet>0.4$ \citep{Olkin1981}.
 One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\ind \Po(\lambda)$ \citep{Raftery1988, Royle2004NMixture}. 
 With this assumption, we can decompose $N_{s}$ into observed and unobserved portions: $n^{(obs)} \sim Po(\lambda \pdet)$ and, independently, $n_{s}^{(unobs)} \sim \Po\left(\lambda[1-\pdet]\right)$.
-Although alternative distributions could be considered, e.g. negative binomial, our experience with Ovenbird point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed and thus we will use the Poisson assumption here. 
+Although alternative distributions could be considered, e.g. negative binomial, our experience with Ovenbird point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed, and thus we will use the Poisson assumption here. 
 
 
 \subsection{Interval-censored times to detection}
@@ -208,11 +211,10 @@ Finally, let $n_{si}$ be the number of animals counted during interval $i$ on su
 Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(n_{s}^{(obs)}, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and is calculated from the TTDD: $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
 
 It is common in avian point counts to observe increased detections in the first interval relative to an exponential distribution.
-To accommodate this empirical observation, many models of interval-censored removal times define a TTDD that includes a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Etterson2009, Reidy2011}.
-We define a TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time distribution $\Fm(t)$ such that $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
-%\adam{This formulation became messy, but I think we can omit it.} The updated interval-specific detection probabilities become: $p_{s1} = [1 - \gamma + \gamma\Fm(C_1)]/F_T(C_I)$ and $p_{si} = \gamma[\Fm(C_i)-\Fm(C_{i-1})]/F_T(C_I)$, for $i=2\dots I$.
-When including this parameter and these modifications, we refer to the model as a ``mixture'' model. 
-If $\gamma=1$, then the non-mixture model is recovered.
+To accommodate this empirical observation, many models of interval-censored removal times define a TTDD with a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Etterson2009, Reidy2011}.
+We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$.  
+The mixture TTDD cdf is defined: $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
+If $\gamma=1$, the non-mixture model is recovered.
 
 
 
@@ -293,22 +295,8 @@ A peaked TTDD has a mode greater than zero (or $C_1$ for lognormal) while a non-
 
 
 
-
-% Effects: * - means signif
-% Observer variation - Farnsworth2002, LinkSauer98, LinkSauer97, Dief07 cites Sauer94 & Dief03, Simons et al03
-% First-year observer - LinkSauer98
-% Time of day - Farnsworth2002, Soly13*, Amundson
-% Season (jdate) - Farnsworth2002, Soly13*, Amundson, Dief07
-% Quadratic effects - Soly13
-% Tree cover (density) - Soly13
-% Year (on detection!) - Reidy11, see also Norvell03
-% See Table 1 of Johnson2008, see McShea and Rappole, lit review from Warren2013, Rosenstock02
-
-
-
+\ifdic\
 \subsection{Model diagnostics}
-
-\jarad{Adam: do we want posterior predictive pvalues at all?}\adam{Interesting question.  I don't think they're essential to our model.  I am open to omitting them.  However... Amundson et al. are vague about the posterior p-values -- ``we used Bayesian P values generated from the posterior predictive distributions to assess goodness-of-fit" -- they don't state what aspect of fit they tested -- it looks like maybe they use the model-fit value of $\pdet$ as their statistic?!?  Anyhow, I suspect they misapplied the tool, and I somewhat wanted to counteract that with an example of a better application of it.  Also, I think it's important to show that we checked some measure of fit.}
 
 To assess goodness of fit, we relied on posterior predictive checks \citep{Gelman1996}.  
 %Posterior predictive checks assess whether a fitted model can effectively replicate datasets that look like the original data in key aspects, which are measured by check statistics.  
@@ -322,11 +310,9 @@ We simulated replicate datasets and calculated the check statistic at each itera
 We focus inference on the overall detection probability across all surveys: $\pdet = \sum\limits_{s}n_{s}^{(obs)}\big/$ $\sum\limits_{s}N_{s}$.  
 Within simulation studies, we compared model estimates to true $\pdet$ values by percent coverage and by posterior p-values --- the proportion of MCMC samples having a smaller value than the true value.  
 
-\jarad{Adam: do we want to remove DIC?}\adam{As with posterior predictive checks, I can live without DIC, which has been nothing but headaches.}
-
 We compared different models by means of their goodness of fit and deviance information criterion (DIC) \citep{Spiegelhalter2002}.  
 For the full model with random effects (Ovenbirds and Sim3), which is a missing data model, we used formulation DIC$_7$ from \citet{Celeux2006} for its ease of computation, but we acknowledge that it suffers some difficulties \citep{Celeux2006, Li2014}.
-
+\fi
 
 
 
@@ -359,8 +345,8 @@ We ran 60,000 iterations which showed no evidence of lack of convergence accordi
 
 Table \ref{tbl:sim1} provides a summary of the mixture and non-mixture models' ability to capture the detection probability. 
 When a non-mixture model is used to simulate the data (top half of the table), there are no clearly discernable differences between the ability of a non-mixture or mixture model to capture.  \adam{For nonpeaked non-mixture data, the mixture model is less biased for lognormal and Weibull scenarios, and CIs are 15-40\% narrower.}
-Similarly DIC cannot clearly determine that a non-mixture model should be preferred over a mixture model in this scenario. 
 
+\ifdic
 \begin{table}[ht]\centering\small
 \begin{tabular}{l|l|l|l|cccc|cccc||r}
  \multicolumn{4}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c||}{\underline{Mixture model}} & \\
@@ -394,40 +380,61 @@ Med $p$: average across simulations of the posterior median of $\pdet$ (true val
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
 $\Delta$ DIC: mean difference in DIC between the incorrect-mixture model minus the true model.
-\jarad{Adam: we should consider splitting this table in two. The main point is what happens when the data arise from a mixture model but a non-mixture distribution is used. So the bottom half could be included in the main body while the top half could be put in the supplement.}
-\adam{The obvious concern for non-mixture data is that the mixture model might be more uncertain than a non-mixture model for non-mixture data.}
 }
 \label{tbl:sim1}
 \end{table}
 
+\else
+
+\begin{table}[ht]\centering\small
+\begin{tabular}{l|l|l|l|cccc|cccc}
+ \multicolumn{4}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c}{\underline{Mixture model}} \\
+ \multicolumn{4}{c|}{ } & Med. $p$ & Q($p$) & 50\% & 90\% & Med. $p$ & Q($p$) & 50\% & 90\% \\ 
+  \hline
+  \hline
+ \parbox[t]{2mm}{\multirow{14}{*}{\rotatebox[origin=c]{90}{TTDD used to simulate data}}} & \parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Non-mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.76 & 0.41 & 0.75 & 0.88 & 0.84 & 0.66 & 0.56 & 0.94 \\ 
+ & & &   Lognormal & 0.66 & 0.17 & 0.31 & 0.62 & 0.78 & 0.48 & 0.62 & 1.00  \\ 
+ & & &   Weibull & 0.69 & 0.25 & 0.38 & 0.75 & 0.79 & 0.51 & 0.75 & 1.00 \\ 
+  \cline{3-12}
+ & & &   Exponential & 0.80 & 0.54 & 0.44 & 0.94 & 0.79 & 0.38 & 0.31 & 0.88  \\ 
+  \cline{3-12}
+ & & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} &  Gamma & 0.80 & 0.55 & 0.50 & 1.00 & 0.82 & 0.70 & 0.38 & 0.88 \\ 
+ & & &   Lognormal & 0.78 & 0.31 & 0.50 & 0.94 & 0.80 & 0.48 & 0.62 & 1.00 \\ 
+ & & &   Weibull & 0.79 & 0.49 & 0.56 & 0.94 & 0.82 & 0.66 & 0.44 & 0.88 \\ 
+  \cline{2-12}
+& \parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.67 & 0.17 & 0.12 & 0.81 & 0.76 & 0.41 & 0.69 & 1.00 \\ 
+ & & &   Lognormal & 0.56 & 0.04 & 0.00 & 0.31 & 0.72 & 0.30 & 0.44 & 0.88 \\ 
+ & & &   Weibull & 0.51 & 0.02 & 0.00 & 0.06 & 0.71 & 0.32 & 0.44 & 1.00 \\ 
+  \cline{3-12}
+ & & &   Exponential & 0.96 & 1.00 & 0.00 & 0.00 & 0.77 & 0.37 & 0.38 & 0.94 \\ 
+  \cline{3-12}
+ & & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} & Gamma & 0.28 & 0.00 & 0.00 & 0.00 & 0.74 & 0.33 & 0.31 & 0.88 \\ 
+ & & &   Lognormal & 0.22 & 0.00 & 0.00 & 0.00 & 0.76 & 0.36 & 0.38 & 0.94 \\ 
+ & & &   Weibull & 0.22 & 0.00 & 0.00 & 0.00 & 0.70 & 0.29 & 0.56 & 0.94 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of mixture vs. non-mixture model fits (Sim1).  
+In all cases, the inference model family matches the dataset family.  
+Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
+Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
+50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
+\jarad{We should consider splitting this table in two. The main point is what happens when the data arise from a mixture model but a non-mixture distribution is used. So the bottom half could be included in the main body while the top half could be put in the supplement.}
+\adam{The obvious concern for non-mixture data is that the mixture model might be more uncertain than a non-mixture model for non-mixture data.}
+}
+\label{tbl:sim1}
+\end{table}
+\fi
+
 When a mixture model is used to simulate the data (bottom half of the table), there is clearly a benefit to using a mixture inference model.  
 For the non-mixture models, the credible interval coverage is near zero for most models with the exponential model overestimating $\pdet$ and the other models underestimating. 
-While DIC could not easily differentiate a mixture from a non-mixture model for inference when a non-peaked simulation model was used, DIC clearly preferred mixture models when the data arose from an exponential distribution or any of the peaked distributions. 
 
 These results support the use of a mixture model unless you are absolutely sure your data arose from a non-mixture distribution.
 
 
-% When data derived from a mixture model, then inference models lacking a mixture component misestimated the detection probability $\pdet$ badly in every case.  
-% This was particularly egregious for datasets featuring exponential and peaked mixtures, where non-mixture model coverage was always negligible.  
-% Conversely, when data derived from a non-mixture model, inference models incorporating a mixture component performed as well as the true model.  
-% Indeed, for nonpeaked non-mixture data, the mixture inference model provided more accurate posterior estimates of $\pdet$ than did the true non-mixture inference model.  
-% The one case where the non-mixture model performed better was the non-mixture exponential dataset, where both inference models estimated $\pdet$ accurately, but the mixture inference model yielded credible intervals about 25\% wider than those from its mixture counterpart.
-% Mixture model posterior medians for $\pdet$ were always lower than non-mixture posterior medians for time-varying datasets and higher for exponential TTDDs.
-
-% \adam{Ack!  I'm having a Dickens of a time abbreviating the following paragraph.  I could use a hand.... maybe keep just the first sentence?}
-% \jarad{We shouldn't be talking about results that we are not showing. The results should either be in the manuscript or the supplement.}
-% Because abundance estimates are inversely related to detection estimates, they mirrored the observations for $\pdet$ above and shared the same coverage rates.  
 % Median posterior abundance from mixture models was unbiased for non-mixture data and positively biased by only 4-15\% for mixture data.  
 % Median posterior abundance from non-mixture models applied to non-mixture data were unbiased (exponential and peaked) or biased by 5-24\% (nonpeaked); however, for mixture data, the non-mixture models were biased by 20-60\% (nonpeaked), -17\% (exponential), and 183-265\% (peaked).  
 % For the time-varying distributions, non-mixture models not only had greater bias, but 95\% credible intervals were generally 10-40\% wider (470\% wider for peaked mixture data).
 % For exponential datasets, the non-mixture model credible intervals were 28\% narrower for non-mixture data and an unrealistic 95\% narrower for mixture data.
-
-% Neither DIC nor posterior predictive checks indicated a clear preference for mixture models with nonpeaked data, even though non-mixture models displayed stronger bias and poorer coverage.  DIC did reveal a preference for mixture models with exponential and peaked datasets.  In these cases, posterior predictive checks clearly showed poor fit from the non-mixture models with p-values of 1.00 in the second and sometimes third observation intervals.  These p-values demonstrated that, relative to the observed data, the estimated TTDD placed too many counts during these intervals and too few in the first and later intervals.
-
-
-
-
-
 
 % Possible other comments
 %(1) For nonpeaked data, the true inference model is biased low\\
@@ -456,6 +463,7 @@ In this situation, the exponential model underestimates the actual detection pro
 In contrast, if the simulated data are non-peaked, the exponential model typically overestimates the actual detection probability. 
 \adam{For exponential data, the exponential model performs better.  I feel this should be noted.}
 
+\ifdic
 \begin{table}[ht]
 \footnotesize\centering
 \begin{tabular}{l|l|l|ccccc|ccccc}
@@ -496,6 +504,50 @@ Q($p$): average proportion of the posterior distribution of $\pdet$ that is larg
 $\Delta$ DIC: mean difference in DIC between the incorrect-family model minus the true model.}
 \label{tbl:sim2}
 \end{table}
+
+\else
+
+\begin{table}[ht]
+\footnotesize\centering
+\begin{tabular}{l|l|l|cccc|cccc}
+ \multicolumn{3}{c}{ } & \multicolumn{4}{c}{\underline{Exponential mixture model}} & \multicolumn{4}{c}{\underline{Gamma mixture model}} \\
+ \multicolumn{3}{c}{ } & Med. $p$ & Q($p$) & 50\% & 90\%  & Med. $p$ & Q($p$) & 50\% & 90\% \\ 
+  \hline
+\parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Data Mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.88 & 0.91 & 0.06 & 0.69 & 0.76 & 0.41 & 0.69 & 1.00 \\ 
+& &   Lognormal & 0.92 & 0.99 & 0.00 & 0.12 & 0.85 & 0.72 & 0.44 & 0.69 \\ 
+& &   Weibull & 0.87 & 0.83 & 0.31 & 0.38 & 0.79 & 0.49 & 0.69 & 1.00 \\ 
+\cline{2-11}
+& &   Exponential & 0.77 & 0.37 & 0.38 & 0.94 & 0.68 & 0.24 & 0.25 & 0.81 \\ 
+\cline{2-11}
+& \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} & Gamma & 0.36 & 0.00 & 0.00 & 0.00 & 0.74 & 0.33 & 0.31 & 0.88 \\ 
+& &   Lognormal & 0.34 & 0.00 & 0.00 & 0.00 & 0.84 & 0.73 & 0.44 & 0.81 \\ 
+& &   Weibull & 0.39 & 0.00 & 0.00 & 0.00 & 0.66 & 0.15 & 0.19 & 0.75 \\
+   \hline
+\end{tabular}
+\vspace{0.5cm}\\
+\begin{tabular}{l|l|l|cccc|cccc}
+ \multicolumn{3}{c}{ } & \multicolumn{4}{c}{\underline{Lognormal mixture model}} & \multicolumn{4}{c}{\underline{Weibull mixture model}} \\
+ \multicolumn{3}{c}{ } & Med. $p$ & Q($p$) & 50\% & 90\% & Med. $p$ & Q($p$) & 50\% & 90\% \\ 
+  \hline
+\parbox[t]{2mm}{\multirow{7}{*}{\rotatebox[origin=c]{90}{Data Mixture}}} & \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Nonpk.}}} & Gamma & 0.65 & 0.16 & 0.19 & 0.81 & 0.67 & 0.24 & 0.31 & 1.00 \\ 
+& &   Lognormal & 0.72 & 0.30 & 0.44 & 0.88 & 0.77 & 0.48 & 0.44 & 1.00 \\ 
+& &   Weibull & 0.68 & 0.23 & 0.31 & 0.88 & 0.71 & 0.32 & 0.44 & 1.00 \\ 
+\cline{2-11}
+& &   Exponential & 0.61 & 0.12 & 0.12 & 0.44 & 0.63 & 0.20 & 0.25 & 0.75 \\ 
+\cline{2-11}
+& \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Peaked}}} & Gamma & 0.65 & 0.13 & 0.06 & 0.56 & 0.79 & 0.52 & 0.69 & 0.88 \\ 
+& &   Lognormal & 0.76 & 0.36 & 0.38 & 0.94 & 0.89 & 0.88 & 0.12 & 0.69 \\ 
+& &   Weibull & 0.58 & 0.03 & 0.00 & 0.12 & 0.70 & 0.29 & 0.56 & 0.94 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of mixture inference models of all families fit to mixture datasets.  
+Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
+Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
+50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
+$\Delta$ DIC: mean difference in DIC between the incorrect-family model minus the true model.}
+\label{tbl:sim2}
+\end{table}
+\fi
 
 When comparing the different three-parameter TTDDs, model misspecification is not as serious an issue because these models can adequately account for the interval-censored times to detection. 
 Nonetheless, it appears the gamma mixture model is better able to account for data from lognormal or Weibull mixture models. 
@@ -554,6 +606,18 @@ The above patterns can also be discerned in posterior estimates from the Ovenbir
 
 
 
+\ifdic
+\subsection{Model Fits}\label{sec:fits}
+
+In Sim1, DIC and posterior predictive checks could not easily differentiate a mixture from a non-mixture model for inference when a nonpeaked simulation model was used, even though non-mixture models displayed strong bias and poor coverage.
+Both tools clearly preferred mixture models when the data arose from a mixture exponential distribution or any of the peaked mixture distributions. 
+In these cases, posterior predictive p-values demonstrated that, relative to the observed data, the estimated TTDD placed too many counts during these intervals and too few in the first and later intervals.
+\fi
+
+
+
+
+
 \section{Ovenbird analysis}\label{sec:ovenbirds}
 
 We fit the Ovenbird dataset with exponential, gamma, lognormal, and Weibull mixture models.  
@@ -567,7 +631,15 @@ We centered and standardized all continuous covariates prior to fitting models.
 We ran chains 250,000-375,000 iterations; Geweke diagnostics showed no indication of lack of fit, and effecive sample sizes were over 1000 for all parameters.
 
 
-
+% Effects: * - means signif
+% Observer variation - Farnsworth2002, LinkSauer98, LinkSauer97, Dief07 cites Sauer94 & Dief03, Simons et al03
+% First-year observer - LinkSauer98
+% Time of day - Farnsworth2002, Soly13*, Amundson
+% Season (jdate) - Farnsworth2002, Soly13*, Amundson, Dief07
+% Quadratic effects - Soly13
+% Tree cover (density) - Soly13
+% Year (on detection!) - Reidy11, see also Norvell03
+% See Table 1 of Johnson2008, see McShea and Rappole, lit review from Warren2013, Rosenstock02
 
 %\begin{table}[ht]
 %\centering
