@@ -241,7 +241,7 @@ For ease of reference, the final full model is provided in equation \eqref{eq:mo
 n_s^{(obs)} &\ind \Po(\lambda_s \pdet_s) \nonumber\\
 \vn_s &\ind \Mult(n_s^{(obs)}, \vp_s); \qquad \vp_s = (p_{s1},\dots,p_{sI}) \nonumber\\
 p_{s1} &= \left[(1-\gamma) + \gamma\Fm(C_1|\alpha,\varphi_s)\right]/F_T(C_I) \nonumber\\
-p_{si} &= \left[\Fm(C_i|\alpha,\varphi_s) - \Fm(C_{i-1}|\alpha,\varphi_s)\right]/F_T(C_I) \nonumber\\
+p_{si} &= \gamma\left[\Fm(C_i|\alpha,\varphi_s) - \Fm(C_{i-1}|\alpha,\varphi_s)\right]/F_T(C_I) \nonumber\\
 \log(\lambda_s) &= \vX_{s}^A\vbeta^A + \vZ_{s}^A\vxi^A; \qquad \xi_j^A \ind N(0,\sigma_{A[j]}^2) \nonumber\\
 \label{eq:model}\log(\varphi_{s}) &= \vX_{s}^D\vbeta^D + \vZ_{s}^D\vxi^D; \qquad \xi_j^D \ind N(0,\tau_{D[j]}^2)
 \end{align}
@@ -543,8 +543,7 @@ $\Delta$ DIC: mean difference in DIC between the incorrect-family model minus th
 \caption{Summary of mixture inference models of all families fit to mixture datasets.  
 Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
-50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
-$\Delta$ DIC: mean difference in DIC between the incorrect-family model minus the true model.}
+50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
 \label{tbl:sim2}
 \end{table}
 \fi
@@ -553,25 +552,19 @@ When comparing the different three-parameter TTDDs, model misspecification is no
 Nonetheless, it appears the gamma mixture model is better able to account for data from lognormal or Weibull mixture models. 
 In the gamma quadrant of Table \ref{tbl:sim2}, the average posterior median is near the truth of 0.8, the average proportion of the posterior distribution of $\pdet$ is near 0.5, and the credible intervals have coverage near their credibility. 
 In contrast, when the lognormal model is used for inference, it performed worse when the data arose from a gamma or Weibull and, when the Weibull model was used for inference, it performed worse when the data arose from a lognormal.
-Other than sometimes providing evidence against the exponential mixture model, DIC was not helpful in distinguishing amongst these models. 
 \adam{I'd be okay with jettisoning this paragraph beyond the first sentence.  Conversely, rather than praising gamma, we could discourage lognormal.}
 
 These results support the use of a non-constant rate mixture TTDD model unless you are absolutely sure your data arose from an exponential mixture TTDD.
 
 
-% Mixture exponential models returned more accurate estimates of $\pdet$ than other models when data came from an exponential mixture, and 95\% credible intervals for $\pdet$ were from one-third to one-half as wide.  
-% However, mixture exponential models yielded notably biased estimates with poor coverage for all non-exponential data, overestimating detection for nonpeaked datasets and underestimating it for peaked datasets.  
-% Differences among non-constant TTDDs were less pronounced.  
 % Gamma models were more accurate than others for nonpeaked mixture datasets.  
 % Gamma and Weibull models seemed equally accurate for peaked mixture datasets.  
 % Also, 95\% credible intervals for gamma models were 5-15\% narrower than for Weibull models and 15-25\% narrower than for lognormal models.
 % 
 % Median posterior abundance for exponential models were positiviely biased only 4\% for exponential data, while time-varying TTDD estimates were biased from 19-34\% with average 95\% credible intervals being 3.5 to 5.5 times wider.
-% For nonpeaked mixture data, posterior median abundance was negatively biased 8-13\% for exponential models, was unbiased for gamma models and had bias of 5-20\% for Weibull and 13-23\% for lognormal.
-% So, in terms of raw abundance, the magnitude of bias for nonpeaked data from exponential models was commensurate with magnitudes from time-varying TTDD models; however, credible intervals from exponential models were only 10-30\% as wide as from other models, thus explaining the poor coverage in Table \ref{tbl:sim2}.
+% For nonpeaked mixture data, posterior median abundance was negatively biased 8-13\% for exponential models, was unbiased for gamma models and had positive bias of 5-20\% for Weibull and 13-23\% for lognormal.
+% So, in terms of raw abundance, the magnitude of bias for nonpeaked data from exponential models was commensurate (but in the opposite direction) with magnitudes from time-varying TTDD models; however, credible intervals from exponential models were only 10-30\% as wide as from other models, thus explaining the poor coverage in Table \ref{tbl:sim2}.
 % For peaked mixture data, exponential model median posterior abundance was biased 126\%, while time-varying TTDD estimates were only 3-23\% biased; exponential model credible intervals were from 2-12 times wider than from time-varying TTDD models.
-% 
-% In most cases, neither DIC nor posterior predictive checks evidenced preference for any model, even when bias and coverage suggested one was inferior.  For  exponential mixture fits of gamma and lognormal peaked datasets, DIC did show a clear difference, and posterior predictive checks revealed lack-of-fit with p-values of 1.00 in the second observation interval.
 
 
 
@@ -594,14 +587,6 @@ Posteriors for the mixing parameter $\gamma$ and detection fixed and random effe
 It should be remembered that detection covariate effect estimates are conditional on the estimated mixing parameter $\gamma$.  
 The above patterns can also be discerned in posterior estimates from the Ovenbird data (Figure \ref{ovenposteriors}).
 
-%DIC can be effective in the same scenarios as Sim1 and Sim2, but it can also be misleading.  
-%For peaked mixture data, mixture models were preferred over non-mixture models (DIC differences $>10$), and time-varying mixture TTDDs were preferred over the exponential mixture TTDD for gamma and lognormal peaked data ($>8$).
-%For exponential mixture data, DIC preferred the exponential mixture TTDD to time-varying mixture TTDDs.  
-%However, DIC also preferred the exponential mixture to time-varying mixtures (by 4-8) for lognormal nonpeaked data.  
-%In this last case, the posterior 95\% credible interval for $\pdet$ from the exponential mixture model did not contain the true value of $\pdet$, while the true value was within a central 60\% credible interval for all three other mixture models.  
-%In conjunction with Sim2 results, this last finding calls into question the utility of DIC for nonpeaked datasets.
-%DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addition of fixed and random effects but also because DIC was calculated according to a different method.
-
 
 
 
@@ -609,9 +594,21 @@ The above patterns can also be discerned in posterior estimates from the Ovenbir
 \ifdic
 \subsection{Model Fits}\label{sec:fits}
 
-In Sim1, DIC and posterior predictive checks could not easily differentiate a mixture from a non-mixture model for inference when a nonpeaked simulation model was used, even though non-mixture models displayed strong bias and poor coverage.
+In Sim1, DIC and posterior predictive checks could not easily differentiate a mixture from a non-mixture model for inference when a nonpeaked simulation model was used, even though non-mixture models displayed bias and poor coverage.
 Both tools clearly preferred mixture models when the data arose from a mixture exponential distribution or any of the peaked mixture distributions. 
 In these cases, posterior predictive p-values demonstrated that, relative to the observed data, the estimated TTDD placed too many counts during these intervals and too few in the first and later intervals.
+
+In Sim2, DIC did show a clear difference for exponential mixture fits of gamma and lognormal peaked datasets, and posterior predictive checks revealed lack-of-fit in the same scenarios, yielding p-values of 1.00 in the second observation interval.
+However, in all other cases, neither DIC nor posterior predictive checks evidenced preference for any model, even when bias and coverage across simulations suggested one was inferior.  
+
+For Sim3, DIC was effective in the same scenarios where it was effective in Sim1 and Sim2.  
+Additionally, for exponential mixture data, DIC preferred the exponential mixture TTDD to time-varying mixture TTDDs.  
+Unfortunately, DIC could also be misleading.  
+DIC favored the exponential mixture to time-varying mixtures (by 4-8) when the data were in fact lognormal nonpeaked data.  
+Yet the posterior 95\% credible interval for $\pdet$ from the exponential mixture model did not contain the true value of $\pdet$, while the true value was within a central 60\% credible interval for all three other mixture models.  
+In conjunction with the ineffectiveness of DIC for nonpeaked data in Sim2, this last finding calls into question the utility of DIC for nonpeaked datasets.
+
+DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addition of fixed and random effects but also because DIC was calculated according to a different method.
 \fi
 
 
@@ -673,8 +670,10 @@ Select- and partial-cut logging events of the 1990s depressed local Ovenbird abu
 Credible intervals for Site Age indicate that each decade of age increases abundance from 1.5-13\%.
 Credible intervals for detection parameters do not indicate significant effects for any of the predictors.
 
-%DIC calculations preferred the exponential mixture TTDD to the lognormal, Weibull, and gamma mixtures (differences of 6.95, 10.7, and 11.5, respectively).  
-%These differences closely mirror those from the exponential mixture dataset in Sim3, but they also mirror those from the nonpeaked lognormal mixture dataset, where the exponential mixture 95\% credible interval for abundance did not contain the true value, and its posterior median was negatively biased by 18\% of the actual abundance.
+\ifdic
+DIC calculations preferred the exponential mixture TTDD to the lognormal, Weibull, and gamma mixtures (differences of 6.95, 10.7, and 11.5, respectively).  
+These differences closely mirror those from the exponential mixture dataset in Sim3, but they also mirror those from the nonpeaked lognormal mixture dataset, where the exponential mixture 95\% credible interval for abundance did not contain the true value, and its posterior median was negatively biased by 18\% of the actual abundance.
+\fi
 
 In spite of the similarity of effect parameter estimates, the posterior distributions for detection probability and uncounted abundance differ greatly between the exponential and non-exponential models.  
 It is clear that the assumption of constant detection leads to much higher and more precise estimates of detection than would be obtained if we are unwilling to make that assumption.
@@ -719,8 +718,10 @@ Models that include a mixture generally perform well even when no heterogeneity 
 Indeed, for peaked datasets, mixture models can outperform non-mixture models even in the absence of heterogeneity.
 % ``It is tempting to choose classes of models that yield narrower confidence intervals for N; however, Coull's (1997) extensive simulation studies (summarized by Coull and Agresti (1999)) clearly reveal that this behavior can produce erroneous inferences." -- Dorazio and Royle 2003
 
+\ifdic
 In a limited set of situations, posterior predictive checks and DIC can identify when non-mixture or exponential TTDDs inadequately describe the marginal pattern of detections over time.  
 But in many situations, neither tool points a clear way to select the correct family of TTDD.  
+\fi
 Given the bias that can result from assuming constant detection or omitting a mixture component, conservatism dictates that non-constant TTDDs with a mixture should be preferred.  
 Among the TTDDs we considered, the mixture gamma TTDD appears to provide the best combination of accuracy and precision for nonpeaked data.  
 For peaked data, gamma and Weibull models seem about equally as good.  
