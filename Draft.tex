@@ -102,7 +102,7 @@ Removal sampling, where individuals are solely counted on their first capture, p
 %(iv) TTDD for hard-to-detect group is correct after the end of the observation period\\
 %(v) if using limited radius counts, they are accurate
 % Johnson2008: all birds present are available for detection
-A typical assumption in removal sampling is a constant detection rate throughout the observation period, but this assumption is often unjustified \citep{Alldredge2007}. %\adam{Others, like Mantyniemi.}  
+A typical assumption in removal sampling is a constant detection rate throughout the observation period, but this assumption is often unjustified \citep{Alldredge2007}. \adam{I need to add others, like Mantyniemi.}  
 In particular, animal behaviors such as intermittent singing in birds and frogs or diving in whales \citep{Scott2005, Diefenbach2007, Reidy2011}, differences in behavior across subgroups of animals \citep{Farnsworth2005}, observer impacts on animal behaviors \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}, and variations in observer effort, e.g. lack of settling in period \citep{LeeMarsden2008, Johnson2008}, can all lead to time-varying rates of detection.
 %In particular, animal behaviors, e.g. intermittent singing in birds and frogswhales \citep{Scott2005, Diefenbach2007, Reidy2011}, observer behaviors, e.g. pre-counting and disturbing species \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007, LeeMarsden2008, Johnson2008}, and survey methodology, e.g. lack of settling in period \jarad{what else were you thinking? ref?}, can all lead to detection heterogeneity \citep{Farnsworth2005}.
 %Survey methodology itself can affect recording of detection times.  
@@ -265,7 +265,7 @@ For most models, we accepted Stan defaults for initial values; however, gamma an
 
 
 
-\jarad{Adam: we should include the Stan models in the supplement.}
+\jarad{We should include the Stan models in the supplement.}
 
 %Thus, the link functions in our detection model are:
 %\begin{alignat}{3}
@@ -549,10 +549,10 @@ Q($p$): average proportion of the posterior distribution of $\pdet$ that is larg
 \fi
 
 When comparing the different three-parameter TTDDs, model misspecification is not as serious an issue because these models can adequately account for the interval-censored times to detection. 
-Nonetheless, it appears the gamma mixture model is better able to account for data from lognormal or Weibull mixture models. 
+Nonetheless, it appears the gamma mixture model is better able to account for data from most non-peaked datasets, while gamma and Weibull mixture models have comparable performance across peaked datasets. 
 In the gamma quadrant of Table \ref{tbl:sim2}, the average posterior median is near the truth of 0.8, the average proportion of the posterior distribution of $\pdet$ is near 0.5, and the credible intervals have coverage near their credibility. 
-In contrast, when the lognormal model is used for inference, it performed worse when the data arose from a gamma or Weibull and, when the Weibull model was used for inference, it performed worse when the data arose from a lognormal.
-\adam{I'd be okay with jettisoning this paragraph beyond the first sentence.  Conversely, rather than praising gamma, we could discourage lognormal.}
+In contrast, when the lognormal model is used for inference, it performs worse across nearly all data types.
+However, gamma models required 9-11 times the computer run time as did lognormal and Weibull models, and almost 25 times that of exponential models.
 
 These results support the use of a non-constant rate mixture TTDD model unless you are absolutely sure your data arose from an exponential mixture TTDD.
 
@@ -698,51 +698,29 @@ Black bars are 95\% credible intervals, orange bars are 50\% credible intervals,
 
 \section{Discussion} \label{sec:discuss}
 
-Historically, analysis of removal-sampled data assumes constant detection rates throughout the sampling period.  
-This assumption provides an intuitive null model and is analytically tractable.  
-However, although analysis of removal models has grown more sophisticated in recent years, the constant-detection assumption nonetheless continues unquestioned.  
-We have formulated a model for non-constant detection using a time-to-event approach within a hierarchical N-mixture framework.  
-Our results demonstrate that, for better or worse, the assumption of constant detection is a very strong assumption.  
-When it is correct, it is the most accurate and precise of TTDD models, but when detection rates are not constant, it results in significant bias.  
-Models with non-constant TTDDs, on the other hand, can adapt to a wider variety of detection patterns.
+Historically, analysis of removal-sampled point-count survey data assumes constant detection rates throughout the sampling period.  
+We have formulated a model for these data that allows for non-constant detection rates.
+Our model adopts a time-to-event approach within a hierarchical N-mixture framework, and it allows times to first detection to be modeled according to flexibly defined TTDD families.
+Our results show that non-constant TTDDs can return reasonable estimates of detection probabilities across a variety of time-to-detection data patterns, whereas traditional constant-rate TTDDs return biased and overly precise estimates when data deviate from the constant-rate assumption.  
+Because the exponential TTDD is a special case of both gamma and Weibull TTDDs, we can interpret the differences in estimation between models as resulting from the information conveyed by the assumption of constant detection.
+Phrased differently, in the Bayesian context, the exponential model is equivalent to a gamma or Weibull model where the prior for the shape parameter $\alpha$ is defined: Pr($\alpha=1) = 1$; and the differences between the models results from the strength of this prior.
+Among the TTDDs modeled in our study, the gamma mixture TTDD gave the most accurate estimates across data distributions, though the Weibull mixture TTDD was comparable for peaked datasets.  
 
-We modeled two varieties of heterogeneous detection in conjunction with one other: (i) time-varying detection rates, as modeled by non-exponential TTDDs, and (ii) detection heterogeneity among subgroups of individuals, as modeled by mixture TTDDs.  
-The exponential TTDD, even when modeled with a mixture component, results in biased estimates of detection when detection actually varies with time.  
-Gamma, Weibull, and lognormal TTDDs, with their extra parameter, are more accurate in handling non-constant detection data, though they are less precise when estimating data with constant detection.
+We have additionally demonstrated for non-constant models the utility of using a mixture TTDD formulation.
+Inference models with a mixture component are accurate whether the data have a mixture or not, whereas inference models without the mixture are badly biased when the data do feature a mixture.  
+Mixture models even outperform non-mixture models when the data are non-mixture and nonpeaked.
+%For a discussion of mixtures as heterogeneity, see Pledger 2000, dating all the way back to Otis 1978.
 
-The utility of applying a mixture TTDD for constant-detection models has been identified several times \citep{Pledger2000, Farnsworth2002, Alldredge2007, Reidy2011}.  
-The mixture allows an analysis to account for detection heterogeneity across easy- and hard-to-detect subgroups of a population.  
-Even so, some recent studies have assumed the absence of a mixture \citep{Solymos2013, Amundson2014}.  
-Our study indicates that mixtures are useful even when a non-constant TTDD is used for hard-to-detect individuals.  
-Models that include a mixture generally perform well even when no heterogeneity is present, but models that omit a mixture are biased and overly certain when detection heterogeneity exists.  
-Indeed, for peaked datasets, mixture models can outperform non-mixture models even in the absence of heterogeneity.
-% ``It is tempting to choose classes of models that yield narrower confidence intervals for N; however, Coull's (1997) extensive simulation studies (summarized by Coull and Agresti (1999)) clearly reveal that this behavior can produce erroneous inferences." -- Dorazio and Royle 2003
+If the estimation of effect parameters and the roles of explanatory variables are the primary interest, then our results suggest that the exact choice of TTDD may not be important.  
+Abundance effect estimates are similar regardless of the chosen TTDD.
+Detection effect estimates, while conditional on the mixing parameter $\gamma$, are similar across all mixture non-exponential TTDDs.  
+These finding may well not hold if the same covariate is modeled in both abundance and detection models \citep{Kery2008}.
 
 \ifdic
 In a limited set of situations, posterior predictive checks and DIC can identify when non-mixture or exponential TTDDs inadequately describe the marginal pattern of detections over time.  
 But in many situations, neither tool points a clear way to select the correct family of TTDD.  
 \fi
-Given the bias that can result from assuming constant detection or omitting a mixture component, conservatism dictates that non-constant TTDDs with a mixture should be preferred.  
-Among the TTDDs we considered, the mixture gamma TTDD appears to provide the best combination of accuracy and precision for nonpeaked data.  
-For peaked data, gamma and Weibull models seem about equally as good.  
-MCMC sampling from gamma models required from 5-10 the run time as lognormal and Weibull models.
 
-If the estimation of effect parameters is the primary interest, then our results suggest that the exact choice of TTDD may not be important.  
-Abundance effect estimates are similar regardless of the chosen TTDD, while detection effect estimates are similar for all mixture non-exponential TTDDs.  
-These finding may well not hold if the same covariate is modeled in both abundance and detection models \citep{Kery2008}.
-
-Because our focus is detection, we assumed Poisson-distributed abundance for simplicity.  
-Abundance distributions that have been used to account for overdispersion include negative binomial, zero-inflated Poisson, and Poisson with survey-level random effects.  
-The pattern of counts in our Ovenbird data actually reflect underdispersion, so a Conway-Maxwell Poisson distribution, which can model both overdispersion and underdispersion, may be more appropriate \citep{Wu2015}\adam{apparently, Sellers et al. (in Wu) has a comprehensive overview of the CMP.}
-
-% Overview: Wu15
-% ZIP: Etterson, Solymos12
-% NB: Royle04(?)
-
-
-At present, Stan does not sample discrete parameters, so the ability to marginalize out the discrete-valued latent variables $N_{s}$, as we did, can greatly facilitate MCMC sampling.
-
-% \adam{I have contemplated on and off including a discussion of broad priors and the limit behavior as $\varphi \to 0$, but I think it's not really on topic.  
 % Note: now that I've seen van Dishoeck and Manntyniemi, perhaps I should worry about informativeness in priors.}
 
 % All estimates are based on extrapolation of the observed detections\\
@@ -750,29 +728,30 @@ At present, Stan does not sample discrete parameters, so the ability to marginal
 % -- b) requires extended observation periods or full detection data (Alldredge?)\\
 % same goes for sample size
 
-% Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate in a fairly high range
+% Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate at a fairly high value
 
-
-To improve our choice of TTDD and/or its parameters, it makes sense to obtain more data in one of a few ways.  
-One approach is to collect complete detection history records, not just first time-to-detection observations \citep{Alldredge2007}.  
+If the estimation of abundance is the primary interest, then we may reasonably ask whether removal sampled point-count surveys are really the data we want.  
+The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would only be detected if the observation period lasted longer.  
+As such, it is entirely based upon extrapolation and, in terms of our methodology, correctly estimating the probability in the tail of the TTDD based on recorded observations.
+The constant detection assumption constrains uncertainty in that extrapolated tail but at the potential cost of bias.
+When we allow for non-constant detection, estimation of the tail probability becomes more variable.
+In theory, estimation of the unsampled tail probability can be improved by conducting longer observations, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
+Without extending the observation period, we can still obtain more information by recording complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}.  
 This may not be feasible in studies like MNFB, where many species are observed.  
-Another approach is to conduct a longer survey that better assesses the tail distribution of the TTDD; however, the longer the survey is, the greater the risk that individuals enter/depart the study area or are double-counted, which violates removal sampling assumptions \citep{LeeMarsden2008, Reidy2011}.  
-A third idea is to obtain more precise time-to-detection data, even exact time-to-detection data.  
-In some early explorations of our model considering just an exponential mixture TTDD, we found that credible intervals for Ovenbird detection probability were 20-25\% narrower using 9-interval surveys compared to more traditional 3-interval surveys (0-3, 3-5, and 5-10 minutes).  
-For all of the above, a small pilot study may be a practical starting point.  
+
+%With the increasing use of microphone arrays for automated detection \adam{refs}, it is tempting to think TTDD models may be valuable for microphone-collected data.  
+%This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  
+%However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  
+%The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
+
+%\adam{Time-heterogeneous models have been done for mark-recapture (Farcomeni and Scacciatelli 2013, who reference Hwang and Chao 2002).}
+
+The time-heterogeneous continuous time-to-detection approach in our model mirrors continuous-time work in mark-and-recapture \citep{HwangChao2002, FarcomeniScacciatelli2013, Borchers2014} and removal-distance sampling \adam{How do I cite Borchers' preprint?}; however, it is a departure from the probability-of-detection approach that predominates removal-sampled point-count surveys
+
+\citep{Farnsworth2002, Farnsworth2005, Alldredge2007, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}
 
 
-With the increasing use of microphone arrays for automated detection \adam{refs}, it is tempting to think TTDD models may be valuable for microphone-collected data.  
-This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  
-However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  
-The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
-
-Application of TTDD modeling within the N-mixture framework should be straight-forward for other time-to-detection datasets, such as full detection-history and double-observer.  
-The key difference will be in the data model, in that responses will take a different form than multinomially distributed first times to detection.  
-But the underlying abundance and detection models remain the same.  
-\adam{Time-heterogeneous models have been done for mark-recapture (Farcomeni and Scacciatelli 2013, who reference Hwang and Chao 2002).}
-
-The time-to-detection approach in our model is a departure from the probability-of-detection approach that has been used in distance-removal modeling \citep{Farnsworth2005, Diefenbach2007, Solymos2013, Amundson2014}\adam{Alldredge2007?}.  
+\citep{Farnsworth2005, Diefenbach2007, Solymos2013, Amundson2014}\adam{Alldredge2007?}.  
 In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}\adam{I haven't read Williams2002 -- cited in Royle2004.  
 I'm  beginning to think this may have too-numerous antecedents to cite... in Reidy, the earliest reference is Marsh and Sinclair 1989.  
 Ditto Amundson.
