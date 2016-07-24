@@ -103,24 +103,19 @@ Removal sampling, where individuals are solely counted on their first capture, p
 %(v) if using limited radius counts, they are accurate
 % Johnson2008: all birds present are available for detection
 A typical assumption in removal sampling is a constant detection rate throughout the observation period, but this assumption is often unjustified \citep{Alldredge2007}. \adam{I need to add others, like Mantyniemi.}  
-In particular, animal behaviors such as intermittent singing in birds and frogs or diving in whales \citep{Scott2005, Diefenbach2007, Reidy2011}, differences in behavior across subgroups of animals \citep{Farnsworth2005}, observer impacts on animal behaviors \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}, and variations in observer effort, e.g. lack of settling in period \citep{LeeMarsden2008, Johnson2008}, can all lead to time-varying rates of detection.
-%In particular, animal behaviors, e.g. intermittent singing in birds and frogswhales \citep{Scott2005, Diefenbach2007, Reidy2011}, observer behaviors, e.g. pre-counting and disturbing species \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007, LeeMarsden2008, Johnson2008}, and survey methodology, e.g. lack of settling in period \jarad{what else were you thinking? ref?}, can all lead to detection heterogeneity \citep{Farnsworth2005}.
-%Survey methodology itself can affect recording of detection times.  
-% Observers may become aware of animals during their settling-in period, resulting in elevated counts early during in the survey period \citep{LeeMarsden2008}.  
-% Observers may also become distracted as the survey progresses \citep{Johnson2008}.  
-%In the presence of detection heterogeneity, easily detected animals will be removed first, leaving only harder to detect animals, thus resulting in a marginal detection rate that varies over time .
+In particular, animal behaviors such as intermittent singing in birds and frogs or diving in whales \citep{Scott2005, Diefenbach2007, Reidy2011}, differences in behavior across subgroups of animals \citep{Otis1978, Farnsworth2005}, observer impacts on animal behaviors \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}, and variations in observer effort, e.g. saturation or lack of settling in period \citep{Petit1995, LeeMarsden2008, Johnson2008}, can all lead to time-varying rates of detection.
 
 In this manuscript, we develop a model for scenarios where detection rates are not constant over time. 
 We consider the first time-to-detection as is done in survival analysis, defining a continuous random variable $T$ for each animal's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function (cdf) $F_T(t)$.  
 We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  
-One common strategy to deal with data that do not fit a constant-detection assumption is to model increased detection probability in the initial observation period via a mixture component \citep{Farnsworth2002, Farnsworth2005, Alldredge2007, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
+One common strategy to deal with data that do not fit a constant-detection assumption is to model increased detection probability in the initial observation period via a mixture component \citep{Farnsworth2002, Farnsworth2005, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
 We consider the choice of whether to include a mixture component in conjunction with TTDDs with non-constant rates.
 
 Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
 We embed the TTDD in a hierarchical framework for multinomial counts using an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  
 For our purposes, the N-mixture framework provides three clear benefits: 1) its multinomial data framework accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
-Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014}.  
+Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}.  
 
 
 
@@ -133,8 +128,9 @@ Framing a model in terms of time-to-detection leads to two practical differences
 First, in order to model covariate and random effects on detection, we perform mixed effects linear regression on the log of the rate parameter as in \citet{Solymos2013}, whereas most existing studies instead construct regression models on the logit of the equal-interval detection probability.  
 The latter is not possible when detection rates are not constant.  
 Second, because we can obtain interval-specific detection probabilities from the TTDD by partitioning its cdf, we can directly model the data according to their existing interval structure rather than subdividing the observation period into intervals of equal duration.  
-Indeed, with a few simplifications, our model fits exact time-to-detection data, whereas existing constant-detection removal models only approximate exact data by subdividing the observation interval into a large number of fine intervals \citep{Reidy2011, Amundson2014}.
-% 
+Indeed, with a few simplifications, our model fits exact time-to-detection data, whereas existing constant-detection removal models only approximate exact data by subdividing the observation interval into a large number of fine equal-duration intervals \citep{Reidy2011, Amundson2014}.
+
+
 % \adam{Based on further lit review, I think I need to insert a paragraph here about what time-varying modeling has been done.  
 % In the fisheries world, models of time-varying catchability have been implemented -- see Schnute 1983, Scruton and Gibson (ref: Mantyniemi), and Mantyniemi2015 for examples.  
 % Also, Alldredge 2007 implements a complete-history of detection model (technically mark-recapture, not removal) that estimates interval-specific detection probabilities (complete with covariates and detection heterogeneity).  
@@ -211,6 +207,8 @@ Finally, let $n_{si}$ be the number of animals counted during interval $i$ on su
 Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(n_{s}^{(obs)}, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and is calculated from the TTDD: $p_{si} = F_{T|det}(C_i) - F_{T|det}(C_{i-1})$.  
 
 It is common in avian point counts to observe increased detections in the first interval relative to an exponential distribution.
+This is often understood to reflect unmodeled detection heterogeneity across behavioral groups in the study population.
+Failure to account for such heterogeneity in the constant-detection scenario leads to negative bias in abundance estimates \citep{Otis1978}.
 To accommodate this empirical observation, many models of interval-censored removal times define a TTDD with a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Etterson2009, Reidy2011}.
 We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$.  
 The mixture TTDD cdf is defined: $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
@@ -721,94 +719,82 @@ In a limited set of situations, posterior predictive checks and DIC can identify
 But in many situations, neither tool points a clear way to select the correct family of TTDD.  
 \fi
 
-% Note: now that I've seen van Dishoeck and Manntyniemi, perhaps I should worry about informativeness in priors.}
-
-% All estimates are based on extrapolation of the observed detections\\
-% -- a) explore the tail more?  I think that'd require a lot of data\\
-% -- b) requires extended observation periods or full detection data (Alldredge?)\\
-% same goes for sample size
+% Note: now that I've seen van Dishoeck and Mantyniemi, perhaps I should worry about informativeness in priors.}
 
 % Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate at a fairly high value
 
 If the estimation of abundance is the primary interest, then we may reasonably ask whether removal sampled point-count surveys are really the data we want.  
 The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would only be detected if the observation period lasted longer.  
-As such, it is entirely based upon extrapolation and, in terms of our methodology, correctly estimating the probability in the tail of the TTDD based on recorded observations.
-The constant detection assumption constrains uncertainty in that extrapolated tail but at the potential cost of bias.
-When we allow for non-constant detection, estimation of the tail probability becomes more variable.
+As such, it is entirely based upon extrapolation and correctly estimating the probability in the tail of the TTDD based on recorded observations.
+An assumption of constant detection constrains uncertainty in the extrapolated tail but at the cost of potential bias.
+When we allow for non-constant detection, estimation of the tail probability becomes so variable that we were only able to estimate Ovenbird abundance within an order of magnitude.
 In theory, estimation of the unsampled tail probability can be improved by conducting longer observations, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
-Without extending the observation period, we can still obtain more information by recording complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}.  
-This may not be feasible in studies like MNFB, where many species are observed.  
+Without extending the observation period, an alternate to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB, where many species are observed.  
 
 %With the increasing use of microphone arrays for automated detection \adam{refs}, it is tempting to think TTDD models may be valuable for microphone-collected data.  
 %This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  
 %However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  
 %The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
 
-%\adam{Time-heterogeneous models have been done for mark-recapture (Farcomeni and Scacciatelli 2013, who reference Hwang and Chao 2002).}
-
-The time-heterogeneous continuous time-to-detection approach in our model mirrors continuous-time work in mark-and-recapture \citep{HwangChao2002, FarcomeniScacciatelli2013, Borchers2014} and removal-distance sampling \adam{How do I cite Borchers' preprint?}; however, it is a departure from the probability-of-detection approach that predominates removal-sampled point-count surveys
-
-\citep{Farnsworth2002, Farnsworth2005, Alldredge2007, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}
-
-
-\citep{Farnsworth2005, Diefenbach2007, Solymos2013, Amundson2014}\adam{Alldredge2007?}.  
-In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}\adam{I haven't read Williams2002 -- cited in Royle2004.  
-I'm  beginning to think this may have too-numerous antecedents to cite... in Reidy, the earliest reference is Marsh and Sinclair 1989.  
-Ditto Amundson.
-See also McCallum 2005.}.  
-In avian point-counts, because the overwhelming majority of detections are auditory, $P_a$ is understood to be the probability that a bird vocalizes during the observation period.  
-Meanwhile, perceptibility is treated as a function of distance $d$: $P_b = g(d)$, with nearby available individuals being detected with higher probability than distant individuals.  
-The probability of detection is thus formulated as availability times perceptibility: $\pdet = P_aP_b$.  
-Multiple studies have demonstrated that failure to incorporate distance leads to systemic bias in estimates of abundance \citep{EffordDawson2009, Solymos2013}.
-
-The time-to-detection model as presented here in our study does not incorporate distance.  
-Consequently, our definition of a TTDD necessarily represents an averaging across distance classes and a consequent loss of information if distance data are available.  
-We can modify our model to account for distance.  
-To be consistent with earlier distance-removal studies \citep{Farnsworth2005, Amundson2014}, we could: (i) define a time-to-\textit{availability} distribution $F_T^A(t)$ in the same manner that we have defined a TTDD in this study, (ii) modify the equation for detection probability to reflect the detection distance to individual $q$: $p_{sq}^{(det)} = g(d_q) F_T^A(C_I|\varphi_s, \boldsymbol{\theta})$, and (iii) tweak our data model accordingly.
-
-However, our analysis makes possible a different strategy that is more consistent with a time-to-event conceptualization of the problem.  
-Rather than define availability and perceptibility as independent detection events over the course of the observation period, we can define them at the event level.  
-In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{sq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{s}^A(t)$ and the perceptibility function $g(d_q)$.  
-So, $h_{sq}(t) = g(d_q) h_{s}^A(t)$.  
-From standard survival analysis results, $p_{sq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{s}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\varphi_s, \boldsymbol{\theta}) \right]^{g(d_q)}$.
-
-In short, the time-to-event conceptualization frames perceptibility as a rate-of-availability multiplier rather than as a probability-of-availability multiplier.  
-In a context where rates of availability are allowed to vary from individual to individual, this makes an intuitive sense --- a bird that sings twenty times during the observation period should have its overall detection probability discounted much less than a bird at the same distance which only sings once.  
+Point-count survey data often include the recorded distance between observer and detected organism.
+Because our focus has been on modeling variations in detection rates during the survey period, we have not incorporated distance into our model.
+Consequently, our application of a TTDD represents an averaging across distance classes, which induces systematic bias in estimates of abundance \citep{EffordDawson2009, Solymos2013}.  
+To be consistent with the continuous time-to-event approach, distance can be incorporated into the detection model as an event-level modifier, as is done in \adam{How do I cite Borchers' preprint?}.  
+This approach is distinct from earlier integrations of removal- and distance sampling, where distance has been treated as an interval-/survey-level modifier \citep{Farnsworth2005, Amundson2014}.
+The differences between these implementations may impact estimates of detection and abundance, especially in the presence of behavioral heterogeneity in availability rates across subgroups of the study population.  
 This is an area of ongoing exploration.
+%Our adoption of a time-heterogeneous continuous time-to-detection approach in our model mirrors continuous time work in mark-and-recapture \citep{HwangChao2002, FarcomeniScacciatelli2013, Borchers2014}.
 
+%Examples of the interval-censored approach.
+%\citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Alldredge2007, EffordDawson2009, Etterson2009, Reidy2011, Solymos2013, Amundson2014, Reidy2016}.
+
+%In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}\adam{I haven't read Williams2002 -- cited in Royle2004.  
+%\adam{I'm  beginning to think this may have too-numerous antecedents to cite... in Amundson and in Reidy, the earliest reference is Marsh and Sinclair 1989.  See also McCallum 2005.}.  
+%In avian point-counts, because the overwhelming majority of detections are auditory, $P_a$ is understood to be the probability that a bird vocalizes during the observation period.  
+%Meanwhile, perceptibility is treated as a function of distance $d$: $P_b = g(d)$, with nearby available individuals being detected with higher probability than distant individuals.  
+%The probability of detection is thus formulated as availability times perceptibility: $\pdet = P_aP_b$.  
+%However, our analysis makes possible a different strategy that is more consistent with a time-to-event conceptualization of the problem.  
+%Rather than define availability and perceptibility as independent detection events over the course of the observation period, we can define them at the event level.  
+%In terms of the model we have presented in this paper, this is equivalent to redefining the time-to-detection hazard function, $h_{sq}(t)$ --- which is now a function of the distance to individual $q$ --- as the product of the time-to-availability hazard function $h_{s}^A(t)$ and the perceptibility function $g(d_q)$.  
+%So, $h_{sq}(t) = g(d_q) h_{s}^A(t)$.  
+%From standard survival analysis results, $p_{sq}^{(det)} = 1 - \exp\left(-g(d_q)\int\limits_0^{C_I} h_{s}^A(u)du\right) = 1 - \left[1 - F_T^A(C_I|\varphi_s, \boldsymbol{\theta}) \right]^{g(d_q)}$.
+%In short, the time-to-event conceptualization frames perceptibility as a rate-of-availability multiplier rather than as a probability-of-availability multiplier.  
+%In a context where rates of availability are allowed to vary from individual to individual, this makes an intuitive sense --- a bird that sings twenty times during the observation period should have its overall detection probability discounted much less than a bird at the same distance which only sings once.  
 
 % Skeptics of removal sampling: Johnson08, EffordDawson09, Reidy11
 
-%\subsection{Lit Notes on Distance and Poisson Abundance}
-%--- Borchers is all about this\\
-%--- Farnsworth2005, EffordDawson2009, Amundson2014\\
-%----- particularly noticeable with finite mixture models\\
-%- Oedekoven2013 is all about covariates on distance sampling curve\\
-%- necessity of using distance, too, is backed by Solymos2013, (Buckland et al 2001, 2004), Farnsworth2005, EffordDawson2009...\\
-%
-%Poisson assumption (do I want to discuss underdispersion?\\
-%--- Denes et al 2015 discuss how Poisson assumption leads to bias in the absence of detection heterog (ref to Solymos et al 2012) or when inflated zeros are present (Joseph et al 2009) [with the obvious remedies being: NegBin and ZIP, respectively]... but is that negated by our underdispersion?\\
-%
-%`Unmodeled individual heterogeneity causes population size to be underestimated using capture-recapture and removal methods' (from Efford and Dawson, who cite Otis et al. 1978)\\
+We recommend that time-heterogeneous detection rates be explicitly modeled in analyses involving removal-sampled point-count survey data where estimation of abundance is a primary objective.  
+The assumption of constant detection, while computationally simple and reasonable as a null model, proves to be rather informative and can result in pronounced bias.  
+Meanwhile, the causes of non-constant detection -- i.e., observer effects on behavior and systematic variations in observer effort -- are both plausible and not trivially discounted.  
+It would be nice if the data itself could inform us whether constant detection is a reasonable assumption; however, our preliminary efforts to diagnose this assumption using deviance information criterion (DIC) and posterior predictive check statistics have led to weak and sometimes erroneous findings.
+Development of such a diagnostic tool would be useful, but given the limitations of first time-to-detection data, we are not confident a reliable tool could be easily developed.  
+We believe that more informative data collection, such as complete time-to-detection histories and microphone arrays, offer more effective tools for time-to-event modeling going forward.
+
+\adam{Two topics I have omitted from the Discussion (which reflects my own judgment, but you may disagree:\\
+\begin{enumerate}
+\item DIC and posterior predictive checks
+\item Selection of priors
+\item Values for $\pdet$ used in simulations
+\end{enumerate}
+}
 
 
-% Ideas for the future
-% (i) Distance-removal time-to-event model
-% (ii) Fit more species from this dataset over full survey duration; maybe some model selection (even Bayesian)
-% (iii) Take a stab at modeling habitat
-% (iv) Model for non-independent singing?
-% (v) Model for density-dependent singing? (only valid, I think, if we have lots of underdispersion from(ii))
-% (vi) I know I've  been warned off it, but automated detection intrigues me
-% (vii) Further testing of existing model: sensitivity to priors, performance for varying detectability levels, sample size, # intervals
-% (viii) Incorporate spatial random effects.  
-This work has already been done, just not for TTDD models, but the real spatial dependency should be in abundance, not detection
-% (ix) Comparison of methods -- just looking at my lit review, there are gadzooks strategies that people have proposed.  
-Combining/comparing them seems maybe informative?  To what degree has this already been done?
-
-
-
+\newpage
 \begin{appendix}
 \section{Supplement}
+
+\begin{figure}[h!]\centering
+\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
+\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
+Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
+Each column presents one family of simulated dataset.  
+Upper plots show non-mixture datasets; lower plots show mixture datasets.  
+`X' marks the expected marginal probability of detection based on true parameter values.}
+\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
+\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
+Each plot presents one simulated dataset.  
+`X' marks the expected marginal probability of detection based on true parameter values.}
+\end{figure}
 
 \begin{table}[!ht]
 \centering
@@ -863,20 +849,9 @@ Exponential & Non-mixture &  & 0.975 & 0.122 & 0.002 & 0.094 & -1.039 & -1.146 &
 \caption{\label{tbl:sim3}Table of parameter values used to generate data for simulations with covariates.  Here, $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\beta$'s are fixed effects, $\sigma$'s are random effect standard deviations, $\alpha$ is a shape parameter, and superscripts of $A$ and $D$ indicate abundance and detection parameters, respectively.}
 \end{table}
 
-\begin{figure}[h!]\centering
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
-\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
-Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
-Each column presents one family of simulated dataset.  
-Upper plots show non-mixture datasets; lower plots show mixture datasets.  
-`X' marks the expected marginal probability of detection based on true parameter values.}
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
-\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
-Each plot presents one simulated dataset.  
-`X' marks the expected marginal probability of detection based on true parameter values.}
-\end{figure}
-
 \end{appendix}
+
+\newpage
 
 \bibliography{masterbib}
 \bibliographystyle{biom}
