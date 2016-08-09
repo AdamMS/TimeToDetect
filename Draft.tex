@@ -166,7 +166,7 @@ During each survey, the Julian date, time of day, and temperature were recorded.
 a total of 947 Ovenbirds counted and a maximum of eight birds counted in any single survey.
 
 
-
+\jarad{Abstract the data}
 
 
 
@@ -588,9 +588,9 @@ Posteriors for the mixing parameter $\gamma$ and detection fixed and random effe
 %It should be remembered that detection covariate effect estimates are conditional on the estimated mixing parameter $\gamma$.  
 The above patterns can also be discerned in posterior estimates from the Ovenbird data (Figure \ref{ovenposteriors}).
 
-\jarad{need to define what we mean by $\pdet$ here.}
+\jarad{need to define what we mean by $\pdet$ here since it's definition has changed.}
 
-\jarad{where's the supplement? I think we should just refer to to the Figures on the supplement just like we refer to papers in the main manuscript and then interpret them.}
+\jarad{I think we should just refer to to the Figures on the supplement just like we refer to papers in the main manuscript and then interpret them, e.g. Figure S1 shows ...}
 
 
 
@@ -623,7 +623,7 @@ DIC performance in Sim3 may differ from Sims 1 \& 2 not only because of the addi
 We fit the Ovenbird dataset with exponential, gamma, lognormal, and Weibull mixture models.  
 For the abundance half of our model, we used four covariates plus two random effects.  
 The covariates were: (a) site age, (b) survey year, (c) an indicator of whether the site stock density was over 70\%, and (d) an indicator of whether the site experienced select-/partial-cut logging during the 1990s.  
-We associated random effects with each survey year and each stand \jarad{did we define stand previously?}.
+We associated random effects with each survey year and each stand.
 For the detection half of our model, we used covariates for: (a) Julian date, (b) time of day, (c) temperature, (d) an indicator of whether it is the observer's first year in the database, and (e) an interaction between (a) and (d) to approximate a new observer's learning curve.  
 We associated random effects with each observer.  
 Preliminary model fits did not support the inclusion of quadratic terms for any detection covariates.  
