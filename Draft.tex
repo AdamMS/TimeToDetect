@@ -418,8 +418,6 @@ In all cases, the inference model family matches the dataset family.
 Med $p$: average across simulations of the posterior median of $\pdet$ (true value = 0.80).  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 16 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.  
-% \jarad{We should consider splitting this table in two. The main point is what happens when the data arise from a mixture model but a non-mixture distribution is used. So the bottom half could be included in the main body while the top half could be put in the supplement.}
-% \adam{The obvious concern for non-mixture data is that the mixture model might be more uncertain than a non-mixture model for non-mixture data.}
 }
 \label{tbl:sim1}
 \end{table}
@@ -577,11 +575,10 @@ Because the fitted Ovenbird models did not yield peaked distributions, we simula
 See Table \ref{S-tbl:sim3} in supplement for actual parameter values.
 Due to the computation time involved in estimating models with these fixed and random effects, we simulated each TTDD only once.
 To obtain reasonable convergence diagnostics and effective sample sizes, these analyses ranged from 250,000-375,000 iterations.
-Because of the difficulty in integrating random effects over all sites, approximate posterior distributions for the study-wide marginal $\pdet$ were obtained by simulating data from each MCMC iteration and calculating the proportion simulated Ovenbirds that were observed.
+Because of the difficulty in integrating random effects over all sites, approximate posterior distributions for the study-wide marginal $\pdet$ were obtained by simulating data from each MCMC sample and calculating the proportion of simulated Ovenbirds that were observed.
 
 Patterns in posterior estimates of site-specific detection probabilities, $\pdet_s$, with respect to mixture and family TTDD forms were the same as in the previous simulation studies -- the inclusion of explanatory variables did not make models more robust to violations of mixture- and constant-detection assumptions (Figures \ref{S-pdet_cater_correct} and \ref{S-pdet_cater_family}).  
-Posteriors for abundance fixed and random effects were the same regardless of what TTDD was assumed, see Supplemental figure.  
-\adam{Create Supplemental Figure!}
+Posteriors for abundance fixed and random effects were the same regardless of what TTDD was assumed (Section \ref{S-s:sim3}).  
 Posteriors for the mixing parameter $\gamma$ and detection fixed and random effects were the same across gamma, lognormal, and Weibull mixture models but were narrower and location-shifted for the exponential mixture model.  
 %It should be remembered that detection covariate effect estimates are conditional on the estimated mixing parameter $\gamma$.  
 The above patterns can also be discerned in posterior estimates from the Ovenbird data (Figure \ref{ovenposteriors}).
@@ -687,8 +684,6 @@ It is clear that the assumption of constant detection leads to much higher and m
 Posteriors are also available for the number of uncounted individuals and the overall probability of detection across all sites.}
 \end{figure}
 
-\jarad{ADAM: please change facet names to use Greek letters for $\gamma$ and $\alpha$ and the standard notation we have been using for $\pdet$.}
-
 
 
 
@@ -722,15 +717,15 @@ But in many situations, neither tool points a clear way to select the correct fa
 
 % Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate at a fairly high value
 
-If the estimation of abundance is the primary interest, then we may reasonably ask whether removal sampled point-count surveys are really the data we want.  
+If the estimation of abundance is the primary interest, then the choice of TTDD has large consequences, and we may reasonably ask whether removal sampled point-count surveys are really the data we want.  
 The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would only be detected if the observation period lasted longer.  
 As such, it is entirely based upon extrapolation and correctly estimating the probability in the tail of the TTDD based on recorded observations.
-An assumption of constant detection constrains uncertainty in the extrapolated tail but at the cost of potential bias.
-When we allow for non-constant detection, estimation of the tail probability becomes so variable that we were only able to estimate Ovenbird abundance within an order of magnitude.
+An assumption of constant detection places constraints  on the amount of uncertainty in the extrapolated tail but at the cost of potentially sizable bias.
+When we allow for non-constant detection, estimation of the tail probability becomes less certiain.
 In theory, estimation of the unsampled tail probability can be improved by conducting longer observations, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
 Without extending the observation period, an alternate to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB, where many species are observed.  
 
-%With the increasing use of microphone arrays for automated detection \adam{refs}, it is tempting to think TTDD models may be valuable for microphone-collected data.  
+%With the increasing use of microphone arrays for automated detection, it is tempting to think TTDD models may be valuable for microphone-collected data.  
 %This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  
 %However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  
 %The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
@@ -747,8 +742,7 @@ This is an area of ongoing exploration.
 %Examples of the interval-censored approach.
 %\citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Alldredge2007, EffordDawson2009, Etterson2009, Reidy2011, Solymos2013, Amundson2014, Reidy2016}.
 
-%In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}\adam{I haven't read Williams2002 -- cited in Royle2004.  
-%\adam{I'm  beginning to think this may have too-numerous antecedents to cite... in Amundson and in Reidy, the earliest reference is Marsh and Sinclair 1989.  See also McCallum 2005.}.  
+%In a distance-sampling context, the probability of detection for any individual is framed as the joint probability of two independent detection events: (i) availability for detection, which occurs during an observation period with probability $P_a$, and (ii) detection of the available individual by an observer, $P_b$, also known as perceptibility \citep{Williams2002, Kery2008, Nichols2009}... citations too numerous to enumerate.
 %In avian point-counts, because the overwhelming majority of detections are auditory, $P_a$ is understood to be the probability that a bird vocalizes during the observation period.  
 %Meanwhile, perceptibility is treated as a function of distance $d$: $P_b = g(d)$, with nearby available individuals being detected with higher probability than distant individuals.  
 %The probability of detection is thus formulated as availability times perceptibility: $\pdet = P_aP_b$.  
@@ -769,10 +763,9 @@ It would be nice if the data itself could inform us whether constant detection i
 Development of such a diagnostic tool would be useful, but given the limitations of first time-to-detection data, we are not confident a reliable tool could be easily developed.  
 We believe that more informative data collection, such as complete time-to-detection histories and microphone arrays, offer more effective tools for time-to-event modeling going forward.
 
-\adam{Two topics I have omitted from the Discussion (which reflects my own judgment, but you may disagree:\\
+\adam{Topics I have omitted from the Discussion (which reflects my own judgment, but you may disagree):
 \begin{enumerate}
-\item DIC and posterior predictive checks
-\item Selection of priors
+\item Selection of priors (especially for intercepts; also, the possibility of a spike-and-slab for $\alpha$)
 \item Values for $\pdet$ used in simulations
 \end{enumerate}
 }
