@@ -255,7 +255,7 @@ All scalar parameters were assumed independent \emph{a priori}.
 
 
 We fit the models by MCMC sampling using the Bayesian statistical software Stan, implemented via the R package \texttt{rstan} version 2.8.0 \citep{Rstan2015}.  
-Stan model code and \texttt{rstan} code to run the models can be found in supplemental materials (Section \ref{S-s:models}).  
+Stan model code and \texttt{rstan} code to run the models can be found in supplemental materials.  
 We discarded half of the iterations as warmup and then thinned by 10.  
 We monitored convergence of the MCMC chains using Geweke z-score diagnostics \citep{Geweke1991} and reran models if lack of convergence was indicated by a non-normal distribution of the z-scores. 
 We reran models if the effective sample size for any parameter was below 1000.  

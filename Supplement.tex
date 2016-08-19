@@ -22,38 +22,6 @@
 
 \begin{document}
 
-\section{Figures}
-
-\begin{figure}[h!]\centering
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
-\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
-Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
-Each column presents one family of simulated dataset.  
-Upper plots show non-mixture datasets; lower plots show mixture datasets.  
-`X' marks the expected marginal probability of detection based on true parameter values.}
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
-\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
-Each plot presents one simulated dataset.  
-`X' marks the expected marginal probability of detection based on true parameter values.}
-\end{figure}
-
-\subsection{Posteriors from simulations including covariates and random effects}\label{s:sim3}
-\includegraphics[width=1.0\textwidth, page=1]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=2]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=3]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=4]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=5]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=6]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=7]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=8]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=9]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=10]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=11]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=12]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=13]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=14]{Sims/SimFull/Posteriors_all_simdat.pdf}
-
-
 \section{Tables}
 \begin{table}[!ht]
 \centering
@@ -110,24 +78,58 @@ Exponential & Non-mixture &  & 0.975 & 0.122 & 0.002 & 0.094 & -1.039 & -1.146 &
 
 
 
-\small
-\section{Stan Models}\label{s:models}
-\subsection{Exponential Model}
-\lstinputlisting[breaklines]{./OVEN/Expo_model.stan}
-\subsection{Exponential Mixture Model}
-\lstinputlisting[breaklines]{./OVEN/ExpoMix.stan}
-\subsection{Gamma Model}
-\lstinputlisting[breaklines]{./OVEN/Gamma_model.stan}
-\subsection{Gamma Mixture Model}
-\lstinputlisting[breaklines]{./OVEN/GammaMix.stan}
-\subsection{Lognormal Model}
-\lstinputlisting[breaklines]{./OVEN/LogNormal_model.stan}
-\subsection{Lognormal Mixture Model}
-\lstinputlisting[breaklines]{./OVEN/LogNormalMix.stan}
-\subsection{Weibull Model}
-\lstinputlisting[breaklines]{./OVEN/Weibull_model.stan}
-\subsection{Weibull Mixture Model}
-\lstinputlisting[breaklines]{./OVEN/WeibullMix.stan}
+
+
+\section{Figures}
+
+\begin{figure}[h!]\centering
+\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
+\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
+Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
+Each column presents one family of simulated dataset.  
+Upper plots show non-mixture datasets; lower plots show mixture datasets.  
+`X' marks the expected marginal probability of detection based on true parameter values.}
+\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
+\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
+Each plot presents one simulated dataset.  
+`X' marks the expected marginal probability of detection based on true parameter values.}
+\end{figure}
+
+\subsection{Posteriors parameter estimates from simulations including covariates and random effects}\label{s:sim3}
+\includegraphics[width=1.0\textwidth, page=1]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=2]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=3]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=4]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=5]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=6]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=7]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=8]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=9]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=10]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=11]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=12]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=13]{Sims/SimFull/Posteriors_all_simdat.pdf}
+\includegraphics[width=1.0\textwidth, page=14]{Sims/SimFull/Posteriors_all_simdat.pdf}
+
+
+%\small
+%\section{Stan Models}\label{s:models}
+%\subsection{Exponential Model}
+%\lstinputlisting[breaklines]{./OVEN/Expo_model.stan}
+%\subsection{Exponential Mixture Model}
+%\lstinputlisting[breaklines]{./OVEN/ExpoMix.stan}
+%\subsection{Gamma Model}
+%\lstinputlisting[breaklines]{./OVEN/Gamma_model.stan}
+%\subsection{Gamma Mixture Model}
+%\lstinputlisting[breaklines]{./OVEN/GammaMix.stan}
+%\subsection{Lognormal Model}
+%\lstinputlisting[breaklines]{./OVEN/LogNormal_model.stan}
+%\subsection{Lognormal Mixture Model}
+%\lstinputlisting[breaklines]{./OVEN/LogNormalMix.stan}
+%\subsection{Weibull Model}
+%\lstinputlisting[breaklines]{./OVEN/Weibull_model.stan}
+%\subsection{Weibull Mixture Model}
+%\lstinputlisting[breaklines]{./OVEN/WeibullMix.stan}
 
 
 \end{document}
