@@ -7,15 +7,22 @@
 \usepackage[round]{natbib}
 \usepackage{caption}
 \usepackage{tabularx, booktabs}
-\usepackage{float}
+\usepackage{float, placeins}
 \usepackage{adjustbox}
 \usepackage{multirow}
 \usepackage{setspace}
 \usepackage{listings}
 \usepackage{verbatim}
 \usepackage{graphicx}
+\usepackage{rotating}
 
 \newcommand{\pdet}{p^{(det)}}
+\newcommand{\capt}[1]{Caterpillar plots of posterior parameter estimates from all models fit to the simulated #1 dataset (from simulations involving covariates and random effects).  Black and orange lines depict central 95\% and 50\% credible intervals, respectively.  The black dot is the posterior meadian.  The blue 'X' is the true parameter value and is positioned on the correctly specified model.  $\beta$'s are fixed effect parameters, $\sigma$'s are random effect standard deviations, and $\gamma$ is a mixing parameter.  Parameters designated with an 'A' are abundance parameters; those designated with a 'D' are detection parameters.}
+\newcommand{\sfig}[2]{\begin{figure}
+  \includegraphics[width=1.0\textwidth, page=#2]{Sims/SimFull/Posteriors_all_simdat.pdf}
+  \caption{\capt{#1}}
+  \end{figure}
+}
 \renewcommand{\thesection}{S-\arabic{section}}   % Label section with 'S-#'
 \renewcommand{\thetable}{S-\arabic{table}}
 \renewcommand{\thefigure}{S-\arabic{figure}}
@@ -51,32 +58,78 @@ Exponential & Non-mixture & &  & -1.827 &  \\
 \caption{\label{simvals}Table of parameter values used to generate data for: (i) the mixture vs. non-mixture simulation, and (ii) the constant vs. non-constant rate simulation.  Here $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\varphi$ is the detection rate parameter, and $\alpha$ is the shape parameter.}
 \end{table}
 
-\begin{table}[ht]
+\begin{sidewaystable}[h!]\footnotesize
 \centering
-\begin{tabular}{lllrrrrrrrrrrrrrrrr}
+\begin{tabular}{lll|rrrr|rrrrr}
   \hline
-Family & Mixture & Peak & Intercept$^A$ & $\beta^A_1$ & $\beta^A_2$ & $\beta^A_3$ & $\beta^A_4$ & Intercept$^D$ & $\beta^D_1$ & $\beta^D_2$ & $\beta^D_3$ & $\beta^D_4$ & $\beta^D_5$ & $\sigma_A[1]$ & $\sigma_A[2]$ & $\sigma_D$ & $\gamma$ & $\alpha$ \\ 
+Family & Mixture & Peak & $\beta^A_1$ & $\beta^A_2$ & $\beta^A_3$ & $\beta^A_4$ & $\beta^D_1$ & $\beta^D_2$ & $\beta^D_3$ & $\beta^D_4$ & $\beta^D_5$  \\
   \hline
-Exponential & Non-mixture &  & 0.975 & 0.122 & 0.002 & 0.094 & -1.039 & -1.146 & -0.010 & -0.056 & 0.118 & 0.249 & 0.164 & 0.139 & 0.094 & 0.242 &  &  \\ 
-   & Mixture &  & 1.097 & 0.124 & 0.012 & 0.064 & -1.070 & -1.970 & -0.068 & -0.146 & 0.030 & 0.312 & 0.270 & 0.130 & 0.091 & 0.259 & 0.647 &  \\ 
-  Gamma & Non-mixture & Non-peaked & 1.383 & 0.129 & -0.001 & 0.098 & -1.039 & -3.941 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 0.316 \\ 
-   &  & Peaked & 1.134 & 0.129 & -0.001 & 0.098 & -1.039 & -0.746 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 3.371 \\ 
-   & Mixture & Non-peaked & 1.215 & 0.128 & -0.005 & 0.079 & -1.051 & -2.700 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.790 & 0.597 \\ 
-   &  & Peaked & 1.134 & 0.128 & -0.005 & 0.079 & -1.051 & -1.210 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.650 & 2.491 \\ 
-  Lognormal & Non-mixture & Non-peaked & 1.613 & 0.126 & 0.031 & 0.096 & -1.047 & -2.444 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 3.287 \\ 
-   &  & Peaked & 1.134 & 0.126 & 0.031 & 0.096 & -1.047 & -1.872 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 0.512 \\ 
-   & Mixture & Non-peaked & 1.282 & 0.126 & 0.017 & 0.070 & -1.068 & -2.051 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.706 & 1.467 \\ 
-   &  & Peaked & 1.134 & 0.126 & 0.017 & 0.070 & -1.068 & -1.992 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.650 & 0.618 \\ 
-  Weibull & Non-mixture & Non-peaked & 1.570 & 0.129 & 0.011 & 0.102 & -1.040 & -3.137 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 0.387 \\ 
-   &  & Peaked & 1.134 & 0.129 & 0.011 & 0.102 & -1.040 & -2.042 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 1.829 \\ 
-   & Mixture & Non-peaked & 1.294 & 0.129 & -0.002 & 0.081 & -1.049 & -2.354 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.814 & 0.653 \\ 
-   &  & Peaked & 1.134 & 0.129 & -0.002 & 0.081 & -1.049 & -2.201 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.650 & 1.621 \\ 
+Exponential & Non-mixture & &0.122&0.002&0.094&-1.039&-0.01&-0.056&0.118&0.249&0.164 \\
+& Mixture & &0.124&0.012&0.064&-1.07&-0.068&-0.146&0.03&0.312&0.27 \\
+Gamma & Non-mixture & Non-peaked &0.129&-0.001&0.098&-1.039&0.048&-0.104&-0.12&0.141&0.129 \\
+& & Peaked &0.129&-0.001&0.098&-1.039&0.048&-0.104&-0.12&0.141&0.129 \\
+& Mixture & Non-peaked &0.128&-0.005&0.079&-1.051&-0.048&-0.126&-0.042&0.21&0.2 \\
+& & Peaked &0.128&-0.005&0.079&-1.051&-0.048&-0.126&-0.042&0.21&0.2 \\
+Lognormal & Non-mixture & Non-peaked &0.126&0.031&0.096&-1.047&0.163&-0.099&-0.071&0.31&0.079 \\
+& & Peaked &0.126&0.031&0.096&-1.047&0.163&-0.099&-0.071&0.31&0.079 \\
+& Mixture & Non-peaked &0.126&0.017&0.07&-1.068&0.006&-0.14&-0.038&0.341&0.191 \\
+& & Peaked &0.126&0.017&0.07&-1.068&0.006&-0.14&-0.038&0.341&0.191 \\
+Weibull & Non-mixture & Non-peaked &0.129&0.011&0.102&-1.04&0.101&-0.104&-0.127&0.204&0.086 \\
+& & Peaked &0.129&0.011&0.102&-1.04&0.101&-0.104&-0.127&0.204&0.086 \\
+& Mixture & Non-peaked &0.129&-0.002&0.081&-1.049&-0.028&-0.122&-0.069&0.204&0.183 \\
+& & Peaked &0.129&-0.002&0.081&-1.049&-0.028&-0.122&-0.069&0.204&0.183 \\
+  \hline
+\end{tabular}\\
+\vspace{1.25cm}
+\begin{tabular}{ll|lrrrrrrr}
+  \hline
+Family & Mixture & Peak & Intercept$^A$ & Intercept$^D$ & $\sigma_{A1}$ & $\sigma_{A2}$ & $\sigma_D$ & $\gamma$ & $\alpha$ \\
+\hline
+Exponential & Non-mixture & &0.975&-1.146&0.139&0.094&0.242& & \\
+& Mixture & &1.097&-1.97&0.13&0.091&0.259&0.647& \\
+Gamma & Non-mixture & Non-peaked &1.383&-3.941&0.121&0.072&0.39& & 0.316 \\
+& & Peaked &1.134&-0.746&0.121&0.072&0.39& & 3.371 \\
+& Mixture & Non-peaked &1.215&-2.7&0.121&0.079&0.332&0.79& 0.597 \\
+& & Peaked &1.134&-1.21&0.121&0.079&0.332&0.65& 2.491 \\
+Lognormal & Non-mixture & Non-peaked &1.613&-2.444&0.151&0.077&0.353& & 3.287 \\
+& & Peaked &1.134&-1.872&0.151&0.077&0.353& & 0.512 \\
+& Mixture & Non-peaked &1.282&-2.051&0.14&0.079&0.312&0.706& 1.467 \\
+& & Peaked &1.134&-1.992&0.14&0.079&0.312&0.65& 0.618 \\
+Weibull & Non-mixture & Non-peaked &1.57&-3.137&0.131&0.074&0.383& & 0.387 \\
+& & Peaked &1.134&-2.042&0.131&0.074&0.383& & 1.829 \\
+& Mixture & Non-peaked &1.294&-2.354&0.122&0.078&0.344&0.814& 0.653 \\
+& & Peaked &1.134&-2.201&0.122&0.078&0.344&0.65& 1.621 \\
    \hline
 \end{tabular}
 \caption{\label{tbl:sim3}Table of parameter values used to generate data for simulations with covariates.  Here, $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\beta$'s are fixed effects, $\sigma$'s are random effect standard deviations, $\alpha$ is a shape parameter, and superscripts of $A$ and $D$ indicate abundance and detection parameters, respectively.}
-\end{table}
-
-
+\end{sidewaystable}
+%\begin{sidewaystable}[ht]
+%\centering
+%\begin{tabular}{lllrrrrrrrrrrrrrrrr}
+%  \hline
+%Family & Mixture & Peak & Intercept$^A$ & $\beta^A_1$ & $\beta^A_2$ & $\beta^A_3$ & $\beta^A_4$ & Intercept$^D$ & $\beta^D_1$ & $\beta^D_2$ & $\beta^D_3$ & $\beta^D_4$ & $\beta^D_5$ & $\sigma_A[1]$ & $\sigma_A[2]$ & $\sigma_D$ & $\gamma$ & $\alpha$ \\ 
+%  \hline
+%Exponential & Non-mixture &  & 0.975 & 0.122 & 0.002 & 0.094 & -1.039 & -1.146 & -0.010 & -0.056 & 0.118 & 0.249 & 0.164 & 0.139 & 0.094 & 0.242 &  &  \\ 
+%   & Mixture &  & 1.097 & 0.124 & 0.012 & 0.064 & -1.070 & -1.970 & -0.068 & -0.146 & 0.030 & 0.312 & 0.270 & 0.130 & 0.091 & 0.259 & 0.647 &  \\ 
+%  Gamma & Non-mixture & Non-peaked & 1.383 & 0.129 & -0.001 & 0.098 & -1.039 & -3.941 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 0.316 \\ 
+%   &  & Peaked & 1.134 & 0.129 & -0.001 & 0.098 & -1.039 & -0.746 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 3.371 \\ 
+%   & Mixture & Non-peaked & 1.215 & 0.128 & -0.005 & 0.079 & -1.051 & -2.700 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.790 & 0.597 \\ 
+%   &  & Peaked & 1.134 & 0.128 & -0.005 & 0.079 & -1.051 & -1.210 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.650 & 2.491 \\ 
+%  Lognormal & Non-mixture & Non-peaked & 1.613 & 0.126 & 0.031 & 0.096 & -1.047 & -2.444 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 3.287 \\ 
+%   &  & Peaked & 1.134 & 0.126 & 0.031 & 0.096 & -1.047 & -1.872 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 0.512 \\ 
+%   & Mixture & Non-peaked & 1.282 & 0.126 & 0.017 & 0.070 & -1.068 & -2.051 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.706 & 1.467 \\ 
+%   &  & Peaked & 1.134 & 0.126 & 0.017 & 0.070 & -1.068 & -1.992 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.650 & 0.618 \\ 
+%  Weibull & Non-mixture & Non-peaked & 1.570 & 0.129 & 0.011 & 0.102 & -1.040 & -3.137 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 0.387 \\ 
+%   &  & Peaked & 1.134 & 0.129 & 0.011 & 0.102 & -1.040 & -2.042 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 1.829 \\ 
+%   & Mixture & Non-peaked & 1.294 & 0.129 & -0.002 & 0.081 & -1.049 & -2.354 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.814 & 0.653 \\ 
+%   &  & Peaked & 1.134 & 0.129 & -0.002 & 0.081 & -1.049 & -2.201 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.650 & 1.621 \\ 
+%   \hline
+%\end{tabular}
+%\begin{tabular}
+%\end{tabular}
+%\caption{\label{tbl:sim3}Table of parameter values used to generate data for simulations with covariates.  Here, $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\beta$'s are fixed effects, $\sigma$'s are random effect standard deviations, $\alpha$ is a shape parameter, and superscripts of $A$ and $D$ indicate abundance and detection parameters, respectively.}
+%\end{sidewaystable}
+\FloatBarrier
 
 
 
@@ -95,22 +148,22 @@ Each plot presents one simulated dataset.
 `X' marks the expected marginal probability of detection based on true parameter values.}
 \end{figure}
 
-\subsection{Posteriors parameter estimates from simulations including covariates and random effects}\label{s:sim3}
-\includegraphics[width=1.0\textwidth, page=1]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=2]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=3]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=4]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=5]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=6]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=7]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=8]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=9]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=10]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=11]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=12]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=13]{Sims/SimFull/Posteriors_all_simdat.pdf}
-\includegraphics[width=1.0\textwidth, page=14]{Sims/SimFull/Posteriors_all_simdat.pdf}
 
+\subsection{Posteriors parameter estimates from simulations including covariates and random effects}\label{s:sim3}
+\sfig{non-mixture exponential}{1}
+\sfig{exponential mixture}{2}
+\sfig{nonpeaked non-mixture gamma}{3}
+\sfig{nonpeaked gamma mixture}{4}
+\sfig{peaked non-mixture gamma}{5}
+\sfig{peaked gamma mixture}{6}
+\sfig{nonpeaked non-mixture lognormal}{7}
+\sfig{nonpeaked lognormal mixture}{8}
+\sfig{peaked non-mixture lognormal}{9}
+\sfig{peaked lognormal mixture}{10}
+\sfig{nonpeaked non-mixture Weibull}{11}
+\sfig{nonpeaked Weibull mixture}{12}
+\sfig{peaked non-mixture Weibull}{13}
+\sfig{peaked Weibull mixture}{14}
 
 %\small
 %\section{Stan Models}\label{s:models}
