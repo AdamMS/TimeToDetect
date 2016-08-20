@@ -690,10 +690,9 @@ Posteriors are also available for the number of uncounted individuals and the ov
 
 \section{Discussion} \label{sec:discuss}
 
-%Historically, analysis of removal-sampled point-count survey data assumes constant detection rates throughout the sampling period.  
 We formulated a model for these data that allows for non-constant detection rates.
 Our model adopts a time-to-event approach within a hierarchical N-mixture framework, and it allows times to first detection to be modeled according to flexibly defined TTDD families.
-Our results show that non-constant TTDDs can return reasonable estimates of detection probabilities across a variety of time-to-detection data patterns, whereas traditional constant-rate TTDDs return biased and overly precise estimates when data deviate from the constant-rate assumption.  
+Our results show that non-constant TTDDs can return reasonable estimates of detection probabilities across a variety of time-to-detection data patterns, whereas traditional constant-rate TTDDs return biased and overly precise estimates when data deviate from the constant-rate assumption, even when they include a mixture for heterogeneity across groups.  
 Because the exponential TTDD is a special case of both gamma and Weibull TTDDs, we can interpret the differences in estimation between models as resulting from the information conveyed by the assumption of constant detection.
 %Phrased differently, in the Bayesian context, the exponential model is equivalent to a gamma or Weibull model where the prior for the shape parameter $\alpha$ is defined: Pr($\alpha=1) = 1$; and the differences between the models results from the strength of this prior.
 Among the TTDDs modeled in our study, the gamma mixture TTDD gave the most accurate estimates across data distributions, though the Weibull mixture TTDD was comparable for peaked datasets.  
@@ -713,22 +712,39 @@ In a limited set of situations, posterior predictive checks and DIC can identify
 But in many situations, neither tool points a clear way to select the correct family of TTDD.  
 \fi
 
-% Note: now that I've seen van Dishoeck and Mantyniemi, perhaps I should worry about informativeness in priors.}
-
-% Really, I have totally ignored the discussion of the true value of p, which I have tended to simulate at a fairly high value
-
-If the estimation of abundance is the primary interest, then the choice of TTDD has large consequences, and we may reasonably ask whether removal sampled point-count surveys are really the data we want.  
-The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would only be detected if the observation period lasted longer.  
+If the estimation of abundance is the primary interest, then the choice of TTDD has large consequences, and we may reasonably ask whether removal sampled point-count surveys are adequate for the purpose.  
+The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would be detected if only the observation period lasted longer.  
 As such, it is entirely based upon extrapolation and correctly estimating the probability in the tail of the TTDD based on recorded observations.
-An assumption of constant detection places constraints  on the amount of uncertainty in the extrapolated tail but at the cost of potentially sizable bias.
+An assumption of constant detection places constraints on the amount of uncertainty in the extrapolated tail but at the cost of potentially sizable bias.
 When we allow for non-constant detection, estimation of the tail probability becomes less certiain.
-In theory, estimation of the unsampled tail probability can be improved by conducting longer observations, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
-Without extending the observation period, an alternate to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB, where many species are observed.  
+In theory, estimation of the unsampled tail probability can be improved by conducting longer surveys, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
+Without extending the observation period, an alternative to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB, where many species are observed.  
 
 %With the increasing use of microphone arrays for automated detection, it is tempting to think TTDD models may be valuable for microphone-collected data.  
 %This should be the case when variations in detection result solely from organismal behaviors, such as bout singing, or if we wish to model individual random effects in the detection model.  
 %However, some explanations for non-constant detection are explicitly related to the observation process --- either effects of the observer on animal behavior or variations in observer effort caused by survey methodology.  
 %The assumption of constant detection seems more plausible in studies where observers are absent, though detection heterogeneity may still exist across subgroups of the population.
+
+Versions of time-varying models have been described for trap-based removal sampling and continuous-time capture-recapture.  
+Time variation has been modeled through a non-constant hazard function \citep{Schnute1983, HwangChao2002}, a randomly varying detection probability across trapping sessions \citep{WangLoneragan1996}, and constant detection probabilities that vary randomly from individual to individual \citep{Mantyniemi2005, Laplanche2010}.
+Most of these approaches resulted marginally in a decreasing (nonpeaked) detection function over time.  
+Their results generally echo what we have presented here.  
+\citet{Schnute1983} found that the equivalent of a mixture exponential adequately described their data.
+\citet{WangLoneragan1996}, \citet{HwangChao2002}, and \citet{Mantyniemi2005} all found constant-detection models to be flawed, producing underestimates of abundance and too-narrow error estimates; these resulted in inadequate coverage and also overstatement of effect significance.  
+%Schnute: allowed time-varying detection which collapsed to a mixture model
+%Wang and Lonergan: \pi_s ~ beta for each interval at a site... not particularly applicable in an avian framework (with arbitrarily partitioned), except perhaps for bout singing?
+%- didn't have group heterogeneity
+%- constant models are overly precise (factor of 3)
+%Mantyniemi: individual-level variation in \pi_s ~ beta
+%- large number of trapping sessions required to overwhelm prior on variance (8-12)
+%- could also be viewed in terms of percent of total caught
+%- constant detection model badly biased
+%- constant detection model made indexing unreliable, since pairwise differences could be magnified
+%Laplanche: model selection with site-level abundance variation, site-level catchability variation, and individual-level catchability variation.
+%- only the abundance proved significant
+%Hwang and Chao: time-varying capture-recapture
+%- use a nonpeaked hazard function
+%- again, the constant model underestimates abundance, with coverage between 0-6\% for 95\% credible intervals (even allowing for covariate-based individual effects and behavioral responses).
 
 Point-count survey data often include the recorded distance between observer and detected organism.
 Because our focus has been on modeling variations in detection rates during the survey period, we have not incorporated distance into our model.
@@ -766,6 +782,7 @@ We believe that more informative data collection, such as complete time-to-detec
 \adam{Topics I have omitted from the Discussion (which reflects my own judgment, but you may disagree):
 \begin{enumerate}
 \item Selection of priors (especially for intercepts; also, the possibility of a spike-and-slab for $\alpha$)
+% Note: now that I've seen van Dishoeck and Mantyniemi, perhaps I should worry about informativeness in priors.}
 \item Values for $\pdet$ used in simulations
 \end{enumerate}
 }
