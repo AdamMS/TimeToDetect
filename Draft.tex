@@ -1,15 +1,15 @@
-\documentclass[useAMS,usenatbib,referee,12pt]{article}
+\documentclass[12pt]{article}
 \usepackage[margin=1.0in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{parskip}
-\usepackage[round]{natbib}
-\usepackage{color}
-\usepackage[dvipsnames]{xcolor}
+\usepackage{natbib}
+% \usepackage{color}
+% \usepackage[dvipsnames]{xcolor}
 \usepackage{caption}
-\usepackage{tabularx, booktabs}
-\usepackage{float}
+%\usepackage{tabularx, booktabs}
+%\usepackage{float}
 \usepackage{adjustbox}
 \usepackage[toc,page]{appendix}
 \usepackage{enumitem}
@@ -17,15 +17,18 @@
 \usepackage{setspace}
 \usepackage{url}
 \usepackage{xr}
+
 \externaldocument[S-]{Supplement}
+
 \doublespacing
 
 \newif\ifdic   % Type \ifdic at the beginning of any optional section... use \fi to denote the end of the optional section
   % See: http://tex.stackexchange.com/questions/33576/conditional-typesetting-build
 %\dictrue         % comment out if I want to hide DIC and model fit paragraphs
 
-\newcommand{\adam}[1]{{\color{blue} ADAM: #1}}
-\newcommand{\jarad}[1]{{\color{Orange} JARAD: #1}}
+% \newcommand{\adam}[1]{{\color{blue} ADAM: #1}}
+% \newcommand{\jarad}[1]{{\color{Orange} JARAD: #1}}
+
 \newenvironment{indpar}[1]%
      {\begin{list}{}%
              {\setlength{\leftmargin}{#1}}%
@@ -51,10 +54,14 @@
 \newcommand{\ind}{\stackrel{ind}{\sim}}
 \newcommand{\Fm}{F_T^{(M)}}
 
+\providecommand{\blind}{0}
+
 \title{Hierarchical model assessing the impacts of time to detection distribution assumptions on detection probability estimation}
 
+\if0\blind
 \author{Adam Martin-Schwarze, Jarad Niemi, and Philip Dixon\\
 Department of Statistics, Iowa State University, Ames, Iowa}
+\fi
 
 \begin{document}
 
@@ -582,7 +589,7 @@ Because of the difficulty in integrating random effects over all sites, approxim
 
 The results from this simulation are qualitatively similar to that Ovenbird analysis (Figure \ref{ovenposteriors}) and thus we only briefly review the results here and provide the corresponding figures and tables in the Supplementary Material. 
 Patterns in posterior estimates of site-specific detection probabilities, $\pdet_s$, with respect to mixture and family TTDD forms were the same as in the previous simulation studies -- the inclusion of explanatory variables did not make models more robust to violations of mixture- and constant-detection assumptions (Figures \ref{S-pdet_cater_correct} and \ref{S-pdet_cater_family}).  
-Posteriors for abundance fixed and random effects were the same regardless of what TTDD was assumed (Section \ref{S-s:sim3}).  
+Posteriors for abundance fixed and random effects were the same regardless of what TTDD was assumed, see Section \ref{S-s:sim3} and figures therein.  
 Posteriors for the mixing parameter $\gamma$ and detection fixed and random effects were the same across gamma, lognormal, and Weibull mixture models but were narrower and location-shifted for the exponential mixture model.  
 %It should be remembered that detection covariate effect estimates are conditional on the estimated mixing parameter $\gamma$.  
 
