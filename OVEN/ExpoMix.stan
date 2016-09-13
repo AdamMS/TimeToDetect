@@ -1,45 +1,45 @@
 data {
 # Data dimensions
-int<lower=0> n_sites;
-int<lower=0> n_ints;
+int<lower=1> n_sites;     # Number of surveys
+int<lower=1> n_ints;      # Number of censored detection intervals
 
 # Covariates
-int<lower=0> n_ba;
-int<lower=0> n_bd;
-matrix[n_sites,n_ba] Xa;
-matrix[n_sites,n_bd] Xd;
+int<lower=0> n_ba;        # Number of abundance fixed effects
+int<lower=0> n_bd;        # Number of detection fixed effects
+matrix[n_sites,n_ba] Xa;  # Explanatory variables for abundance
+matrix[n_sites,n_bd] Xd;  # Explanatory variables for detection
 
 # Random effect ids
-int<lower=1> n_ra; # Number of sets of random effects
-int<lower=1> n_ras[n_ra]; # Number of levels for each random effect --- this is an (n_ra)-length vector
-int<lower=1> n_rds;
-int<lower=1> cn_ras[n_ra]; # Cumulative number of random effects
-int<lower=1> cn_rds;
-int<lower=1> va_id[cn_ras[n_ra]]; # Variance id for each random effect --- this is a vector of indices.  Its length = total number of abundance random effect levels across all random effects.  Each index specifies to which \psi_j each random effect level belongs.  So, for a 2-psi model, va_id is composed of all 1's and 2's.  There is no vd_id, because there is only one detection random effect.
-int ia[n_sites,n_ra];
-int id[n_sites]; # Note the different dimension versus 'ia' because there's only one random detection effect.
+int<lower=1> n_ra;         # Number of abundance random effects (e.g., Site or Year)
+int<lower=1> n_ras[n_ra];  # Number of levels for each random effect
+int<lower=1> n_rds;        # Number of levels for the lone detection random effect (Observer)
+int<lower=1> cn_ras[n_ra]; # Cumulative number of abundance random effect levels... used for indexing
+int<lower=1> cn_rds;       # Same as n_rds, because there is only one detection random effect
+int<lower=1> va_id[cn_ras[n_ra]]; # Effect-category ID for each effect level --- this is a vector of indices.
+     # length(va_id) = total number of abundance random effect levels across all random effects = sum(n_ras).
+     # There is no vd_id, because there is only one detection random effect.
+int ia[n_sites,n_ra];      # IDs what abundance random effect levels go with each survey
+int id[n_sites];           # IDs what detection random effect level goes with each survey  
 
 # Data
-real<lower=0> tau[n_ints];
-int<lower=0> y[n_sites,n_ints];
+real<lower=0> tau[n_ints];       # Endpoints of observation intervals
+int<lower=0> y[n_sites,n_ints];  # Counts by survey and observation interval
 }
 
 
 
 transformed data {
-int ii[n_sites];          # 'ii' is an index of sites relative to the data vector
-int yv[n_sites*n_ints];   # The data vector
-int obsN[n_sites];        # Total count at each site
-
-
+int<lower=0> ii[n_sites];         # An index identifying where in the vectorized data each survey begins (minus 1)
+int<lower=0> yv[n_sites*n_ints];  # Vectorized data
+int<lower=0> obsN[n_sites];       # Total count at each survey across all intervals
 
 # Vectorize data matrix
 for (s in 1:n_sites) {
-  ii[s] <- (s-1)*n_ints;
-  obsN[s] <- 0;
+  ii[s] = (s-1)*n_ints;
+  obsN[s] = 0;
   for (i in 1:n_ints) {
-    yv[ii[s]+i] <- y[s,i];
-    obsN[s] <- obsN[s] + y[s,i];
+    yv[ii[s]+i] = y[s,i];
+    obsN[s] = obsN[s] + y[s,i];
   }
 }
 }
@@ -50,51 +50,50 @@ parameters {
 # Fixed effects
 real intcpt_a;     # Abundance intercept
 real intcpt_d;     # Detection intercept
-vector[n_ba] ba;
-vector[n_bd] bd;
-real<lower=0,upper=1> gamma;
+vector[n_ba] ba;   # Abundance fixed effect estimates
+vector[n_bd] bd;   # Detection fixed effect estimates
+real<lower=0,upper=1> gamma;    # Heterogeneity mixing parameter
 
-# Random effects
-vector<lower=0>[n_ra] sigma_a;
-real<lower=0> sigma_d;
-vector[cn_ras[n_ra]] ra;
-vector[cn_rds] rd;
+vector<lower=0>[n_ra] sigma_a;  # Abundance random effect variances
+real<lower=0> sigma_d;          # Detection random effect variance
+vector[cn_ras[n_ra]] ra;        # Abundance random effect estimates
+vector[cn_rds] rd;              # Detection random effect estimates
 }
 
 
 
 transformed parameters {
-vector[n_sites] log_lambda;
-vector[n_sites] log_rho;
-vector[n_sites] rho;
-real<upper=0> log_p[n_sites,n_ints];
-vector[n_sites*n_ints] log_mu_ab;
-vector[n_sites] lambda;
+vector[n_sites] log_lambda;             # Survey-level log(Expected abundance)
+vector[n_sites] log_phi;                # Survey-level log(Expected detection rate)
+vector<lower=0>[n_sites] phi;           # Survey-level detection rate
+vector<upper=0>[n_ints] log_p[n_sites]; # Interval-specific log(detection probability)
+vector[n_sites*n_ints] log_mu_ab;       # Interval-specific log(lambda * p[s,i]) -- vectorized, not matrix
+vector[n_sites] lambda;                 # Survey-level Expected abundance
 
-# Abundance
-log_lambda <- Xa*ba;
+# Calculating Survey-level expected abundance
+log_lambda = Xa*ba;
 for (s in 1:n_sites) {
-  log_lambda[s] <- log_lambda[s] + intcpt_a;
-  for (i in 1:n_ra) log_lambda[s] <- log_lambda[s] + ra[ia[s,i]];
+  log_lambda[s] = log_lambda[s] + intcpt_a;
+  for (i in 1:n_ra) log_lambda[s] = log_lambda[s] + ra[ia[s,i]];
 }
-lambda <- exp(log_lambda);
+lambda = exp(log_lambda);
 
-# Detection
-log_rho <- Xd*bd;
+# Calculating Survey-level rate of detection
+log_phi = Xd*bd;
 for (s in 1:n_sites) {
-  log_rho[s] <- intcpt_d + log_rho[s] + rd[id[s]];
+  log_phi[s] = intcpt_d + log_phi[s] + rd[id[s]];
 }
-rho <- exp(log_rho);
+phi = exp(log_phi);
 
 # Calculate site-specific interval detection probabilities
 # and Poisson means
 for (s in 1:n_sites) {
-  log_p[s,1] <- log(gamma * exponential_cdf(tau[1],rho[s]) + 1 - gamma);
-  log_mu_ab[ii[s]+1] <- log_lambda[s] + log_p[s,1];
+  log_p[s,1] = log(gamma * exponential_cdf(tau[1],phi[s]) + 1 - gamma);
+  log_mu_ab[ii[s]+1] = log_lambda[s] + log_p[s,1];
   for (i in 2:n_ints) {
-    log_p[s,i] <- log(gamma) + log_diff_exp(exponential_ccdf_log(tau[i-1],rho[s]), 
-                                            exponential_ccdf_log(tau[i],rho[s]));
-    log_mu_ab[ii[s]+i] <- log_lambda[s]+log_p[s,i];
+    log_p[s,i] = log(gamma) + log_diff_exp(exponential_lccdf(tau[i-1]|phi[s]), 
+                                            exponential_lccdf(tau[i]|phi[s]));
+    log_mu_ab[ii[s]+i] = log_lambda[s]+log_p[s,i];
   }
 }
 }
@@ -102,20 +101,20 @@ for (s in 1:n_sites) {
 
 
 model {
-# Fixed effects
+# Fixed effect priors
 ba ~ normal(0,1); 
 bd ~ normal(0,2.25); 
 intcpt_a ~ normal(1,1);
 intcpt_d ~ normal(-2.7,2.25);
 gamma ~ beta(1,1);
 
-# Random effects
+# Random effect priors
 for (i in 1:cn_ras[n_ra]) ra[i] ~ normal(0,sigma_a[va_id[i]]);
 for (i in 1:cn_rds) rd[i] ~ normal(0,sigma_d);
 sigma_a ~ cauchy(0,1);
 sigma_d ~ cauchy(0,1);
 
-# Data models
+# Data model
 yv ~ poisson_log(log_mu_ab);
 }
 
@@ -130,15 +129,15 @@ real dev1;
 real lpn_BK[n_sites,n_ints];         # log(p(n|\beta's,\ksi's))
 vector [n_ints+1] p_int;             # Holding vector for interval-specific p_det at current site
 
-dev1 <- 0;
+dev1 = 0;
 for (s in 1:n_sites) {
-  unobserved[s] <- poisson_rng(exp(log_lambda[s] + log(fmax(1-exp(log_sum_exp(log_p[s])),1e-8)))); # A computational precision issue sometimes leads to p_det very close to 1
-  totN[s] <- obsN[s] + unobserved[s];
+  unobserved[s] = poisson_rng(exp(log_lambda[s] + log(fmax(1-exp(log_sum_exp(log_p[s])),1e-8)))); # A computational precision issue sometimes leads to p_det very close to 1
+  totN[s] = obsN[s] + unobserved[s];
   for (i in 1:n_ints) {
-    yrep[s,i] <- poisson_rng(exp(log_mu_ab[ii[s]+i]));
-    p_int[i] <- exp(log_p[s,i]);     # Estimated p[s,i]
-    lpn_BK[s,i] <- poisson_log(y[s,i], exp(log_mu_ab[ii[s]+i]));
-    dev1 <- dev1 - 2 * lpn_BK[s,i];
+    yrep[s,i] = poisson_rng(exp(log_mu_ab[ii[s]+i]));
+    p_int[i] = exp(log_p[s,i]);     # Estimated p[s,i]
+    lpn_BK[s,i] = poisson_lpmf(y[s,i] | exp(log_mu_ab[ii[s]+i]));
+    dev1 = dev1 - 2 * lpn_BK[s,i];
   }
 }
 }
