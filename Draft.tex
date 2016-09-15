@@ -81,8 +81,8 @@ We consider a class of N-mixture models that allows for detection heterogeneity 
 %Whereas, under the standard approach, detection probability is modeled by dividing the observation period into equal-duration intervals, we instead model the detection {\it rate} in continuous time via a time-to-detection distribution (TTDD) embedded within a hierarchical N-mixture framework.  
 Our model is thus a combination of survival time-to-event analysis with unknown-N, unknown-p abundance estimation.  
 We specifically explore two-parameter families of TTDDs, e.g. gamma, that can additionally include a mixture component to model increased probability of detection in the initial observation period.
-We find that modeling a TTDD by using a mixture component is necessary when data have a chance of arising from a distribution of this nature.
-In addition, two-parameter distributions can outperform exponential-based models both when the truth is exponential or non-exponential.
+We find that modeling a TTDD by using a two-parameter family is necessary when data have a chance of arising from a distribution of this nature.
+In addition, models with a mixture component can outperform non-mixture models even when the truth is non-mixture.  
 Finally, we analyze an Overbird data set from the Chippewa National Forest using mixed effect models for both abundance and detection.
 We demonstrate that the effects of explanatory variables on abundance and detection are consistent across mixture TTDDs but that flexible TTDDs result in lower estimated probabilities of detection and therefore higher estimates of abundance. 
 %We find that modeling a TTDD by using a mixture component for increased probability of detection in the initial observation period is necessary when data have a chance of arising from distributions of this nature.
@@ -92,7 +92,7 @@ We demonstrate that the effects of explanatory variables on abundance and detect
 % Models assuming constant detection rates produce biased estimates of detection when true detection rates vary with time, whereas models allowing for variable detection (assuming gamma, Weibull, or lognormal distributed times to detection) produce less biased estimates of the detection probability and nominal credible interval coverage.  
 % Models ignoring detection heterogeneity across subgroups yield biased estimates of detection when such heterogeneity exists, whereas models accounting for detection heterogeneity (modeled as a mixture) return reasonable coverage rates and can outperform heterogeneity-ignorant models even when there is no heterogeneity.
 
-{\bf Keywords:} abundance; availability; N-mixture model; point counts; removal sampling; survival analysis; Markov chain Monte Carlo; Stan; hierarchical model
+{\bf Keywords:} abundance; availability; hierarchical model; Markov chain Monte Carlo; N-mixture model; point counts; removal sampling; Stan; survival analysis
 
 \end{abstract}
 
@@ -124,7 +124,7 @@ We consider the choice of whether to include a mixture component in conjunction 
 
 Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
 We embed the TTDD in a hierarchical framework for multinomial counts using an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  
-For our purposes, the N-mixture framework provides three clear benefits: 1) its multinomial data framework accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
+For our purposes, the N-mixture framework provides three clear benefits: 1) it handles counts within a flexible multinomial data framework \citep{RoyleDorazio2006} which accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}.  
 
@@ -196,8 +196,8 @@ A common choice for TTDD is an exponential distribution, i.e. $T_{sb}\ind \mbox{
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
 For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
 In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
-To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = e^{\alpha/2}/\varphi$.  
-This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma^2$.  %$\mu = -\log(\varphi)$
+To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = \exp(\alpha^2/2)/\varphi$.  
+This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma$.  %$\mu = -\log(\varphi)$
 The exponential distribution is a special case of both the gamma and Weibull distributions when $\alpha=1$. 
 
 Using maximum likelihood, we can estimate the parameters in a TTDD from exact times to first detection and thus estimate $\pdet$ and its uncertainty.
@@ -462,12 +462,18 @@ Now we turn to model misspecification of the distribution family.
 We simulated 16 intercept-only datasets from the 7 different mixture TTDD models using the same settings as in the previous section, and we fit them with mixture models from each of exponential, gamma, lognormal, and Weibull families.
 %Again, we ran 60,000 iterations which showed no evidence of lack of convergence according to the Geweke diagnostic and reached over 1,000 effect samples for all parameters.
 
-Table \ref{tbl:sim2} provides a summary of the ability of each model to capture the detection probability. 
-Each quadrant assesses a model used for inference compared to the 7 different models used for simulation. 
+Figure \ref{fig:sim2typical} presents a representative example of posterior estimates of $\pdet$ for data and models from the exponential and gamma families.
+Table \ref{tbl:sim2} provides a more complete summary of the ability of each model to capture the detection probability. 
+Each table quadrant assesses a model used for inference compared to the 7 different models used for simulation. 
 The poorest estimation of $\pdet$ occurs for the exponential inferential model when the model used for simulation has a peak, because the two parameters (rate and mixing parameter) do not provide enough flexibility for the mixture exponential distribution to adequately fit a TTDD with both an initial increase and a delayed mode. 
 In this situation, the exponential model underestimates the actual detection probability.
 In contrast, if the simulated data are non-peaked, the exponential model typically overestimates the actual detection probability. 
 However, exponential model estimates are both less biased and more precise when the data actually do derive from an exponential mechanism.
+
+\begin{figure}
+\includegraphics[width=0.95\textwidth, height=3in]{"Oral Prelim/Posteriors_Families"}
+\caption{\label{fig:sim2typical} Representative example of posterior distributions for $\pdet$.  Data derive from mixture TTDDs of nonpeaked gamma, exponential, and peaked gamma families, and are fit with inference models from exponential and gamma families.  The vertical dashed line presents the true value of $\pdet = 0.80$.}
+\end{figure}
 
 \ifdic
 \begin{table}[ht]
@@ -759,8 +765,8 @@ Their results generally echo what we have presented here.
 
 Point-count survey data often include the recorded distance between observer and detected organism.
 Because our focus has been on modeling variations in detection rates during the survey period, we have not incorporated distance into our model.
-Consequently, our application of a TTDD represents an averaging across distance classes, which induces systematic bias in estimates of abundance \citep{EffordDawson2009, Solymos2013}.  
-To be consistent with the continuous time-to-event approach, distance can be incorporated into the detection model as an event-level modifier as is done in \citeauthor{borchers2015}.  
+Consequently, our application of a TTDD represents an averaging across distance classes, which induces systematic bias in estimates of abundance \citep{EffordDawson2009, Laake2011, Solymos2013}.  
+To be consistent with the continuous time-to-event approach, distance can be incorporated into the detection model as an event-level modifier as is done in \citeauthor{Borchers2016}.  
 This approach is distinct from earlier integrations of removal- and distance sampling, where distance has been treated as an interval-/survey-level modifier \citep{Farnsworth2005, Amundson2014}.
 The differences between these implementations may impact estimates of detection and abundance, especially in the presence of behavioral heterogeneity in availability rates across subgroups of the study population.  
 This is an area of ongoing exploration.
