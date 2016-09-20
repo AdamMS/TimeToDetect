@@ -1,5 +1,5 @@
 # As a prerequisite, point count survey data should be organized in a dataframe saved as 'surveydata'.
-surveydata <- read.csv("surveydata.csv")
+surveydata <- read.csv("data.csv")
 
 ########## Code to package data as a list for the model
 
@@ -66,12 +66,12 @@ dat = list(n_sites = nrow(Ival),
            tau = tau,
            y = Ival)
 
-save(dat, file="Data for rStan.Rdata")
+save(dat, file="stan_data.Rdata")
 
 
 
 ########## Run Stan code
-load("Data for rStan.Rdata")   # Load Data
+load("stan_data.Rdata")   # Load Data
 
 # Build list of variables to use.
 params <- c("intcpt_a", "ba", "intcpt_d", "bd", "sigma_a", "sigma_d", "gamma", "ra", "rd", "shape_k")
