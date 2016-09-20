@@ -7,7 +7,7 @@
 \usepackage{natbib}
 % \usepackage{color}
 % \usepackage[dvipsnames]{xcolor}
-\usepackage{caption}
+\usepackage[margin=1cm]{caption}
 %\usepackage{tabularx, booktabs}
 %\usepackage{float}
 \usepackage{adjustbox}
@@ -462,8 +462,11 @@ Now we turn to model misspecification of the distribution family.
 We simulated 16 intercept-only datasets from the 7 different mixture TTDD models using the same settings as in the previous section, and we fit them with mixture models from each of exponential, gamma, lognormal, and Weibull families.
 %Again, we ran 60,000 iterations which showed no evidence of lack of convergence according to the Geweke diagnostic and reached over 1,000 effect samples for all parameters.
 
-Figure \ref{fig:sim2typical} presents a representative example of posterior estimates of $\pdet$ for data and models from the exponential and gamma families.
-Table \ref{tbl:sim2} provides a more complete summary of the ability of each model to capture the detection probability. 
+Figure \ref{fig:sim2typical} presents a representative example of posterior distributions for $\pdet$ for data and models from the exponential and gamma mixture families. 
+In this example, the posterior distribution under an exponential inference model accurately captures the true detection probability when the simulation model is an exponential, but overestimates (underestimates) the detection probability when the simulation model has a small (large) gamma shape parameter. 
+In contrast, the posterior from a gamma family, which has the additional flexibility of the shape parameter, is able to accurately capture the truth in all scenarios with increased uncertainty. 
+
+To summarize these findings across the various simulation and inference models, Table \ref{tbl:sim2} provides simulation-averaged Median estimates of $\pdet$ (Med $p$), proportion of the $\pdet$ posterior larger than the truth ($Q(p)$), and 50\% and 90\% coverage proportions. 
 Each table quadrant assesses a model used for inference compared to the 7 different models used for simulation. 
 The poorest estimation of $\pdet$ occurs for the exponential inferential model when the model used for simulation has a peak, because the two parameters (rate and mixing parameter) do not provide enough flexibility for the mixture exponential distribution to adequately fit a TTDD with both an initial increase and a delayed mode. 
 In this situation, the exponential model underestimates the actual detection probability.
@@ -471,8 +474,11 @@ In contrast, if the simulated data are non-peaked, the exponential model typical
 However, exponential model estimates are both less biased and more precise when the data actually do derive from an exponential mechanism.
 
 \begin{figure}\centering
-\includegraphics[width=0.75\textwidth]{"Oral Prelim/Posteriors_Families_draft"}
-\caption{\label{fig:sim2typical} Representative example of posterior distributions for $\pdet$.  Data derive from mixture TTDDs of nonpeaked gamma, exponential, and peaked gamma families, and are fit with inference models from exponential and gamma families.  The vertical dashed line presents the true value of $\pdet = 0.80$.}
+\includegraphics[width=\textwidth]{"Oral Prelim/Posteriors_Families_draft"}
+\caption{\label{fig:sim2typical} 
+Representative example of the posterior distributions for $\pdet$ simulated from nonpeaked gamma (shape$<$1), exponential (shape$=$1), and peaked gamma (shape$>$1) mixture TTDDs, fit with exponential (light solid line) and gamma (dark solid line), and compared to the true detection probability (dashed vertical line, $\pdet=0.8$). 
+% Representative example of posterior distributions for $\pdet$.  Data derive from mixture TTDDs of nonpeaked gamma, exponential, and peaked gamma families, and are fit with inference models from exponential and gamma families.  The vertical dashed line presents the true value of $\pdet = 0.80$.
+}
 \end{figure}
 
 \ifdic
