@@ -74,16 +74,16 @@ save(dat, file="stan_data.Rdata")
 load("stan_data.Rdata")   # Load Data
 
 # Build list of variables to use.
-params <- c("intcpt_a", "ba", "intcpt_d", "bd", "sigma_a", "sigma_d", "gamma", "ra", "rd", "shape_k")
+params <- c("intcpt_a", "ba", "intcpt_d", "bd", "sigma_a", "sigma_d", "gamma", "ra", "rd", "alpha")
 
 # MCMC variables for which to store output
-# - omitting lambda and varphi, since they can be reconstructed
+# - omitting lambda and phi, since they can be reconstructed
 # - 'yrep' are simulated counts from the posterior distribution
 # - 'unobserved' are MCMC samples of uncounted individuals = N_s-n_s^{(obs)}
 record.list <- c(params, "unobserved", "yrep")
 
 library(rstan)
-# Compile model -- takes a few minutes
-m = stan_model("WeibullMix.stan", auto_write=rstan_options("auto_write" = TRUE))
-# Perform a short 1000-iteration MCMC sampling, thinned by a factor of 20 -- takes 7.5 minutes
+# Compile model -- takes a couple of minutes
+m = stan_model("WeibullMixture.stan", auto_write=rstan_options("auto_write" = TRUE))
+# Perform a short 1000-iteration MCMC sampling, thinned by a factor of 20 -- takes several minutes
 fit <- sampling(m, data=dat, chains=1, iter=1000, thin=20, pars=record.list)
