@@ -17,6 +17,7 @@
 \usepackage{setspace}
 \usepackage{url}
 \usepackage{xr}
+\usepackage{lineno}
 
 \externaldocument[S-]{Supplement}
 
@@ -54,7 +55,7 @@
 \newcommand{\ind}{\stackrel{ind}{\sim}}
 \newcommand{\Fm}{F_T^{(M)}}
 
-\providecommand{\blind}{0}
+\providecommand{\blind}{1}
 
 \title{Assessing the impacts of time to detection distribution assumptions on detection probability estimation}
 
@@ -73,7 +74,7 @@ Department of Statistics, Iowa State University, Ames, Iowa}
 \begin{abstract}
 
 Abundance estimates from animal point-count surveys require accurate estimates of detection probabilities.  
-The standard model for estimating detection from removal-sampled point-count surveys assumes that organisms at a survey site are detected at a constant rate; however, this assumption is often not justified.  
+The standard model for estimating detection from removal-sampled point-count surveys assumes that organisms at a survey site are detected at a constant rate; however, this assumption can often lead to biased estimates.  
 %Detection rates can be influenced by organismal behaviors, survey methodology, and observer effort.  
 %Failure to account for non-constant detection leads to biased estimates of detection and therefore of abundance.  
 We consider a class of N-mixture models that allows for detection heterogeneity over time through a flexibly defined time-to-detection distribution (TTDD) and allows for fixed and random effects for both abundance and detection.
@@ -81,7 +82,7 @@ We consider a class of N-mixture models that allows for detection heterogeneity 
 %Whereas, under the standard approach, detection probability is modeled by dividing the observation period into equal-duration intervals, we instead model the detection {\it rate} in continuous time via a time-to-detection distribution (TTDD) embedded within a hierarchical N-mixture framework.  
 Our model is thus a combination of survival time-to-event analysis with unknown-N, unknown-p abundance estimation.  
 We specifically explore two-parameter families of TTDDs, e.g. gamma, that can additionally include a mixture component to model increased probability of detection in the initial observation period.
-We find that modeling a TTDD by using a two-parameter family is necessary when data have a chance of arising from a distribution of this nature.
+Based on simulation analyses, we find that modeling a TTDD by using a two-parameter family is necessary when data have a chance of arising from a distribution of this nature.
 In addition, models with a mixture component can outperform non-mixture models even when the truth is non-mixture.  
 Finally, we analyze an Overbird data set from the Chippewa National Forest using mixed effect models for both abundance and detection.
 We demonstrate that the effects of explanatory variables on abundance and detection are consistent across mixture TTDDs but that flexible TTDDs result in lower estimated probabilities of detection and therefore higher estimates of abundance. 
@@ -117,7 +118,7 @@ A typical assumption in removal sampling is a constant detection rate throughout
 In particular, animal behaviors such as intermittent singing in birds and frogs or diving in whales \citep{Scott2005, Diefenbach2007, Reidy2011}, differences in behavior across subgroups of animals \citep{Otis1978, Farnsworth2005}, observer impacts on animal behaviors \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}, and variations in observer effort, e.g. saturation or lack of settling in period \citep{Petit1995, LeeMarsden2008, Johnson2008}, can all lead to time-varying rates of detection.
 
 In this manuscript, we develop a model for scenarios where detection rates are not constant over time. 
-We consider the first time-to-detection as is done in survival analysis, defining a continuous random variable $T$ for each individual's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function (cdf) $F_T(t)$.  
+We analyze times to first detection as time-to-event data in a parametric survival analysis, defining a continuous random variable $T$ for each individual's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function (cdf) $F_T(t)$.  
 We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  
 One common strategy to deal with data that do not fit a constant-detection assumption is to model increased detection probability in the initial observation period via a mixture component \citep{Farnsworth2002, Farnsworth2005, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
 We consider the choice of whether to include a mixture component in conjunction with TTDDs with non-constant rates.
@@ -160,14 +161,13 @@ Our analysis is motivated by avian point-count surveys in Chippewa National Fore
 For our analysis, we focused on Ovenbird counts selected from one habitat type: sawtimber red pine stands with no recent logging activity.  
 Each stand had up to four sites with sufficient geographical distance between sites to reduce or eliminate overlapping territories.
 The data included 65 sites and a total of 381 surveys with site specific variables including site age,  stock density, and an indicator of select-/partial-cut logging during the 1990s. 
+A total of 947 Ovenbirds were counted with a maximum of eight birds counted in any single survey.  
+% The counts of Ovenbirds by interval, across all sites, were 596, 69, 62, 68, 43, 33, 35, 27, and 14.
 
 Single-visit (per year) point-count surveys were conducted by trained observers at each site once annually (weather permitting).  
 Fourteen different observers conducted surveys during the study period and 69\% of surveys in our dataset involved observers in their first year at the MNFB.  
 Survey durations were 10 minutes, with times to first detection censored into nine intervals: a two-minute interval followed by eight one-minute intervals.  
 During each survey, the Julian date, time of day, and temperature were recorded. 
-
-% A total of 947 Ovenbirds were counted with a maximum of eight birds counted in any single survey.  
-% The counts of Ovenbirds by interval, across all sites, were 596, 69, 62, 68, 43, 33, 35, 27, and 14.
 
 While we focus on the estimation of detection probability in avian populations, the approach we describe is appropriate for point-count surveys of any species.
 The methodology allows the analysis of data with 1) recorded first (possible censored) detection of each individual, 2) site-specific explanatory variables, and 3) survey-specific explanatory variables.  
@@ -195,7 +195,10 @@ We model the number of individuals at survey $s$ for which $t_{sb}$ is actually 
 A common choice for TTDD is an exponential distribution, i.e. $T_{sb}\ind \mbox{Exp}(\varphi)$, which imposes a constant first detection rate, i.e. $h(t) = \varphi$.
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
 For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
-In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
+%In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
+Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow for rates to either increase or decrease during the survey; however, the shapes of these distributions will differ, most notably in their tail probabilities.
+All three could be reasonable TTDD choices if, for instance, we believe detection rates vary from individual to individual.
+In thats case, marginal detection rates decrease over time as individuals with higher detection rates are removed from the local population.
 To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = \exp(\alpha^2/2)/\varphi$.  
 This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma$.  %$\mu = -\log(\varphi)$
 The exponential distribution is a special case of both the gamma and Weibull distributions when $\alpha=1$. 
@@ -327,11 +330,12 @@ For the full model with random effects (Ovenbirds and Sim3), which is a missing 
 We conducted three simulation studies to explore the behavior of models with non-constant TTDDs.
 The first study compares mixture vs non-mixture models.
 The second study compares the TTDD families.
-In the first two studies, we utilized intercept only models to focus attention on the TTDD. 
+In the first two studies, we utilized intercept only models to focus attention on robustness of the TTDD choice in the most simple of scenarios.
 For the third study, we included fixed and random effects for both abundance and detection and again compared the distribution families. 
-In all simulation studies, we focus on accuracy in estimation of $\pdet$ which then translates into estimation of abundance. 
-For the following analyses we distinguish two categories of purely continuous TTDDs: peaked and nonpeaked.  
-A peaked TTDD has a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$).
+In all simulation studies, we focused on accuracy in estimation of $\pdet$ which then translated into estimation of abundance. 
+In the following analyses we distinguish two categories of purely continuous TTDDs: peaked and nonpeaked.  
+Detection rates $\varphi(t)$ of peaked distributions generally decrease over time, while detection rates of nonpeaked distributions generally increase over time.
+More formally, we define a peaked TTDD as having a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$), but we consider exponential TTDDs to be neither peaked nor nonpeaked.
 
 
 
@@ -679,7 +683,7 @@ We ran chains 250,000-375,000 iterations; Geweke diagnostics showed no indicatio
 %\caption{\label{tbl:ovencounts} Ovenbird counts and posterior predictive p-values -- Pr$\left(D(n_i)^{(rep)} > D(n_i)^{(obs)}\right)$ -- by observation interval for each model across all surveys.  P-values near zero or one may indicate poor model fit.}
 %\end{table}
 
-Figure \ref{ovenposteriors} presents posterior medians and credible intervals for model parameters, overall detection probability $\pdet$, and the logarithm of the number of uncounted Ovenbirds.  
+Figure \ref{ovenposteriors} presents posterior medians and credible intervals for model parameters, overall detection probability $\pdet$, and the logarithm of total Ovenbird abundance.  
 Estimates for the shape parameter $\alpha$ from the gamma and Weibull models are consistent with the data arising from an exponential distribution, although the uncertainty on this parameter remain relatively large. 
 %Based on shape parameter estimates and patterns in the estimation of $\gamma$, $\beta^D$, $\pdet$, and total abundance across models, Ovenbird data most likely arose from an exponential or nonpeaked mixture TTDD.
 
@@ -694,7 +698,7 @@ DIC calculations preferred the exponential mixture TTDD to the lognormal, Weibul
 These differences closely mirror those from the exponential mixture dataset in Sim3, but they also mirror those from the nonpeaked lognormal mixture dataset, where the exponential mixture 95\% credible interval for abundance did not contain the true value, and its posterior median was negatively biased by 18\% of the actual abundance.
 \fi
 
-In spite of the similarity of effect parameter estimates, the posterior distributions for detection probability and uncounted abundance differ greatly between the exponential and non-exponential models.  
+In spite of the similarity of effect parameter estimates, the posterior distributions for detection probability and abundance differ greatly between the exponential and non-exponential models.  
 It is clear that the assumption of constant detection leads to much higher and more precise estimates of detection than would be obtained if we are unwilling to make that assumption.
 %The Ovenbird analysis highlights the ambiguity that emerged from the simulation studies: the results were entirely consistent with data generated from a finite-mixture involving a constant-rate $F_{T1}$ TTDD, but they were also consistent with finite-mixtures involving a time-varying TTDD.
 
@@ -703,7 +707,7 @@ It is clear that the assumption of constant detection leads to much higher and m
 \begin{figure}[h!]\centering
 \includegraphics[width=0.95\textwidth]{OVEN/oven_sum/OVEN_Posteriors}
 \caption{\label{ovenposteriors} Posterior medians (black dots) with 50\% (wider line) and 95\% (narrowerline) credible intervals for the mixing parameter ($\gamma$), shape parameter ($\alpha$) as well as abundance (A) and detection (D) fixed effects and random effect standard deviations.
-Posteriors are also available for the number of uncounted individuals and the overall probability of detection across all sites.}
+Posteriors are also available for the overall probability of detection and the abundance across all sites.}
 \end{figure}
 
 
@@ -738,7 +742,7 @@ If the estimation of abundance is the primary interest, then the choice of TTDD 
 The strategy behind removal sampling is to use the pattern of detections over time to estimate the proportion of individuals that would be detected if only the observation period lasted longer.  
 As such, it is entirely based upon extrapolation and correctly estimating the probability in the tail of the TTDD based on recorded observations.
 An assumption of constant detection places constraints on the amount of uncertainty in the extrapolated tail but at the cost of potentially sizable bias.
-When we allow for non-constant detection, estimation of the tail probability becomes less certiain.
+When we allow for non-constant detection, estimation of the tail probability becomes less certain.
 In theory, estimation of the unsampled tail probability can be improved by conducting longer surveys, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
 Without extending the observation period, an alternative to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB where many species are observed simultaneously
 
@@ -772,7 +776,7 @@ Point-count survey data often include the recorded distance between observer and
 Because our focus has been on modeling variations in detection rates during the survey period, we have not incorporated distance into our model.
 Consequently, our application of a TTDD represents an averaging across distance classes, which induces systematic bias in estimates of abundance \citep{EffordDawson2009, Laake2011, Solymos2013}.  
 To be consistent with the continuous time-to-event approach, distance can be incorporated into the detection model as an event-level modifier as is done in \citeauthor{Borchers2016}.  
-This approach is distinct from earlier integrations of removal- and distance sampling, where distance has been treated as an interval-/survey-level modifier \citep{Farnsworth2005, Amundson2014}.
+This approach is distinct from earlier integrations of removal- and distance sampling, where distance has been treated as an interval-/survey-level modifier \citep{Farnsworth2005, Diefenbach2007, Solymos2013, Amundson2014}.
 The differences between these implementations may impact estimates of detection and abundance, especially in the presence of behavioral heterogeneity in availability rates across subgroups of the study population.  
 This is an area of ongoing exploration.
 %Our adoption of a time-heterogeneous continuous time-to-detection approach in our model mirrors continuous time work in mark-and-recapture \citep{HwangChao2002, FarcomeniScacciatelli2013, Borchers2014}.
@@ -794,7 +798,7 @@ This is an area of ongoing exploration.
 
 % Skeptics of removal sampling: Johnson08, EffordDawson09, Reidy11
 
-We recommend that time-heterogeneous detection rates be explicitly modeled in analyses involving removal-sampled point-count survey data where estimation of detection probability or abundance is a primary objective.  
+We recommend that time-heterogeneous detection rates be explicitly modeled in single-species analyses involving removal-sampled point-count survey data where estimation of detection probability or abundance is a primary objective.  
 The assumption of constant detection, while computationally simple and reasonable as a null model, proves to be rather informative and can result in pronounced bias.  
 Meanwhile, the causes of non-constant detection -- i.e., observer effects on behavior and systematic variations in observer effort -- are both plausible and not trivially discounted.  
 It would be nice if the data itself could inform us whether constant detection is a reasonable assumption; however, our preliminary efforts to diagnose this assumption using deviance information criterion (DIC) and posterior predictive check statistics have led to weak and sometimes erroneous findings.
