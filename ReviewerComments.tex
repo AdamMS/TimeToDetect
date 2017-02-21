@@ -67,6 +67,13 @@ We agree, this manuscript has strong parallels to the continuous-time models of 
 Their models are for removal-distance data, whereas ours is for removal-only data.
 \end{quote}
 \item In Section 3.4, models are built where the various TTDDs considered are linked to covariates via the rate parameter. It was not clear to me why the rate parameter was chosen to be modeled as a function of covariates, as opposed to the mean of the TTDD. For example, in gamma GLMs, the mean is modeled as a function of covariates, with the shape parameter fixed (the latter as done also in the present work). Basically I'm now wondering a) why the rate rather than the mean was modeled, and b) if that matters at all. In 3.1, a justification seems to be given, but I do not follow the reasoning here – why would the inclusion of random and fixed effects be any different if not the rate but the mean would be used? Sorry if I'm just missing the obvious.
+\begin{quote}
+We have added a statement clarifying that there is no mathematical difference.
+\adam{
+In response to (a), while we fit our models with common distributions for $f_T(t)$, we could alternatively begin with a detection hazard rate $h(t)$.
+Given this context, the detection rate feels more like the focus of inference than the expected time to detection.
+}
+\end{quote}
 \end{enumerate}
 
 \newpage
@@ -140,9 +147,10 @@ However, I would not dream of extending those findings to other distributions.
 We obviously would prefer longer durations, but those risk the violation of closure assumptions.
 \citet{Petit1995, Johnson2008, LeeMarsden2008} and \citet{Reidy2011} all address the effects of duration.
 I am inclined not to add Discussion on topics about which I do not have well-informed opinions.
-
-To the reviewer's point, we can emphasize the value of a settling-in period toward justifying the use constant-rate assumptions in analysis.}
+}
+We have added a mention of the trade-offs of a settling down period to reduce observer effects on behavior.
 \end{quote}
+
 \item Providing computation times for scenarios that vary by model complexity and sample size (including the computer used for analyses) may also provide a gauge for users as to whether this method is feasible for their needs.
 \begin{quote}
 \adam{Because of improvements in Stan, I want to run more simulation reps before quantifying this.}
@@ -278,6 +286,11 @@ This potentially requires a lot of rewiring.  Two options are: (i) highlight eac
 
 Write self-contained paragraphs, with one main idea, not two or three (and each one half developed). As a reviewer, I enjoyed verifying that the cited papers in the introduction and in the discussion were indeed meaningful (by downloading them and reading those that I was not familiar with). However, when many papers are cited, it is useful to expand in the text why the different papers are being cited.  Doing so not only clarifies your intentions, but does proper justice to the papers being referred to. It is also a useful exercise because it allows you to tell whether you have more than one clear ideas and hence, material for more than one paragraph.  For instance, I think that the paragraph in the introduction, line 34, page 3, could be expanded and/or broken into two paragraphs.  One introducing the time-to-detection as is done in survival analysis, and one presenting to the reader how data that seem not to conform to the constant-detection assumption is dealt with by
 using the idea of the increased detection probability via a mixture component. These are two different ideas, hence two different paragraphs. The same approach to construct paragraphs through the text should be taken.
+\begin{quote}
+We have reviewed the entire manuscript with these points in mind.
+We have split the cited paragraph and others.
+\adam{The only times I feel I have cited many articles is when I've said ``Many authors have done this.'.}
+\end{quote}
 
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
 \begin{quote}
