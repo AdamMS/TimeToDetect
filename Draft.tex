@@ -118,13 +118,13 @@ A typical assumption in removal sampling is a constant detection rate throughout
 In particular, animal behaviors such as intermittent singing in birds and frogs or diving in whales \citep{Scott2005, Diefenbach2007, Reidy2011}, differences in behavior across subgroups of animals \citep{Otis1978, Farnsworth2005}, observer impacts on animal behaviors \citep{McSheaRappole1997, Rosenstock2002, Alldredge2007}, and variations in observer effort, e.g. saturation or lack of settling in period \citep{Petit1995, LeeMarsden2008, Johnson2008}, can all lead to time-varying rates of detection.
 
 In this manuscript, we develop a model for scenarios where detection rates are not constant over time. 
-We analyze times to first detection as time-to-event data in a parametric survival analysis, defining a continuous random variable $T$ for each individual's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function (cdf) $F_T(t)$.  
+We analyze times to first detection as time-to-event data, as is done in parametric survival analysis, defining a continuous random variable $T$ for each individual's time to first detection with a probability density function (pdf) $f_T(t)$ and cumulative distribution function (cdf) $F_T(t)$.  
 We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).  
-One common strategy to deal with data that do not fit a constant-detection assumption is to model increased detection probability in the initial observation period via a mixture component \citep{Farnsworth2002, Farnsworth2005, EffordDawson2009, Etterson2009, Reidy2011}, although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
+One common strategy to deal with data that do not fit a constant-detection assumption is to model the TTDD as a mixture of two distributions --- a continuous-time distribution and an increased detection probability in the initial observation period \citep{Farnsworth2002, Farnsworth2005, EffordDawson2009, Etterson2009, Reidy2011} --- although this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
 We consider the choice of whether to include a mixture component in conjunction with TTDDs with non-constant rates.
 
 Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
-We embed the TTDD in a hierarchical framework for multinomial counts using an N-mixture model \citep{Wyatt2002, Royle2004NMixture}.  
+We embed the TTDD in a hierarchical framework for multinomial counts called an N-mixture model \citep{Wyatt2002, Royle2004NMixture}, which references an entirely different `mixture' than the mixture TTDDs in the previous paragraph.
 For our purposes, the N-mixture framework provides three clear benefits: 1) it handles counts within a flexible multinomial data framework \citep{RoyleDorazio2006} which accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data while assuming constant detection rates \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}.  
@@ -172,7 +172,14 @@ During each survey, the Julian date, time of day, and temperature were recorded.
 While we focus on the estimation of detection probability in avian populations, the approach we describe is appropriate for point-count surveys of any species.
 The methodology allows the analysis of data with 1) recorded first (possible censored) detection of each individual, 2) site-specific explanatory variables, and 3) survey-specific explanatory variables.  
 
-
+\begin{figure}\centering
+\includegraphics[width=\textwidth]{"Oral Prelim/AMRO_JABES"}
+\caption{\label{fig:schematic} 
+Illustration of fitting mixture exponential (left) and mixture gamma (right) time-to-detection distributions (TTDDs) to multinomial removal-sampled observations (center) assuming no survey-level heterogeneity.
+The mixture TTDD consists of a continuous TTDD (thick line) plus a mixture component (light gray rectangle), which constitute $\gamma$ and $1-\gamma$ proportions of the population, respectively.
+We estimate $\pdet$ as the proportion of the TTDD before the end of the observation period $C$, leaving a proportion $1-\pdet$ undetected.
+}
+\end{figure}
 
 
 
@@ -196,16 +203,15 @@ A common choice for TTDD is an exponential distribution, i.e. $T_{sb}\ind \mbox{
 Choosing another TTDD can allow for a systematic non-constant detection regime. 
 For example, to model an observer effect where: (i) the observer's arrival suppresses or stimulates detectable cues, but (ii) organisms acclimate and gradually return to constant detection, a gamma TTDD could be appropriate.
 %In addition to an exponential and gamma TTDD, we also consider Weibull and lognormal as these distributions are often used in survival analysis. 
-Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow for rates to either increase or decrease during the survey; however, the shapes of these distributions will differ, most notably in their tail probabilities.
-All three could be reasonable TTDD choices if, for instance, we believe detection rates vary from individual to individual.
-In thats case, marginal detection rates decrease over time as individuals with higher detection rates are removed from the local population.
+Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to either increase or decrease during the survey; however, the shapes of these distributions will differ, most notably in tail probability.
+All three could be reasonable TTDD choices if, for instance, detection rates vary from individual to individual, thus leading to marginal detection rates that decrease over time as individuals with higher detection rates are removed from the population.
 To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = \exp(\alpha^2/2)/\varphi$.  
 This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma$.  %$\mu = -\log(\varphi)$
 The exponential distribution is a special case of both the gamma and Weibull distributions when $\alpha=1$. 
 
 Using maximum likelihood, we can estimate the parameters in a TTDD from exact times to first detection and thus estimate $\pdet$ and its uncertainty.
 With an estimate and uncertainty for $\pdet$, we are in a scenario of a binomial model with unknown $N_s$ and ``known'' $p$ and thus can estimate $N_s$.
-In these models, point estimates of $N_s$ are unstable unless $\pdet>0.4$ \citep{Olkin1981}.
+In these models, point estimates of $N_s$ are unstable unless $\pdet>0.41$ \citep{Olkin1981}.
 One approach to regularizing these estimates is to construct a hierarchical model for the site-specific abundance, e.g. $N_s\ind \Po(\lambda)$ \citep{Raftery1988, Royle2004NMixture}. 
 With this assumption, we can decompose $N_{s}$ into observed and unobserved portions: $n^{(obs)} \sim Po(\lambda \pdet)$ and, independently, $n_{s}^{(unobs)} \sim \Po\left(\lambda[1-\pdet]\right)$.
 Although alternative distributions could be considered, e.g. negative binomial, our experience with Ovenbird point counts suggests that, after accounting for appropriate explanatory variables, the resulting abundances are likely underdispersed rather than overdispersed, and thus we will use the Poisson assumption here. 
@@ -224,6 +230,7 @@ It is common in avian point counts to observe increased detections in the first 
 This is often understood to reflect unmodeled detection heterogeneity across behavioral groups in the study population.
 Failure to account for such heterogeneity in the constant-detection scenario leads to negative bias in abundance estimates \citep{Otis1978}.
 To accommodate this empirical observation, many models of interval-censored removal times define a TTDD with a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Alldredge2007, Etterson2009, Reidy2011}.
+We refer to models with and without the mixture component as `mixture models' and `non-mixture models', respectively, which are not to be confused with the `N-mixture' model framework we employ.
 We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$.  
 The mixture TTDD cdf is defined: $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
 If $\gamma=1$, the non-mixture model is recovered.

@@ -215,26 +215,75 @@ Diagnostics: Coverage. The idea of testing coverage is fantastic, but poorly imp
 \end{quote}
 (Is a boundary like the one in Olkin et al 1981, for your case, a hard one such that below it estimation is bad, and above it estimation is ``uniformly" good?).
 \begin{quote}
-\adam{Bolster this with more citations?  \citet{Veech2016} argue for $p>0.5$ in the context of individual-level detection effects (no time-to-detection). 
-Plots from \citet{Field2016} suggest uncertainty in $\hat{N}$ increase rapidly as $\pdet$ decreases below 0.40.  Methods include removal, double-observer, distance, and multiple-visit.  In a traditional removal-sampling context, \citet{Davis2016} report accurate $\hat{N}$ at $\pdet >0.40$, though for small abundance ($N<50$) they required $\pdet > 0.7$.}
+It is not a hard boundary.  It results from the relative sample mean and sample variance of large samples.
+However, similar thresholds continue to surface again and again in various abundance-estimating contexts: 
+\begin{itemize}
+\item \citet{Veech2016}: suggest  $p>0.5$ in the context of individual-level detection effects (no time-to-detection data). 
+\item \citet{Field2016}: plots indicate uncertainty in $\hat{N}$ increase rapidly as $\pdet$ decreases below 0.40.  Methods include removal, double-observer, distance, and multiple-visit.
+\item \citet{Davis2016}: report accurate $\hat{N}$ at $\pdet >0.40$ in a traditional removal-sampling context, though for small abundance ($N<50$) they required $\pdet > 0.7$.
+\end{itemize}
+\adam{Jarad, I am unclear on the purpose of the Olkin-citing paragraph.  I don't feel like the above arguments really merit inclusion in the text.}
 \end{quote}
 
  Without variation in ``true" simulated scenarios, it is easy to inadvertendly ``stack the deck" in favor or against a particular combination of settings (Particularly since your ``true" value of p is high: 0.8). A wide range of simulated truths is also necessary because to be useful, these methods should be widely applicable in the
 tropics (low N's, low p's very often) as well as in temperate forests (large N's, large p's), for example.
 
-Diagnostics: relation of the target parameter to other parameters in the models. Precisely because, as the authors mention, the statistical properties of the estimator of p(det) are tightly linked with the statistical properties of the abundance estimator, then the author(s) should detail explicitly how a bad coverage in p(det), for instance, affects the estimation of abundances. The author(s) mention that bias in p translates into a bias in abundance estimation, I would like to see diagnostics for the realized N values too. And to do that, two words come to mind: profile likelihoods. Unless you are explicitly adopting a subjective Bayesian approach, you basically declare a priori ignorance for your parameters.  Furthermore, you state that typically you will be in a case where data sets aren't large, so the information in the data is not ``swamping" the priors, so to speak. Lele et al 2010 (a frequent co-author of Solymos) propose a pretty neat diagnostic tool to assess
+Diagnostics: relation of the target parameter to other parameters in the models. Precisely because, as the authors mention, the statistical properties of the estimator of p(det) are tightly linked with the statistical properties of the abundance estimator, then the author(s) should detail explicitly how a bad coverage in p(det), for instance, affects the estimation of abundances. The author(s) mention that bias in p translates into a bias in abundance estimation, I would like to see diagnostics for the realized N values too. And to do that, two words come to mind: profile likelihoods. Unless you are explicitly adopting a subjective Bayesian approach, you basically declare a priori ignorance for your parameters.  Furthermore, you state that typically you will be in a case where data sets aren't large, so the information in the data is not ``swamping" the priors, so to speak.
+\begin{quote}
+We have posterior estimates of abundance from our model fits.  We have added them to the manuscript.\\
+\adam{Thoughts on how to do this:
+\begin{enumerate}
+\item Generate Tables 1 \& 2 for $\hat{N}$ as well as $\pdet$, but this gets crowded.
+\item Supplement Tables 1 \& 2 with some manner of confidence intervals for $\hat{N} / N$, but averaging across replicates is not a trivial issue
+\item Supplement Figure 1 with a row of representative abundance posteriors (no averaging required)
+\item Following the profile likelihood comment, generate a plot of $\hat{N}$ vs. $\pdet$ for a representative sample.
+\end{enumerate}
+}
+\end{quote}
+
+Lele et al 2010 (a frequent co-author of Solymos) propose a pretty neat diagnostic tool to assess
 estimability that is the by product of tricking a bayesian MCMC set up into Maximum Likelihood estimation for hierarchical models (see Lele et al 2007, 2010 and others. The keyword is ``Data Cloning"). You are one step away from using Solymos and Lele's ``Data Cloning" (DC) approach to get the full ML estimation working (See Lele et al 2010 and other Data Cloning papers). Now, this is relevant because using DC you can provide clear estimability diagnostics for the parameters of interest.  Are there parameters that are technically not estimable?  Given that you don't have informative priors, you are ``driving in the dark" so to speak if you are not certain if some of your parameters are un-identifiable (see Lele et al 2010 and discussion in Lele and Dennis 2009).  Note that I am NOT asking you to re-do all the analysis using a ML approach, I am just suggesting the fact that using DC to get the ML estimates one can, as a very useful by product, get very neat diagnostics regarding
 the estimability of your parameters.  Again, see Lele et al 2010.  Implementing DC would only imply a simple modification to the programs you already have. And by the way, Solymos has a DC package easy to use.
+\begin{quote}
+\adam{
+\begin{itemize}
+\item The Solymos package is built for BUGS and JAGS.  Most of the tools are easily hand-coded, I think.
+\item To simplify our lives, we could choose to attempt this for only quick-running models on the actual data... there's no reason to suspect identifiability issues for the gamma TTDD that would not appear for the Weibull or lognormal.
+\item Technical note: they suggest using narrower priors as the number of clones increases.  Likewise, we could input posterior means as initial values.
+\end{itemize}
+}
+\end{quote}
 
 Generalized Pareto: In another area in biology, in evolutionary genetics, the ``fitness" of individual variant strains has been modeled as coming from an exponential distribution.  For various reasons having to do with the biology of the system, such model was quickly challenged and pretty soon papers questioning the validity of this or this other model for data akin to your waiting times abounded. There is one pretty interesting paper by Beisel et al, 2007 (Genetics, 10.1534/genetics.106.068585), written towards the epiloge of such discussions, that posits that a particular parameterization of the Generalized Pareto distribution, with a single stroke, encompassed many suitable probabilistic models in the Weibull, Gumbel and Freched domain of attraction.  I wonder if the authors could write a general parameterization so that changing from one distribution to the other would simply amount to dialing a given parameter, much like Beisel et al do?  This would be just a practical
 consideration that can at once deal with model selection and could speed up calculations
+\begin{quote}
+We appreciate the merit of the reviewer's suggestion and have added comments in the Discussion.
+We focus our comments on a possible generalized gamma TTDD, which is an umbrella distribution that includes exponential, gamma, lognormal, and Weibull distributions as special cases.
+The generalized Pareto analysis in \citet{Beisel2007} requires observations from the tail of the TTDD distribution, which we do not have.
+Additionally, its focus is on flexible domains of attraction, whereas the TTDDs in our analysis are all from the Gumbel domain of attraction.
+\adam{After researching the generalized gamma, add comments in the paragraph beginning `If the estimation of abundance is the primary interest...'.}
+\end{quote}
 
-Writing: The multiplicity of mathematical explicit meanings for the word ``mixture" may result confusing. The distinction between the mixture component a la Farnsworth et al and the N-mixture models (e.g. binomial counts with N~pois and p random) is clear to me, but it may not be for some of JABES' audience.  I suggest re-shaping the introduction to that effect. One thing that the authors could do is to take the reader by the hand by building equation 1 bit by bit: present first the simplest version of equation 1 and what is customary to date, and then add modifications/hierarchies plus text and build the model with explicit equations and little by little arrive to the final product, which is the current equation 1. Nothing better than clear simple math aided by short explanations to present a model unambiguously.
+Writing: The multiplicity of mathematical explicit meanings for the word ``mixture" may result confusing. The distinction between the mixture component a la Farnsworth et al and the N-mixture models (e.g. binomial counts with N~pois and p random) is clear to me, but it may not be for some of JABES' audience.  I suggest re-shaping the introduction to that effect. 
+\begin{quote}
+We have inserted clarifications: (i) when we first reference the N-Mixture framework in the Introduction, and (ii) when we first use the term `mixture model' in Section \ref{M-s:subgroups}.
+\end{quote}
+
+One thing that the authors could do is to take the reader by the hand by building equation 1 bit by bit: present first the simplest version of equation 1 and what is customary to date, and then add modifications/hierarchies plus text and build the model with explicit equations and little by little arrive to the final product, which is the current equation 1. Nothing better than clear simple math aided by short explanations to present a model unambiguously.
+\begin{quote}
+\adam{
+This potentially requires a lot of rewiring.  Two options are: (i) highlight each component of Equation (1) as we address it in the text, because we do address them all, or (ii) at the end of Section 3.2, provide a simpler version of the model without mixtures and without covariates.
+}
+\end{quote}
 
 Write self-contained paragraphs, with one main idea, not two or three (and each one half developed). As a reviewer, I enjoyed verifying that the cited papers in the introduction and in the discussion were indeed meaningful (by downloading them and reading those that I was not familiar with). However, when many papers are cited, it is useful to expand in the text why the different papers are being cited.  Doing so not only clarifies your intentions, but does proper justice to the papers being referred to. It is also a useful exercise because it allows you to tell whether you have more than one clear ideas and hence, material for more than one paragraph.  For instance, I think that the paragraph in the introduction, line 34, page 3, could be expanded and/or broken into two paragraphs.  One introducing the time-to-detection as is done in survival analysis, and one presenting to the reader how data that seem not to conform to the constant-detection assumption is dealt with by
 using the idea of the increased detection probability via a mixture component. These are two different ideas, hence two different paragraphs. The same approach to construct paragraphs through the text should be taken.
 
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
+\begin{quote}
+We have crafted a beautiful and very telling graph (Figure 1).
+\end{quote}
+
 
 Process vs. observation error: Finally, here's a perspective outside the author's topic, but within statistical ecology that might result in a markedly improvement of these ``N-mixture" techniques, along with all of its variants. I wonder if thinking a bit more in terms of modeling the biological process behind the data can result in a better estimation of the sampling variance and as a ``by-product", some novel understanding of the biology behind the data. I suppose the author(s) are familiar (or at least have seen) the multiple papers where statistical inference is done for a stochastic population dynamics model using time series of abundances while taking into account sampling error. In these settings, it is customary to deal with one observed abundance per time step. The sampling error and the ecologically-phrased variability are phrased using a hierarchical model.  When statistical inference is done for this hieararchical model, the information to be able to tease apart
 the process from the observation variance lies within the structure of the temporal dependencies phrased in the model. Amazingly, with a single observation per time step, the sampling model is not ill posed as the time dependencies in the process brings about enough information in the data.  As a result, thinking of the biological process (in that case, the population dynamics model) yields better, unbiased estimates of the observation error. In your case, I cannot help but wonder if having data varying along the axis of time or space result in a much better estimation of the sampling noise. Just as exponential waiting times are, as you surely are aware of, tightly linked to continuous time, discrete state Markov models, the other TTDD models could be linked to non-Markovian processes of moving/singing/behavior.  In many instances, multiple observations in the same ``point-count" are available. Anyways, this are just some thoughts rapidly put together, please comment on this
