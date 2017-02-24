@@ -64,18 +64,19 @@ I enjoyed reading this well-written manuscript, and believe that the modeling fr
 \item Reviewer 1 is not convinced that it is helpful to make explicit the link to survival analysis. I tend to disagree with this, since I think that this is what renders the approach widely applicable and also extendable. In fact, the general idea strongly reminded me of several papers published recently by David Borchers and colleagues (using concepts from survival analysis to model detection events within distance sampling and spatially explicit capture-recapture). I was wondering if there is a common denominator between his work and the present manuscript (but the authors need not necessarily explore this).
 \begin{quote}
 We agree, this manuscript has strong parallels to the continuous-time models of David Borchers and colleagues.  
-Their models are for removal-distance data, whereas ours is for removal-only data.
-\jarad{They also don't look at other distributions for the removal portion.}
+Interestingly, they have approached removal modeling both from distributional and from hidden Markov modeling directions.
+Our manuscript explores distinct topics in that our model is for removal-only data, whereas their models are for removal-distance data.
+Also, we explicitly investigate non-constant detection distributions, which has not been their focus.
 \end{quote}
 
 
 \item In Section 3.4, models are built where the various TTDDs considered are linked to covariates via the rate parameter. It was not clear to me why the rate parameter was chosen to be modeled as a function of covariates, as opposed to the mean of the TTDD. For example, in gamma GLMs, the mean is modeled as a function of covariates, with the shape parameter fixed (the latter as done also in the present work). Basically I'm now wondering a) why the rate rather than the mean was modeled, and b) if that matters at all. In 3.1, a justification seems to be given, but I do not follow the reasoning here – why would the inclusion of random and fixed effects be any different if not the rate but the mean would be used? Sorry if I'm just missing the obvious.
 \begin{quote}
-We have added a statement clarifying that there is no mathematical difference.
-\adam{
-In response to (a), while we fit our models with common distributions for $f_T(t)$, we could alternatively begin with a detection hazard rate $h(t)$.
-Given this context, the detection rate feels more like the focus of inference than the expected time to detection.
-}
+We have added the following in Section \ref{M-sec:exact_time} to clarify: ``We employ a log link for $\varphi$, and therefore our model is equivalent to a generalized linear model with a log link on the mean detection time."
+
+We feel the rate conceptualization resonates more with the framing of the problem, though perhaps the distinction is mainly aesthetic.
+Our view might be more explicit if we were to define the time-to-detection distribution from its hazard function rather than from a traditional distributional family. 
+The latter is more convenient and builds upon parametric survival modeling, but the former can also be done within our model framework.
 \end{quote}
 \end{enumerate}
 
@@ -97,12 +98,12 @@ Abstract
 
 Line 14: Perhaps instead of saying its not justified, mention it can lead to bias
 \begin{quote}
-Done. \jarad{Be more explicit, e.g. "We've added the following to Section X.x" ...}
+We have revised the statement to read: ``The standard model for estimating detection from removal-sampled point-count surveys assumes that organisms at a survey site are detected at a constant rate; however, this assumption can often lead to biased estimates.''
 \end{quote}
 
 Line 29-31: Clarify that you conducted a simulation analysis and your results from that analysis suggest it can outperform non-mixture models.
 \begin{quote}
-Done.
+We have prefaced the results with the clause: ``Based on simulation analyses, ..."
 \end{quote}
 
 Line 40-41.  Also worth mentioning caveats - e.g., greater imprecision and computation times.
@@ -113,20 +114,31 @@ Line 40-41.  Also worth mentioning caveats - e.g., greater imprecision and compu
 Introduction\\
 Line 36-41: I find mention of survival analyses here and later in the manuscript confusing for most readers - especially Ecologists, presuming this is the intended audience.  It may be due to the unorthodox use of time-to-detection instead of traditional time-to-event analyses often used to estimate survival.  I suggest either omitting the reference to survival analysis here and elsewhere in the manuscript, or using the time-to-event terminology in this sentence and providing citations for the cdf and pdfs outlined here for reference.  Then explain that within the manuscript you will subsequently refer to it as TTDD.  
 \begin{quote}
-We have explicitly defined time-to-detection data as being time-to-event data.\\
+We have made the equivalence more explicit: ``We analyze times to first detection as time-to-event data, as is done in parametric survival analysis, ..."
 \adam{I am unclear what the reviewer means by `providing citations for the cdf and pdfs outlined here for reference'.}
 \end{quote}
 
 3.1 \\
 Line 60: In the context of estimating abundance of wildlife, justifying the inclusion of the Weibull and lognormal distributions because they are often used in survival analysis is weak.  Are there biologically plausible scenarios in which these distributions are appropriate given this type of data?  Justify here similar to the Gamma distribution.  Otherwise, omit.
 \begin{quote}
-We have added an example \jarad{where?} where detection rates vary across individuals, causing the marginal detection rate to decline over time.
+We have added the following sentences to \ref{M-sec:exact_time}: ``Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to either increase or decrease during the survey; however, the shapes of these distributions differ, most notably in tail probability.
+All three could be reasonable TTDD choices if, for instance, detection rates vary among individuals.
+This leads to marginal detection rates that decrease over time as individuals with higher detection rates are removed from the population."
+
+We appreciate the importance of providing biological justification for statistical assumptions.
+It is always a good foundation.
+That being said, the use of any time-to-detection distribution is a statistical approximation to empirical patterns.
+The dynamics of the system may be more complicated than we can appreciate.
+For instance, if the arrival of the observer causes non-constant detection, we know neither how long that observer effects lasts nor how the degree of that effect changes over time.
 \end{quote}
 
 Simulation Analyses\\
 Line 57-59: This is the first mention of peaked and non-peaked TTDDs.  Please define these terms and how they are manifested during point-count surveys in the Introduction - including a biological justification that warrants their inclusion in simulation studies.
 \begin{quote}
-We have made the meaning of `peaked' and `nonpeaked' more explicit in Section \ref{M-sec:sim}.
+We have given the definitions of peaked/nonpeaked their own paragraph in the Simulation Studies methodology (Section \ref{M-sec:sim}):
+``In the following analyses we distinguish two categories of purely continuous TTDDs: peaked and nonpeaked.  
+Detection rates $h(t)$ of peaked distributions generally decrease over time, while detection rates of nonpeaked distributions generally increase over time.
+More formally, we define a peaked TTDD as having a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$), but we consider exponential TTDDs to be neither peaked nor nonpeaked."
 We do not believe this distinction requires a separate explanation in the Introduction.
 \jarad{Can we reword to remove peaked and nonpeaked here?}
 \end{quote}
@@ -136,23 +148,23 @@ As a potential user of such a model presented in this manuscript, I find the sim
 \item Users will most certainly not bother using such complex modeling approach to model an intercept only - and thus, evaluating TTDDs based on intercept-only models seems overly simple and not very informative. \jarad{Computation time.}
 \begin{quote}
 We agree that an intercept-only model is simplistic and will not be of much practical use in applied settings.
-However, it can be informative.
+However, it is informative.
 TTDDs that are biased (e.g. non-mixture lognormal) or not robust to misspecification (e.g. mixture exponential) may not be trustworthy in more complicated analyses.
+
+On the practical side, while simulation studies are hampered by long computation times, the typical user of this model will only need to apply it to a comparatively smaller number of datasets.
 \end{quote}
 \item Simulations incorporating variable sample sizes to evaluate relative bias and precision would be very useful in terms of study design and applicability.  
 \begin{quote}
 \adam{Investigate more/different simulations}
 \end{quote}
+
 \item How might study design impact bias and precision?  For example, length of survey relative to peaked TTDDs and pooling of time periods during data collection?  These are also scenarios that would benefit readers.  Alternatively, these issues could be addressed in the Discussion.
 \begin{quote}
-\adam{We have not investigated either of these issues.
-During my Masters work, we examined the effects of censoring on a mixture exponential model and found a 33\% increase in credible interval widths for $\pdet$ when switching from 9- to 3-interval data in a model with covariates.
-However, I would not dream of extending those findings to other distributions.
-We obviously would prefer longer durations, but those risk the violation of closure assumptions.
-\citet{Petit1995, Johnson2008, LeeMarsden2008} and \citet{Reidy2011} all address the effects of duration.
-I am inclined not to add Discussion on topics about which I do not have well-informed opinions.
-}
-We have added a mention of the trade-offs of a settling down period to reduce observer effects on behavior.
+We appreciate that these are important decision in the design of surveys, but we have not investigated either of these issues with respect to bias and precision.
+Not having done so, we prefer not to speculate.
+%\citet{Petit1995, Johnson2008, LeeMarsden2008} and \citet{Reidy2011} all address the effects of duration.
+We have separated out a paragraph in the Discussion posing some design-related questions.
+\adam{Insert a statement about the NRRI one-minute intervals relative to two- or three-interval designs?}
 \end{quote}
 
 \item Providing computation times for scenarios that vary by model complexity and sample size (including the computer used for analyses) may also provide a gauge for users as to whether this method is feasible for their needs.
@@ -164,24 +176,25 @@ We have added a mention of the trade-offs of a settling down period to reduce ob
 \begin{quote}
 We have retained just the 50\% coverage.
 \adam{Waiting until all new simulations are run.}
-\jarad{I think we can explain why here, but because the other reviewer also 
-mentioned ``poor implementation'' of coverage, we may need to address why in the manuscript.
-I think computation time is a reason.}
 \end{quote}
 \end{enumerate}
 
 Results\\
 Page 18, Figure 2:  Holy moly, the CIs of the mixture distributions are exceedingly wide given a sample size of 381 detections (which is a lot relative to many studies).
-\begin{quote} Clarification: 947 detections at 381 sites (which is \textit{really} a lot of detections)\end{quote}
+\begin{quote}
+Clarification: 947 detections at 381 sites (which is \textit{really} a lot of detections).
+We have placed this information in Section \ref{M-sec:data}: ``The data included 65 sites and a total of 381 surveys with site specific variables including site age,  stock density, and an indicator of select-/partial-cut logging during the 1990s. 
+A total of 947 Ovenbirds were counted with a maximum of eight in any single survey."
+\end{quote}
+
 For example, The Gamma distribution, touted as the most accurate based on the simulation study, suggests 95\% CIs of p ranges from ~ 0.3 to 1?  And subsequently CIs around N are from ~1.75 to 3.25 so we can say there are somewhere between 56 and 1,778  birds?
 Is that a useful estimate?  There is a tradeoff between accuracy and precision happening here, and although precise, biased estimates are not what we want, any alternative needs to provide precision at levels that are still informative.  This is a limitation not sufficiently addressed in the Discussion.
 \begin{quote} 
-We think our figure may have been unclear.
-The cited credible intervals are for \textit{uncounted} birds not total abundance.
+We think our figure was unclear.
+The cited credible intervals were for \textit{uncounted} birds not total abundance.
 We have now changed the figure to $\log_{10}$(Abundance) to avoid confusion.
 The gamma TTDD 95\% credible interval for total abundance is (1007, 2836).
 This two- to three-fold scale of uncertainty is commensurate with other studies cited in this manuscript \citep{Diefenbach2007, Reidy2011, Solymos2013, Amundson2014}.
-\jarad{This is the same order of magnitude and therefore is useful in my opinion.}
 \end{quote}
 
 Discussion\\
@@ -194,14 +207,17 @@ I think the low-availability stipulation is redundant.  If availability is reall
 \end{quote}
 where non-constant detection through time is suspected based on the behavioral ecology of the species.
 \begin{quote}
-\adam{What I do not advocate is defaulting to the constant-rate assumption: by the precautionary principle, the burden of proof should rest with the analyst who wishes to assume constant detection rather than with the analyst who wishes to account for non-constant detection.}
-\jarad{Agreed.}
+By the precautionary principle, we believe the burden of proof should rest with the analyst who wishes to assume constant detection rather than with the analyst who wishes to account for non-constant detection.
+This is a central point in our manuscript: the constant-rate assumption should not be the default.
 \end{quote}
 
 
 As the authors’ suggest, most point-count studies are designed to maximize availability, which is typically high for birds (e.g., 80-95\%) with perceptibility (e.g., the probability an observer detects a cue that is given by an animal) being the much larger source of bias.  Therefore, this model, without including a supplemental method to estimate perceptibility, is of limited use to many readers.
 \begin{quote}
-We agree.  Our current research addresses this issue in more depth.
+We agree.
+This manuscript applies to removal-only analyses.
+Still, the concept should carry over to removal-distance analyses.
+The implementation will be more complicated and will vary depending on how removal- and distance-sampling are integrated.
 \end{quote}
 Further, although the method may be more accurate even for constant detection data, the loss in precision is such that users will likely not opt to use it unless they suspect non-constant detection through time.  Further, given its presumably arduous computation times (albeit unknown), adding a perceptibility component to the model would likely greatly increase computational demands with unknown implications to bias and precision.  Including a paragraph in the Discussion that outlines when the model would be most beneficial to users (e.g., what type of data, surveys, or sample sizes) and explicitly stating drawbacks (e.g., computation time, loss of precision) would greatly improve this section.  
 \begin{quote}

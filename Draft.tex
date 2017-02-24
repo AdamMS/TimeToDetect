@@ -192,7 +192,7 @@ We estimate $\pdet$ as the proportion of the TTDD before the end of the observat
 Before considering interval censoring and explanatory variables, we first present the scenario of exact time to detections with no explanatory variables. 
 We then incorporate interval censoring and follow with inclusion of fixed and random effects for abundance and detection. 
 
-\subsection{Exact time to detection}
+\subsection{Exact time to detection}\label{sec:exact_time}
 
 Suppose that, for each survey $s$ ($s=1,\dots,S$), $N_s$ individuals are present.  
 Imagine an observer could remain at the survey location until every individual is detected, recording the time to detection $t_{sb}$ (for bird, $b=1,\dots,N_s$) for each.
@@ -212,8 +212,7 @@ This leads to marginal detection rates that decrease over time as individuals wi
 To facilitate the later inclusion of fixed and random effects, we use the following rate-based parameterizations: $T\sim \Exp(\varphi), E[T]=1/\varphi$; $T\sim \Ga(\alpha,\varphi), E[T] = \alpha/\varphi$; $T\sim \We(\alpha,\varphi), E[T]=\mathrm{\Gamma}(1+1/\alpha)/\varphi$; and $T\sim \LN(\varphi,\alpha), E[T] = \exp(\alpha^2/2)/\varphi$.  
 This parameterization of the lognormal relates to the standard ($\mu, \sigma^2$) parameterization by $\varphi = \exp(-\mu)$ and $\alpha = \sigma$.  %$\mu = -\log(\varphi)$
 The exponential distribution is a special case of both the gamma and Weibull distributions when $\alpha=1$. 
-We employ a log link for $\varphi$.
-This makes our model equivalent to a generalized linear model with a log link on the mean detection time.
+We employ a log link for $\varphi$, and therefore our model is equivalent to a generalized linear model with a log link on the mean detection time.
 
 We model the number of individuals at survey $s$ for which $t_{sb}$ is actually observed as $n_{s}^{(obs)} \ind \mbox{Binomial}\left(N_{s}, \pdet\right)$. 
 Using maximum likelihood, we can estimate the parameters in a TTDD from exact times to first detection and thus estimate $\pdet$ and its uncertainty.
@@ -761,7 +760,7 @@ When we allow for non-constant detection, bias is less problematic but estimatio
 
 Study design can address some issues associated with non-constant detection.
 In theory, longer surveys can improve estimation of the unsampled tail probability, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
-Observer effects on singing rates can be mitigated by introducing a settling down period but at the potential cost of a serious reduction in total observations \citep{LeeMarsden2008}.
+Observer effects on availability rates can be mitigated by introducing a settling down period but at the potential cost of a serious reduction in total observations \citep{LeeMarsden2008}.
 An alternative to removal sampling is to record complete detection records (all detections for every individual) instead of just the first \citep{Alldredge2007}; however, this may not be feasible in studies like MNFB where many species are observed simultaneously
 
 %With the increasing use of microphone arrays for automated detection, it is tempting to think TTDD models may be valuable for microphone-collected data.  
