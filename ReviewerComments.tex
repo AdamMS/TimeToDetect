@@ -245,24 +245,30 @@ modifications I request or she (he) successfully convinces me otherwise.
 1. MAJOR COMMENTS
 
 
-Diagnostics: Coverage. The idea of testing coverage is fantastic, but poorly implemented. First, the number of simulations (16 in Table 1) is exceedingly low to be able to reliably diagnose the patterns in coverage or the statistical explanation of these patterns. Second, the statistical properties of the estimator of p(det) are likely depending on the size of the true value of p(det). Therefore, I think Table 1 should have been repeated for a whole range of values of the true value of p(det)
+Diagnostics: Coverage. The idea of testing coverage is fantastic, but poorly implemented. First, the number of simulations (16 in Table 1) is exceedingly low to be able to reliably diagnose the patterns in coverage or the statistical explanation of these patterns. 
+\begin{quote}
+We have not been clear enough in stating our goals for the simulations.
+We have added the following line in Section \ref{M-sec:sim}: ``Because our main goal with these studies was to demonstrate poor performance under model misspecification, and because the computation time for sampling from some models was large, we simulated only a small number of replicates."
+\adam{Can we run more simulations?  Reviewer 1 wants more variation in $n^{(obs)}$.  Reviewer 2 wants a wider range of simulated $\pdet$.}
+\end{quote}
+
+Second, the statistical properties of the estimator of p(det) are likely depending on the size of the true value of p(det). Therefore, I think Table 1 should have been repeated for a whole range of values of the true value of p(det)
 \begin{quote}
 \adam{We should run more simulations.  Reviewer 1 wants more variation in $n^{(obs)}$.  Reviewer 2 wants a wider range of simulated $\pdet$.}
 \end{quote}
+
 (Is a boundary like the one in Olkin et al 1981, for your case, a hard one such that below it estimation is bad, and above it estimation is ``uniformly" good?).
 \begin{quote}
-It is not a hard boundary.  It results from the relative sample mean and sample variance of large samples.
-However, similar thresholds continue to surface again and again in various abundance-estimating contexts: 
+It is not a hard boundary.  
+But the boundary is a property of estimating $N$ in Binomial unknown-$N$, unknown-$p$ problems.
+Olkin's calculation results from the relative sample mean and sample variance of large samples.  
+Similar thresholds continue to recur in various abundance-estimating contexts, as demonstrated in these recent articles: 
 \begin{itemize}
-\item \citet{Veech2016}: suggest  $p>0.5$ in the context of individual-level detection effects (no time-to-detection data). 
+\item \citet{Veech2016}: advise caution when $p<0.5$ in the context of individual-level detection effects (no time-to-detection data). 
 \item \citet{Field2016}: plots indicate uncertainty in $\hat{N}$ increase rapidly as $\pdet$ decreases below 0.40.  Methods include removal, double-observer, distance, and multiple-visit.
 \item \citet{Davis2016}: report accurate $\hat{N}$ at $\pdet >0.40$ in a traditional removal-sampling context, though for small abundance ($N<50$) they required $\pdet > 0.7$.
 \end{itemize}
-\adam{Jarad, I am unclear on the purpose of the Olkin-citing paragraph.  I don't feel like the above arguments really merit inclusion in the text.}
-\jarad{In my opinion, if $\pdet$ is low, then information about $\pdet$ and abundance are 
-obtained through the priors and not through the data. These citations as well as the Olkin paragraph
-indicate that statistical methods cannot help us to recover when $\pdet$ is low unless we 
-are willing to make strong assumptions.}
+\adam{Since I've cited the above articles, is there a reason to work them into the manuscript?  I don't feel they add to our story.}
 \end{quote}
 
  Without variation in ``true" simulated scenarios, it is easy to inadvertendly ``stack the deck" in favor or against a particular combination of settings (Particularly since your ``true" value of p is high: 0.8). A wide range of simulated truths is also necessary because to be useful, these methods should be widely applicable in the
@@ -311,13 +317,16 @@ Additionally, its focus is on flexible domains of attraction, whereas the TTDDs 
 
 Writing: The multiplicity of mathematical explicit meanings for the word ``mixture" may result confusing. The distinction between the mixture component a la Farnsworth et al and the N-mixture models (e.g. binomial counts with N~pois and p random) is clear to me, but it may not be for some of JABES' audience.  I suggest re-shaping the introduction to that effect. 
 \begin{quote}
-We have inserted clarifications: (i) when we first reference the N-Mixture framework in the Introduction, and (ii) when we first use the term `mixture model' in Section \ref{M-s:subgroups}.
+In the Introduction, we now clearly describe a practice of modeling the TTDD ``as a mixture of two distributions --- a continuous-time distribution and a point mass for increased detection probability in the initial observation period."
+Later in the same paragraph, we state ``We apply the term `mixture model' to any model with a mixture TTDD."
+This is contrasted in the next paragraph: ``a hierarchical framework for multinomial counts called an N-mixture model \dotso, which is an entirely different use of `mixture' from the mixture models in the previous paragraph."
 \end{quote}
 
 One thing that the authors could do is to take the reader by the hand by building equation 1 bit by bit: present first the simplest version of equation 1 and what is customary to date, and then add modifications/hierarchies plus text and build the model with explicit equations and little by little arrive to the final product, which is the current equation 1. Nothing better than clear simple math aided by short explanations to present a model unambiguously.
 \begin{quote}
 \adam{
-This potentially requires a lot of rewiring.  Two options are: (i) highlight each component of Equation (1) as we address it in the text, because we do address them all, or (ii) at the end of Section 3.2, provide a simpler version of the model without mixtures and without covariates.
+This potentially requires a lot of rewiring.  Two options are: (i) highlight each component of Equation (1) as we address it in the text, because we do address them all, or (ii) at the end of Section 3.2, provide a simpler summary of the model without mixtures and without covariates.
+I do think we provide the model pieces one-by-one, but we could be more heavy-handed (in a good way).
 }
 \jarad{But it appears the reviewer wants it up front. 
 I need to go back and reread to determine if this seems feasible. 
@@ -328,14 +337,14 @@ Write self-contained paragraphs, with one main idea, not two or three (and each 
 using the idea of the increased detection probability via a mixture component. These are two different ideas, hence two different paragraphs. The same approach to construct paragraphs through the text should be taken.
 \begin{quote}
 We have reviewed the entire manuscript with these points in mind.
-We have split the cited paragraph and others.
-\adam{The only times I feel I have cited many articles is when I've said ``Many authors have done this.'.}
+We have split the cited paragraph and a few others.
+\adam{The only times I feel I have cited many articles en masse is when I've said ``Many authors have done this.'}
 \end{quote}
 
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
 \begin{quote}
-We have crafted a beautiful and very telling graph (Figure 1).
-\jarad{Stay away from sass.}
+We have added this as Figure \ref{M-fig:schematic}.
+\adam{I have not citedthe figure in the text.  I am not convinced I need to.}
 \end{quote}
 
 
@@ -343,11 +352,19 @@ Process vs. observation error: Finally, here's a perspective outside the author'
 the process from the observation variance lies within the structure of the temporal dependencies phrased in the model. Amazingly, with a single observation per time step, the sampling model is not ill posed as the time dependencies in the process brings about enough information in the data.  As a result, thinking of the biological process (in that case, the population dynamics model) yields better, unbiased estimates of the observation error. In your case, I cannot help but wonder if having data varying along the axis of time or space result in a much better estimation of the sampling noise. Just as exponential waiting times are, as you surely are aware of, tightly linked to continuous time, discrete state Markov models, the other TTDD models could be linked to non-Markovian processes of moving/singing/behavior.  In many instances, multiple observations in the same ``point-count" are available. Anyways, this are just some thoughts rapidly put together, please comment on this
 if you think it's worthwhile.
 
-\jarad{Ran out of steam?}
+\begin{quote}
+\adam{
+The main application I've encountered before is \citet{Borchers2013}.
+There are technical differences between that approach and our parameteric survival analysis approach, mainly due to the continuous and interval-censored handling of time.
+For instance, I suspect that for analysis, as with \citet{Farnsworth2002} and its derivatives, the hidden Markov model would require an artificial division of the observation period into equal-intervals intervals.
+One cool feature of that approach is that it directly handles bout-singing through an availability state (which may be stochastically `available' or `not available') in conjunction with a detection model.
+I am not sure that model would serve well for a problem like ours where we are looking for systematic non-constant detection --- i.e., the Markov model would require time-dependent transition matrices.
+Additionally, at least in the case of \citet{Borchers2013}, the model utilizes separate observations of animal behaviors to estimate transitions among hidden states (e.g., moving/singing/etc.).
+In their case, they analyzed radio-tagged whales to estimate transitions for diving states.
 
-Thank you for the opportunity to comment on your paper, I hope you find my views useful.  I think yours will in the end, be a very important contribution.
-
-\jarad{I missed this previously.}
+Those are just some preliminary thoughts.
+I think the reviewer's comment is thought-provoking but not applicable to the manuscript we have crafted.}
+\end{quote}
 
 
 \bibliography{masterbib}
