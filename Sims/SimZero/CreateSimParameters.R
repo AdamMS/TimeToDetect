@@ -1,5 +1,3 @@
-setwd(".../Sims/SimZero") # Run from the TimeToDetect directory
-
 ########## Helper equations for each distribution (homogeneous surveys)
 ### Exponential Distribution
 # First  function calculates intcpt_d to obtain a target pdet (no mixture)
