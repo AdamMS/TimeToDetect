@@ -6,6 +6,8 @@
 #     That file is a list of 1, ..., nrow(simtable) simulated datasets
 # (2) A table of the simulation parameters called 'ParValues' saved in a file called 'Sim_ZZ/TrueParams.Rdata'
 
+set.seed(NULL)
+
 library(plyr)
 load("Simpars.Rdata")             # These are the hand-selected parameters for simulation
 load("../../OVEN/Data9.Rdata")    # Ovenbird data -- named 'dat' -- provides survey info and actual counts
