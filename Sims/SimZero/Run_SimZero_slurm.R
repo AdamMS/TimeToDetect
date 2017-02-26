@@ -1,0 +1,55 @@
+########## Code to fit SimZero models on slurm
+set.seed(NULL)
+bundle = 1    # How many models will be fit by a single call to this script
+
+# Code to replicate S0_sumtable according to the number of replicates
+NumReps  <- 16
+simtable <- read.csv("S0_simtable.csv")       # Load table of datasets
+simtable <- do.call('rbind', rep(list(simtable), times=NumReps))
+simtable$Rep <- rep(1:NumReps, each=nrow(simtable)/NumReps)
+
+# Collect array number from slurm and add one
+ss = Sys.getenv("SLURM_ARRAY_TASK_ID") 
+j  = as.numeric(ss) * bundle + 1
+
+## List of models to run, in case I only want to run a subset
+# analysis_dupes <- readRDS("Data/A_Dupes.rds")
+# indices <- analysis_dupes[j:(j+bundle-1)]
+
+for(indx in j:(j+bundle-1)){
+  Rep <- simtable$Rep[indx]
+  load(paste0("Sim_", Rep, "/SimData.Rdata"))  # Load all datasets in Rep.  Object name is 'dat9'
+  dataset <- dat9[[simtable$datacode[indx]]]
+  load(paste0("Sim_",Rep,"/TrueParams.Rdata")) # Load True Values associated with SimData.  Object name is 'ParValues'
+  
+  # Provide initial values.  Since data and models are often not congruent, but the 
+  # simulations use the same target values, the idea here is to use simulation parameters
+  # from the most equivalent model-related family.
+  # For example, if the data are LFT, and the model is a GammaMix, then I want the 
+  # parameters from the GTT model
+  
+  # Construct a simdat-like code for the model being fit so that I can use values from the equivalent dataset
+  modelcode <- paste0(substr(simtable$modelname,1,1), substr(simtable$modelmix,1,1), substr(simtable$simdat,3,3))
+  modelcode[modelcode=="EFT"] <- "EFF"
+  modelcode[modelcode=="ETT"] <- "ETF"
+  initlist <- ParValues[[which(modelcode[indx]==levels(simtable$simdat))]] # Initial values
+  
+  # MCMC variables to store
+  record.list <- c("intcpt_a", "intcpt_d", "uncounted", "p_global", "dev1")
+  if(simtable$modelmix[indx]) record.list <- c(record.list, "gamma")
+  if(simtable$parmcode[indx] %in% 3:4) record.list <- c(record.list, "alpha")
+  if(simtable$parmcode[indx] %in% 5:6) record.list <- c(record.list, "sigma_det")
+  if(simtable$parmcode[indx] %in% 7:8) record.list <- c(record.list, "shape_k")
+  
+  library(rstan)
+  # Compile/Load Stan model
+  m = stan_model(paste0(simtable$modelname[indx],".stan"), auto_write=rstan_options("auto_write" = TRUE))
+  
+  # For most runs, it was 60K iter.  For a few troublesome models, I boosted it.
+  assign(as.character(simtable$modeloutput[indx]), sampling(m, data=dataset, chains=1, iter=60000, thin=10, pars=record.list, init=list(initlist)))
+  save(list=as.character(simtable$modeloutput[indx]), file=paste0("Sim_",Rep,"/",simtable$fname[indx],".Rdata"))
+  
+  rm(list = ls()[-which(ls() %in% c("indx", "j", "bundle", "simtable"))])
+}
+
+q(ifelse(interactive(), "ask", "no"))
