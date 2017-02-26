@@ -124,4 +124,4 @@ for(j in 1:nrow(Simpars)){
 Simpars$intcpt_a <- log((1/pdet)*(947/381))
 
 
-save(Simpars, file="../Simpars.Rdata")
+save(Simpars, file="Simpars.Rdata")
