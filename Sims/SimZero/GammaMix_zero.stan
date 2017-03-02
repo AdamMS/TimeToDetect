@@ -81,25 +81,23 @@ yv ~ poisson_log(long_log_mu);
 
 
 generated quantities {
-int<lower=0> unobserved[n_sites];   # Estimated uncounted birds
 int<lower=0> uncounted;             # Total uncounted birds
 real dev1;
-real lpn_BK[n_sites,n_ints];         # log(p(n|\beta's,\ksi's))
-int<lower=0> totN[n_sites];          # Estimated total birds by survey
-real<lower=0> p_global;              # Estimated overall detection probability
+real lpn_BK[n_ints];                # log(p(n|\beta's,\ksi's))
+real<lower=0> p_global;             # Estimated overall detection probability
 
+# Because of homogeneity and the properties of Poissons, 
+# I can calculate likelihood over all survey en masse rather than one survey at a time
 dev1 = 0;
-for (s in 1:n_sites) {
-  unobserved[s] = poisson_rng(exp(log_lambda + log(fmax(1-exp(log_sum_exp(log_p)),1e-8)))); # A computational precision issue sometimes leads to p_det very close to 1
-  totN[s] = obsN[s] + unobserved[s];
-  for (i in 1:n_ints) {
-    lpn_BK[s,i] = poisson_lpmf(y[s,i] | exp(long_log_mu[(s-1)*n_ints + i]));
-    dev1 = dev1 - 2 * lpn_BK[s,i];
-  }
+for (i in 1:n_ints) {
+  lpn_BK[i] = poisson_lpmf(sum(y[,i]) | n_sites*exp(log_mu_ab[i]));
+  dev1 = dev1 - 2 * lpn_BK[i];
 }
-uncounted = sum(unobserved);
+# Draw total unobserved abundance from Poisson(lambda * (1-pdet))
+uncounted = poisson_rng(n_sites*exp(log_lambda + log(fmax(1-exp(log_sum_exp(log_p)),1e-8))));
+
 # This calculation is split into 2 pieces, because of integers, reals, and the C++ oddity that: int/int = int
 p_global = sum(obsN); 
-p_global = p_global / sum(totN);
+p_global = p_global / (p_global + uncounted);
 }
 
