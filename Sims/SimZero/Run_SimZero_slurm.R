@@ -1,9 +1,9 @@
 ########## Code to fit SimZero models on slurm
 set.seed(NULL)
-bundle = 1    # How many models will be fit by a single call to this script
+bundle = 5    # How many models will be fit by a single call to this script
 
 # Code to replicate S0_sumtable according to the number of replicates
-NumReps  <- 16
+NumReps  <- 100
 simtable <- read.csv("S0_simtable.csv")       # Load table of datasets
 simtable <- do.call('rbind', rep(list(simtable), times=NumReps))
 simtable$Rep <- rep(1:NumReps, each=nrow(simtable)/NumReps)
@@ -42,11 +42,26 @@ for(indx in j:(j+bundle-1)){
   if(simtable$parmcode[indx] %in% 7:8) record.list <- c(record.list, "shape_k")
   
   library(rstan)
+  library(mcmcse)
   # Compile/Load Stan model
   m = stan_model(paste0(simtable$modelname[indx],".stan"), auto_write=rstan_options("auto_write" = TRUE))
   
   # For most runs, it was 60K iter.  For a few troublesome models, I boosted it.
-  assign(as.character(simtable$modeloutput[indx]), sampling(m, data=dataset, chains=1, iter=60000, thin=10, pars=record.list, init=list(initlist)))
+  insuff <- TRUE
+  iter   <- 60000
+  fail   <- 0
+  while(insuff){
+    assign(as.character(simtable$modeloutput[indx]), 
+           sampling(m, data=dataset, chains=1, iter=iter*(2^fail), thin=10, pars=record.list, 
+                    init=list(initlist)))
+    postdraws <- as.data.frame(eval(parse(text=as.character(simtable$modeloutput[indx]))))
+    if(min(ess(postdraws)) > 10){
+      insuff=FALSE
+    } else {
+      fail <- fail + 1
+    }
+  }
+  
   save(list=as.character(simtable$modeloutput[indx]), file=paste0("Sim_",Rep,"/",simtable$fname[indx],".Rdata"))
   
   rm(list = ls()[-which(ls() %in% c("indx", "j", "bundle", "simtable"))])
