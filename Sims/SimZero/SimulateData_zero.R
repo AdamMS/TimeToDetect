@@ -19,7 +19,7 @@ Mix  <- as.logical(substr(Simpars$model,2,2)) # Whether mixture or non-mixture
 ##### Loop to simulated datasets from parsmeters
 # for generating multiple replicates of simulations
 
-for(Rep in 1:16){
+for(Rep in 1:100){
   for(j in 1:nrow(Simpars)){
     ##### Start Generating Data
     # Simulated site abundances

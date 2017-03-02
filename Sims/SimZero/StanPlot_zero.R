@@ -32,7 +32,7 @@ for(l in 1:length(params)) params[[l]] <- params[[l]][-which(params[[l]] %in% c(
 Reps <- 1
 
 for(Rep in 1:Reps){
-  ESS <- quanttable <- NULL; Geweke <- vector('list', nrow(simtable))  # Storage objects
+  ESS <- NULL; Geweke <- vector('list', nrow(simtable))  # Storage objects
   setwd(paste0("Sim_",Rep))
   load("SimData.Rdata")                            # Load data (dat9) for all simulations in Rep.
                                                    # Also includes the total number of birds uncounted (uncounted)
@@ -109,7 +109,8 @@ for(Rep in 1:Reps){
     ESS <- rbind(ESS, 
                  data.frame(parameter = rownames(outtable[[1]]),
                       n_eff = ess(gew.ext2),  # Using the 'mcmcse' package
-                      fname = fname[i])
+                      fname = fname[i],
+                      Rep   = paste0("Rep_", Rep))
                  )
     
     ########## DIC -- there used to be three versions of this.  But I'm only keeping the first.
