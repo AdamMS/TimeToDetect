@@ -3,6 +3,7 @@ library(rstan)
 simtable <- read.csv("S0_simtable.csv")
 nReps    <- 1
 runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
+names(runtimes) <- paste0("RunTime_", 1:nReps)
 for(Rep in 1:nReps){
   for(m in 1:nrow(simtable)){
     loadfile <- paste0("Sim_", Rep, "/", simtable[m,"fname"], ".Rdata")

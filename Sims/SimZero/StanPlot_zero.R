@@ -174,7 +174,7 @@ for(Rep in 1:Reps){
     save(outtable, file=paste(fname[i],"_sum.Rdata",sep=""))
     
     
-    rm(list=ls()[-match(c("i","dat9","fname","params","modeloutput","simtable","n_ints","parmcode","quanttable","Geweke","ESS","datacode","modelmix","datamodelmatch"),ls())])
+    rm(list=ls()[-match(c("i","dat9","fname","params","modeloutput","simtable","n_ints","parmcode","quanttable","Geweke","ESS","datacode","modelmix","datamodelmatch","uncounted"),ls())])
     gc(verbose=T)
   }
   
