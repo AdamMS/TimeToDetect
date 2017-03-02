@@ -106,9 +106,11 @@ for(Rep in 1:Reps){
     Geweke[[i]] <- geweke.diag(gew.ext2)[[1]]
     
     ##### Effective Sample Sizes
-    ESS <- data.frame(parameter = rownames(outtable[[1]]),
+    ESS <- rbind(ESS, 
+                 data.frame(parameter = rownames(outtable[[1]]),
                       n_eff = ess(gew.ext2),  # Using the 'mcmcse' package
                       fname = fname[i])
+                 )
     
     ########## DIC -- there used to be three versions of this.  But I'm only keeping the first.
     # dev1: p(n|betas, gamma, shape)
