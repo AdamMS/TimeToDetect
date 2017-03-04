@@ -20,6 +20,7 @@ for(Rep in 1:nReps){
   }
 }
 saveRDS(runtimes, file="RunTimes.rds")
+saveRDS(ess, file="ESS.rds")
 
 # ##### Extracts Run Times
 # library(plyr)
