@@ -3,7 +3,7 @@ library(rstan)
 library(mcmcse)
 simtable <- read.csv("S0_simtable.csv")
 nReps    <- 100
-ess <- runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
+ess      <- runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
 names(ess)      <- paste0("ESS_", 1:nReps)
 names(runtimes) <- paste0("RunTime_", 1:nReps)
 for(Rep in 1:nReps){
