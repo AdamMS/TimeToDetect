@@ -759,6 +759,11 @@ As such, it is entirely based upon extrapolation and correctly estimating the pr
 An assumption of constant detection places constraints on the amount of uncertainty in the extrapolated tail but at the cost of potentially sizable bias.
 When we allow for non-constant detection, bias is less problematic but estimation of the tail probability becomes less certain.
 
+Just as the exponential TTDD is a special case of the two-parameter gamma and Weibull TTDDs, so all four TTDDs in our analysis are special cases the three-parameter generalized gamma distribution.
+A generalized gamma TTDD encompasses a diversity hazard functions \citep{Cox2007}, eliminating the need to restrict analysis to lognormal, gamma, or Weibull TTDDs and the tail probabilities they imply.
+However, maximum likelihood estimation of the generalized gamma has historically suffered from computational difficulties, unsatisifactory asymptotic normality at large sample sizes, and non-unique roots to the likelihood equation \citep{CoorayAnand2008, NoufailyJones2013}.
+It may well be possible to implement our model with a generalized gamma TTDD, but especially when we consider the right-truncation of data from point-count surveys, we think model convergence would not be a trivial problem.
+
 Study design can address some issues associated with non-constant detection.
 In theory, longer surveys can improve estimation of the unsampled tail probability, but the longer the survey lasts, the greater the risk that individuals enter/depart the study area or are double-counted, which violates the removal sampling assumption of a closed population \citep{LeeMarsden2008, Reidy2011}.  
 Observer effects on availability rates can be mitigated by introducing a settling down period but at the potential cost of a serious reduction in total observations \citep{LeeMarsden2008}.

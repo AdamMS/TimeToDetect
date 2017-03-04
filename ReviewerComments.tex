@@ -312,7 +312,13 @@ We appreciate the merit of the reviewer's suggestion and have added comments in 
 We focus our comments on a possible generalized gamma TTDD, which is an umbrella distribution that includes exponential, gamma, lognormal, and Weibull distributions as special cases.
 The generalized Pareto analysis in \citet{Beisel2007} requires observations from the tail of the TTDD distribution, which we do not have.
 Additionally, its focus is on flexible domains of attraction, whereas the TTDDs in our analysis are all from the Gumbel domain of attraction.
-\adam{After researching the generalized gamma, add comments in the paragraph beginning `If the estimation of abundance is the primary interest...'.}
+
+Here are the comments we have added:
+``Just as the exponential TTDD is a special case of the two-parameter gamma and Weibull TTDDs, so all four TTDDs in our analysis are special cases the three-parameter generalized gamma distribution.
+A generalized gamma TTDD encompasses a diversity hazard functions \citep{Cox2007}, eliminating the need to restrict analysis to lognormal, gamma, or Weibull TTDDs and the tail probabilities they imply.
+However, maximum likelihood estimation of the generalized gamma has historically suffered from computational difficulties, unsatisifactory asymptotic normality at large sample sizes, and non-unique roots to the likelihood equation \citep{CoorayAnand2008, NoufailyJones2013}.
+It may well be possible to implement our model with a generalized gamma TTDD, but especially when we consider the right-truncation of data from point-count surveys, we think model convergence would not be a trivial problem."
+\adam{This is an area of active research.  I feel like my tone is not optimistic enough.  Then again, it's not worth micro-wordsmithing.}
 \end{quote}
 
 Writing: The multiplicity of mathematical explicit meanings for the word ``mixture" may result confusing. The distinction between the mixture component a la Farnsworth et al and the N-mixture models (e.g. binomial counts with N~pois and p random) is clear to me, but it may not be for some of JABES' audience.  I suggest re-shaping the introduction to that effect. 
@@ -344,7 +350,7 @@ We have split the cited paragraph and a few others.
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
 \begin{quote}
 We have added this as Figure \ref{M-fig:schematic}.
-\adam{I have not citedthe figure in the text.  I am not convinced I need to.}
+\adam{I have not cited the figure in the text.  I am not convinced I need to.}
 \end{quote}
 
 
