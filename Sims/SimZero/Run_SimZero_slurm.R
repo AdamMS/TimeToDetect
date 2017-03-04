@@ -55,7 +55,7 @@ for(indx in j:(j+bundle-1)){
            sampling(m, data=dataset, chains=1, iter=iter*(2^fail), thin=10, pars=record.list, 
                     init=list(initlist)))
     postdraws <- as.data.frame(eval(parse(text=as.character(simtable$modeloutput[indx]))))
-    if(min(ess(postdraws)) > 10){
+    if(min(ess(postdraws)) > 1000){
       insuff=FALSE
     } else {
       fail <- fail + 1
