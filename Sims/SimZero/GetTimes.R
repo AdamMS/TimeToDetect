@@ -1,7 +1,7 @@
 ##### Gets Run Times
 library(rstan)
 simtable <- read.csv("S0_simtable.csv")
-nReps    <- 1
+nReps    <- 100
 runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
 names(runtimes) <- paste0("RunTime_", 1:nReps)
 for(Rep in 1:nReps){
