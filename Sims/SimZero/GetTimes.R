@@ -1,8 +1,10 @@
 ##### Gets Run Times
 library(rstan)
+library(mcmcse)
 simtable <- read.csv("S0_simtable.csv")
-nReps    <- 1
-runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
+nReps    <- 100
+ess <- runtimes <- data.frame(matrix(NA, nrow=nrow(simtable), ncol=nReps))
+names(ess)      <- paste0("ESS_", 1:nReps)
 names(runtimes) <- paste0("RunTime_", 1:nReps)
 for(Rep in 1:nReps){
   for(m in 1:nrow(simtable)){
@@ -10,8 +12,11 @@ for(Rep in 1:nReps){
     if(file.exists(loadfile)){
       load(loadfile)
       runtimes[m, Rep] <- sum(get_elapsed_time(eval(parse(text=as.character(simtable[m,"modeloutput"])))))
+      postdraws        <- as.data.frame(eval(parse(text=as.character(simtable[m,"modeloutput"]))))
+      ess[m, Rep]      <- min(ess(postdraws))
     } else {
-      runtimes[m,Rep] <- NA}
+      runtimes[m,Rep]  <- NA
+    }
   }
 }
 saveRDS(runtimes, file="RunTimes.rds")
