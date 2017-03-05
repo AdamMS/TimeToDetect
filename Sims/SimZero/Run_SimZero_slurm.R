@@ -1,6 +1,6 @@
 ########## Code to fit SimZero models on slurm
 set.seed(NULL)
-bundle = 5    # How many models will be fit by a single call to this script
+bundle   <- 1    # How many models will be fit by a single call to this script
 
 # Code to replicate S0_sumtable according to the number of replicates
 NumReps  <- 100
@@ -8,15 +8,18 @@ simtable <- read.csv("S0_simtable.csv")       # Load table of datasets
 simtable <- do.call('rbind', rep(list(simtable), times=NumReps))
 simtable$Rep <- rep(1:NumReps, each=nrow(simtable)/NumReps)
 
-# Collect array number from slurm and add one
+# Rows of simtable that I want to (re-)run
+# indices  <- 1:nrow(simtable)   # Run the full simulation, all replicates
+# Repeat models that have effective sample size less than 1000 or NA (didn't fit before)
+ess      <- readRDS("ESS.rds")
+indices  <- which(is.na(ess) | ess<1000)
+
+# Collect array number from slurm and add one.  
+# 'j' identifies which models will be fit based on array number and bundle number
 ss = Sys.getenv("SLURM_ARRAY_TASK_ID") 
 j  = as.numeric(ss) * bundle + 1
 
-## List of models to run, in case I only want to run a subset
-# analysis_dupes <- readRDS("Data/A_Dupes.rds")
-# indices <- analysis_dupes[j:(j+bundle-1)]
-
-for(indx in j:(j+bundle-1)){
+for(indx in indices[j:(j+bundle-1)]){
   Rep <- simtable$Rep[indx]
   load(paste0("Sim_", Rep, "/SimData.Rdata"))  # Load all datasets in Rep.  Object name is 'dat9'
   dataset <- dat9[[simtable$datacode[indx]]]
