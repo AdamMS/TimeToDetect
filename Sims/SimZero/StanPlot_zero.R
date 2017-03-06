@@ -29,7 +29,7 @@ params <- list(c("intcpt_a","ba","intcpt_d","bd","sigma_a","sigma_d","lp__"),   
 # Because it's the intercept-only model
 for(l in 1:length(params)) params[[l]] <- params[[l]][-which(params[[l]] %in% c("ba", "bd", "sigma_a", "sigma_d", "lp__"))]
 
-Reps <- 1
+Reps <- 100
 
 for(Rep in 1:Reps){
   ESS <- NULL; Geweke <- vector('list', nrow(simtable))  # Storage objects
