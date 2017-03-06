@@ -73,6 +73,7 @@ for(Rep in 1:Reps){
     Pval.param[2] <- sum( counted/(counted+tot.unc) < p_global ) / NumDraws
     # Posterior Pr( E[pdet] < posterior p_global ), where E[...] calculated from simulation parameters
     Pval.param[3] <- sum( Simpars$pdet[datacode[i]] < p_global ) / NumDraws
+    names(Pval.param) <- c("Uncounted", "p_global", "p80")
     
     if(datamodelmatch[i]){
       ### Posterior p-values for all model parameters noted in 'params' up top
