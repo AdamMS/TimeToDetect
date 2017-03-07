@@ -1,4 +1,6 @@
 ########## Code to gather results from across all simulations
+# Everything gets saved to a single file: Outputs.Rdata
+
 library(reshape2)
 library(ggplot2)
 library(plyr)
