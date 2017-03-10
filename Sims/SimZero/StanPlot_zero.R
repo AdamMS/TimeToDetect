@@ -56,8 +56,8 @@ for(Rep in 1:Reps){
     outtable[[3]] <- NULL
     
     ##### Code to calculate posterior p-values for model parameters and quantitities
-    # Note: 'p80' is the posterior p-value relative to the true parameter values.  We want this one.
-    # 'p_global' is the posterior p-value relative to the realized detection probability from the dataset.
+    # Note: 'p80' below is the posterior p-value relative to the true parameter values.  We want this one.
+    # 'p_global' below is the posterior p-value relative to the realized detection probability from the dataset.
     # ALL P-VALUES ARE Pr(ACTUAL < SIMULATED)
     load("../Simpars.Rdata")   # True parameter values used in simulations
     Pval.param <- rep(NA,(nrow(outtable[[1]])+3))

@@ -1,3 +1,10 @@
+# This code generates all tables and plots for the manuscript
+# As input, it needs: S0_simtable.csv, "Outputs_p##.Rdata", "Simpars_p##.Rdata"
+
+# Specify which pdet we're analyzing
+truepdet <- 0.5
+fileID   <- "p50"
+
 library(ggplot2)
 library(reshape2)
 library(plyr)
@@ -15,10 +22,8 @@ data.handle <- function(df){
   return(df)
 }
 
-truepdet <- 0.5
-
-simtable <- read.csv("S0_simtable.csv")  # Load simtable
-load("Outputs_p50.Rdata")  # Load model fits
+simtable <- read.csv("S0_simtable.csv")     # Load simtable
+load(paste0("Outputs_", fileID, ".Rdata"))  # Load model fits
 for(i in 1:length(outputs)) assign(names(outputs)[i], outputs[[i]]) # Convert model fits from list into objects
 
 ##### There used to be a section here for posterior predictive p-values
@@ -26,9 +31,12 @@ for(i in 1:length(outputs)) assign(names(outputs)[i], outputs[[i]]) # Convert mo
 
 ###### Posterior p-values for global estimates of pdet
 # There's a choice here. 
-# Choice one: use the p-values associated with "p_global" and make comparisons to the data realized in simulation.
-# Choice two: use the p-values associated with (misnamed) "p80".  This seems more correct.
-p_glob <- subset(post.unc.p, parameter=="p80")
+# Choice one: use the p-values associated with "p_global".  Estimate = est(nobs) / (est(nobs) + ebs(abund))
+# Choice two: use the p-values associated with (misnamed) "p80".  Estimate = cdf of F(t) at time = 10.
+# The latter is actually more flexible, because the former is difficult to calculate across hetergeneous sites
+#   especially if there are random effects.
+# At large sample size, there is no practical difference between the two.
+p_glob <- subset(post.unc.p, parameter=="p_global")
 
 # Lots of data handling
 names(p_glob)[1]     <- "pval_pglob"
@@ -132,7 +140,7 @@ print(ggplot(data=subset(tempS3, variable %in% c("X2.5.","X97.5."))) +
 ##### Plots of posterior parameter distributions
 ### Caterpillar plots of parameter estimates for all Reps of all correctly specified models... takes awhile to plot
 # Load true parameter values
-load("Simpars_p50.Rdata") # Note: this used to call ParValues from the Sim_1 folder
+load(paste0("Simpars_", fileID, ".Rdata")) # Note: this used to call ParValues from the Sim_1 folder
 Simpars <- Simpars[,-which(names(Simpars) %in% c("meanTTD", "pdet"))]
 
 # Posterior estimates
@@ -214,14 +222,14 @@ print(
 # Table of coverages for each dataset and inference model combo (averaged over reps) plus average posterior p-value
 cover.p <- ddply(p_glob, .(simdat, ModelFamily, DataFamily, modelmix), summarize, 
                  C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), 
-                 C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), average=mean(pval_pglob))
+                 C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), avg.postp=mean(pval_pglob))
 
-Tbl.mix.m  <- subset(cover.p, DataFamily==ModelFamily & modelmix)[,c("simdat", "C50", "C90", "average")]  # Table for mixture inference models
-Tbl.mix.nm <- subset(cover.p, DataFamily==ModelFamily & !modelmix)[,c("simdat", "C50", "C90", "average")] # Table for non-mixture inference models
+Tbl.mix.m  <- subset(cover.p, DataFamily==ModelFamily & modelmix)[,c("simdat", "C50", "C90", "avg.postp")]  # Table for mixture inference models
+Tbl.mix.nm <- subset(cover.p, DataFamily==ModelFamily & !modelmix)[,c("simdat", "C50", "C90", "avg.postp")] # Table for non-mixture inference models
 # Mix.mean and NM.mean are average p.values, not average detection probabilities
 # Mix50, Mix90, etc. are coverage proportions
-names(Tbl.mix.m)[2:4] <- c("Mix50", "Mix90", "Mix.mean")
-names(Tbl.mix.nm)[2:4] <- c("NM50", "NM90", "NM.mean")
+names(Tbl.mix.m)[2:4] <- c("Mix50", "Mix90", "Mix.avg.postp")
+names(Tbl.mix.nm)[2:4] <- c("NM50", "NM90", "NM.avg.postp")
 Tbl.mix <- join(Tbl.mix.nm, Tbl.mix.m, by=c("simdat"))
 
 # Average median(gamma) across Reps.
@@ -239,7 +247,8 @@ avgpdet <- ddply(subset(count.det, parameter=="p_global" & DataFamily==ModelFami
 avgpdet <- join(subset(avgpdet, !modelmix), subset(avgpdet, modelmix), by="simdat")[,-c(2,4)] # Discard 'modelmix' columns
 names(avgpdet) <- c("simdat", "NM_pdet", "Mix_pdet")
 # Note that 'NM_pdet' and 'Mix_pdet' are equal to: mean(median(pdet))
-Tbl.mix <- join(Tbl.mix, avgpdet)[,c(1:4,8,5:7,9)] # Sort columns appropriately
+Tbl.mix <- join(Tbl.mix, avgpdet)[,c("simdat", "NM50", "NM90", "NM.avg.postp", "NM_pdet", 
+                                     "Mix50", "Mix90", "Mix.avg.postp", "Mix_pdet")] # Sort columns appropriately
 
 # Instead of standard error (code deleted), we can alternatively use ratios of credible interval widths for p_det.  
 # The results are about the same.
@@ -262,104 +271,102 @@ Tbl.dic <- ddply(Tbl.dic, .(simdat), summarize, Dic_diff=mean(dicdiff))
 Tbl.mix <- join(Tbl.mix, Tbl.dic)
 
 # Reorder...
-names(Tbl.mix) <- c("Dataset", "50%", "90%", "p_det quantile", "Mean pdet", "50%.m", "90%.m", "p_det quantile.m", "Mean pdet.m", "CI Ratio", "DIC Diff")
-Tbl.mix <- Tbl.mix[match(c("GFF", "LFF", "WFF", "EFF", "GFT", "LFT", "WFT", "GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), 
-                         Tbl.mix$Dataset), c(1,5,4,2,3,9,8,6,7,10,11)]
+names(Tbl.mix) <- c("Dataset", "50%.nm", "90%.nm", "p_det quantile.nm", "Mean pdet.nm", 
+                    "50%.m", "90%.m", "p_det quantile.m", "Mean pdet.m", "CI Ratio", "DIC Diff")
+Tbl.mix <- Tbl.mix[match(c("GFF", "LFF", "WFF", "EFF", "GFT", "LFT", "WFT", "GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.mix$Dataset), 
+                   c(1,5,4,2,3,9,8,6,7,10,11)]
 
 library(xtable)
-print(xtable(Tbl.mix), include.rownames=FALSE)
+print(xtable(Tbl.mix[,1:(ncol(Tbl.mix)-2)]), include.rownames=FALSE)
 
 
 
-
-
-
-
-
-
-
-
-
-
-##### Generate Summary Tables -- Compare Families
-cover.p2 <- ddply(p_glob[p_glob$datamix & p_glob$modelmix,], .(simdat, ModelFamily), summarize, 
+########## Generate Summary Tables -- Compare Families
+cover.p2 <- ddply(subset(p_glob, datamix & modelmix), .(simdat, ModelFamily), summarize, 
                   C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), #C75=sum(abs(pval_pglob-0.5)<0.375),
                   C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), average=mean(pval_pglob))
 cover.p2 <- melt(cover.p2, id.vars=.(simdat, ModelFamily))
 
-# Mean(median(gamma)) across Reps
-# tempparm <- parmests[parmests$parameter=="gamma" & parmests$modelmix & parmests$datamix,]
-# tempparm$Letter <- substr(tempparm$fname,1,1); tempparm <- join(tempparm, familytab); tempparm$variable <- "gamma"
-# avggamma2 <- ddply(tempparm, .(simdat, ModelFamily, variable), summarize, value = mean(X50.))
+# Average median(gamma) across Reps.  True value is 5/6.
+# No surprise, this is most volatile for exponential mixture models.
+tempparm <- subset(parmests, parameter=="gamma" & modelmix & datamix)
+tempparm <- data.handle(tempparm)
+avggamma2 <- ddply(tempparm, .(simdat, ModelFamily, parameter), summarize, value = mean(X50.))
 # cover.p2 <- rbind(cover.p2, avggamma2)
-count.det$Letter <- substr(count.det$fname,1,1); count.det <- join(count.det, familytab)
-avgpdet.mix <- ddply(count.det[count.det$parameter=="p_global" & count.det$modelmix & count.det$datamix,],
-                 .(simdat, ModelFamily), summarize, variable="median.pdet", value = mean(X50.))
+
+# Average estimate of pdet for mixture data/models
+avgpdet.mix <- ddply(subset(count.det, parameter=="p_global" & modelmix & datamix), .(simdat, ModelFamily), 
+                     summarize, variable="median.pdet", value = mean(X50.))
 cover.p2 <- rbind(cover.p2, avgpdet.mix)
 
-# Tbl.se2 <- CD.melt[CD.melt$datamix & CD.melt$modelmix & CD.melt$variable=="se",][,c("Rep", "simdat", "value", "ModelFamily", "DataFamily")]
-# Tbl.se2.wide <- join(Tbl.se2[,-5], Tbl.se2[Tbl.se2$ModelFamily==Tbl.se2$DataFamily,-(4:5)], by=c("Rep", "simdat"))
-# names(Tbl.se2.wide)[3:5] <- c("se.model", "ModelFamily", "se.correct")
-# Tbl.se2 <- ddply(Tbl.se2.wide, .(simdat, ModelFamily), summarize, variable="se.ratio", value = mean(se.model/se.correct))
-# cover.p2 <- rbind(cover.p2, Tbl.se2)
-
-# For the moment, these are not in the published table.  I can do that, but it requires
-# subsetting columns and rbind-ing with cover.p2
-Tbl.ciw2 <- count.det[count.det$parameter=="p_global" & count.det$datamix & count.det$modelmix,
-                     c("fname","X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
+# Create table of credible interval widths
+Tbl.ciw2 <- subset(count.det, parameter=="p_global" & datamix & modelmix)[,
+                              c("fname","X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
 Tbl.ciw2$width <- Tbl.ciw2$X97.5. - Tbl.ciw2$X2.5.
-Tbl.ciw2$Letter <- substr(Tbl.ciw2$simdat,1,1); Tbl.ciw2$Letter2 <- substr(Tbl.ciw2$fname,1,1)
-Tbl.ciw2 <- join(join(Tbl.ciw2, familytab, by="Letter"), familytab2, by="Letter2")
-Tbl.ciw.true <- Tbl.ciw2[Tbl.ciw2$datamodelmatch,]; names(Tbl.ciw.true)[match("width", names(Tbl.ciw.true))] <- "truewidth"
+Tbl.ciw2 <- data.handle(Tbl.ciw2)
+Tbl.ciw.true <- Tbl.ciw2[Tbl.ciw2$datamodelmatch,]
+names(Tbl.ciw.true)[match("width", names(Tbl.ciw.true))] <- "truewidth"
 Tbl.ciw2 <- join(Tbl.ciw2, Tbl.ciw.true[,c("simdat","Rep","truewidth")], by=c("simdat", "Rep"))
 Tbl.ciw2 <- ddply(Tbl.ciw2, .(fname, simdat, datamodelmatch, ModelFamily, DataFamily), summarize, ciw.ratio = mean(width/truewidth))
 
-Tbl.dic2 <- dicdiff[dicdiff$modelmix & dicdiff$datamix & dicdiff$dicmethod=="Median",]
+# Calculate Delta DIC
+Tbl.dic2 <- subset(dicdiff, modelmix & datamix & dicmethod=="ThetaMed")
 Tbl.dic2 <- ddply(Tbl.dic2, .(simdat, ModelFamily), summarize, variable="dicdiff", value=mean(dicdiff))
 cover.p2 <- rbind(cover.p2, Tbl.dic2)
 
+# Combine the above into a single table
 Tbl.fam <- dcast(cover.p2, simdat ~ ModelFamily + variable, fun.aggregate=mean, value.var="value")
 
-# Reorder...
+# Reorder rows and columns...
 Tbl.fam <- Tbl.fam[match(c("GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.fam$simdat),]
-Tbl.1a <- Tbl.fam[,c(1:11)]   # Doing this now avoids some re-naming that R does with duplicate col. names and slicing...
-Tbl.1b <- Tbl.fam[,c(1,12:21)]
+# Doing this now avoids some re-naming that R does with duplicate col. names and slicing...
+# Tbl.1a: Exponential and Gamma inference models
+# Tbl.1b: Lognormal and Weibull inference models
+Tbl.1a  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "E", "G"))]   
+Tbl.1b  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "L", "W"))]   
 names(Tbl.1a) <- names(Tbl.1b) <- c("Dataset", rep(c("50%", "90%", "Q(p_det)", "Median p_det", "DIC Diff"),2))
 # Reorder columns
 Tbl.1a <- Tbl.1a[,c(1,5,4,2,3,6,10,9,7,8,11)]; Tbl.1b <- Tbl.1b[,c(1,5,4,2,3,6,10,9,7,8,11)]
 Tbl.1a$Dataset <- Tbl.1b$Dataset <- c("Gamma","Lognormal","Weibull","Exponential","Gamma","Lognormal","Weibull")
-# This used to have se-widths & DIC.  I haven't updated it yet to do CI-widths, so DIC is smushed in above.
-# Tbl.2 <- Tbl.fam[,c(1,seq(6,24,6),seq(7,25,6))]
-#names(Tbl.2) <- c("Dataset",rep(as.character(familytab$ModelFamily),2))
 
 library(xtable)
-print(xtable(Tbl.1a), include.rownames=FALSE) #, floating.environment="sidewaystable")
-print(xtable(Tbl.1b), include.rownames=FALSE) #, floating.environment="sidewaystable")
-#print(xtable(Tbl.2), include.rownames=FALSE) #, floating.environment="sidewaystable")
+print(xtable(Tbl.1a[,!grepl("DIC", names(Tbl.1a))]), include.rownames=FALSE) #, floating.environment="sidewaystable")
+print(xtable(Tbl.1b[,!grepl("DIC", names(Tbl.1a))]), include.rownames=FALSE)
 
 
 
 
-# Intervals for Abundance
-# I'm comparing to the ACTUAL abundance, not the expected, because these are based on the 'uncounted' credible intervals
-# If I wanted expected counts, I ought to compare to estimates of Intercept^A
-# Frankly, the differences are negligible
+
+
+
+
+
+# All of this abundance output is pretty old, but maybe it'll be useful!
+
+########## Intervals for Abundance
+# As with pdet, there are two ways to approach this.
+# I'm comparing to the ACTUAL abundance (estimated sum(N_s)), not the expected (sum(exp(\lambda_s)))
+# As before, the former is simpler once we add fixed and especially random effects
+# At large sample sizes, the differences are negligible
 Abund <- NULL
-cu <- function(u,p) p*u/(1-p)
-exp.N <- 381 * exp(ParValues[[1]]$intcpt_a)   # 381 sites.  Same intcpt_a used in all simulations
+cu <- function(u,p) p*u/(1-p)             # Calculate actual count from median estimates of pdet and uncounted
+exp.N <- 381 * exp(Simpars$intcpt_a[1])   # 381 sites.  Index is [1], b/c same intcpt_a was used for all simulations
 # Code to compile all datasets along with actual counts, actual abundance, and expected abundance
-for(Rep in 1:length(unique(count.det$Rep))){
+# Involves re-creating these values of sum(nobs) and sum(N) from the output (instead of accessing the original dataset files)
+for(Rp in 1:length(unique(count.det$Rep))){
   for(dc in unique(count.det$datacode)){
-    df <- count.det[count.det$Rep==Rep & count.det$datacode==dc,]
+    df           <- subset(count.det, Rep==Rp & datacode==dc)
     actual.count <- with(df, cu(X50.[1], X50.[2]))
-    actual.N <- actual.count / (true.pglobal$value[true.pglobal$Rep==Rep & true.pglobal$datacode==dc])
-    df[,c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] <- 
-      (df[,c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] + actual.count) / actual.N
-    Abund <- rbind(Abund, cbind(
-      df[df$parameter=="uncounted",], actual.count=actual.count, actual.N=actual.N, exp.N=exp.N/actual.N))
+    actual.N     <- actual.count / (true.pglobal$value[true.pglobal$Rep==Rep & true.pglobal$datacode==dc])
+    df           <- subset(df, parameter=="uncounted")
+    # Calculate the ratio of posterior estimated abundance (at several quantiles) to actual abundance for dataset
+    # Note: we're not comparing to expected abundance
+    df[, c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] <- 
+      (df[, c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] + actual.count) / actual.N
+    Abund <- rbind(Abund, cbind(df, actual.count=actual.count, actual.N=actual.N, exp.N=exp.N/actual.N))
   }
 }
-Abund$mixpeak <- substr(Abund$simdat,2,3)
+Abund$mixpeak   <- substr(Abund$simdat,2,3)
 Abund$datfamily <- substr(Abund$simdat,1,1)
 # Melt data
 Ab.long <- melt(Abund, id.vars=c("Rep", "simdat", "mixpeak", "ModelFamily", "datfamily", "modelmix", "datamix", "datamodelmatch"),
@@ -412,9 +419,9 @@ ab.plot <- function(Sdat, LT=FALSE){
       ggtitle("Posterior Estimates of log10(Abundace)") + theme(legend.position='none')
   )
 }
-pdf("../../Oral Prelim/abund_cater_family_prelim.pdf", width=7.5, height=7)
+# pdf("../../Oral Prelim/abund_cater_family_prelim.pdf", width=7.5, height=7)
 ab.plot(c("ETF","GTF", "GTT"), LT=T)
-dev.off()
+# dev.off()
 
 # Plots from all Reps and Models... mixpeakmix = datamix--peak--modelmix
 Abund$ModelFamily <- factor(Abund$ModelFamily, levels=c(levels(Abund$ModelFamily), "NonMix"))
@@ -427,9 +434,9 @@ qplot(X50., Rep, geom="point", data=Abund[Abund$datfamily==Abund$Letter,], color
 
 Abund$ciw <- Abund$X97.5. - Abund$X2.5.
 smurf.mix <- Abund[Abund$modelmix & Abund$Letter==Abund$datfamily,]
-smurf.NM <- Abund[!Abund$modelmix,]
-names(smurf.mix)[29] <- "ciw.mix"
-names(smurf.NM)[29] <- "ciw.NM"
+smurf.NM  <- Abund[!Abund$modelmix,]
+names(smurf.mix)[ncol(smurf.mix)] <- "ciw.mix"
+names(smurf.NM)[ncol(smurf.NM)]   <- "ciw.NM"
 smurf <- join(smurf.mix, smurf.NM[,c("Rep", "simdat", "ciw.NM")])
 smurf$Ratio <- smurf$ciw.NM/smurf$ciw.mix
 qplot(Ratio, Rep, geom="point", data=smurf) + facet_grid(datfamily~mixpeak, scale="free_x")
