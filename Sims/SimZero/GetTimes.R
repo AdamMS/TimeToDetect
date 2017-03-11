@@ -23,10 +23,13 @@ for(Rep in 1:nReps){
       ess[m, Rep]      <- NA
     }
   }
-  load(paste0("Sim_",Rep,"/GewekeDiags.Rdata"))  # Loads 'Geweke', which contains a list of Geweke statistics for each parameter from all models in Rep
-  names(Geweke) <- simtable$fname                # Label with model name (e.g. 'ExpoMix_LTF')
-  Gew.compile   <- rbind(Gew.compile, ldply(Geweke, Gfxn, Rep, .id="model")) # Add Geweke diagnostics for this Rep to a table for all Reps.  Long-format data frame.
+  if(file.exists(paste0("Sim_",Rep,"/GewekeDiags.Rdata"))){
+    load(paste0("Sim_",Rep,"/GewekeDiags.Rdata"))  # Loads list 'Geweke' containing Geweke statistics for each parameter from all models in Rep
+    names(Geweke) <- simtable$fname                # Label with model name (e.g. 'ExpoMix_LTF')
+    Gew.compile   <- rbind(Gew.compile, ldply(Geweke, Gfxn, Rep, .id="model")) # Compile Geweke diagnostics in a single table for all Reps.
+      # Long-format data frame.
+  }
 }
 saveRDS(runtimes, file="RunTimes.rds")
 saveRDS(ess, file="ESS.rds")
-saveRDS(Gew.compile, file="Geweke.rds")
+if(!is.null(Gew.compile)) saveRDS(Gew.compile, file="Geweke.rds")
