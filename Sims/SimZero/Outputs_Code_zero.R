@@ -2,8 +2,8 @@
 # As input, it needs: S0_simtable.csv, "Outputs_p##.Rdata", "Simpars_p##.Rdata"
 
 # Specify which pdet we're analyzing
-truepdet <- 0.5
-fileID   <- "p50"
+truepdet <- 0.50
+fileID   <- "50"
 
 library(ggplot2)
 library(reshape2)
@@ -23,7 +23,7 @@ data.handle <- function(df){
 }
 
 simtable <- read.csv("S0_simtable.csv")     # Load simtable
-load(paste0("Outputs_", fileID, ".Rdata"))  # Load model fits
+load(paste0("Outputs", fileID, ".Rdata"))  # Load model fits
 for(i in 1:length(outputs)) assign(names(outputs)[i], outputs[[i]]) # Convert model fits from list into objects
 
 ##### There used to be a section here for posterior predictive p-values
@@ -82,24 +82,30 @@ ggplot(p_glob[p_glob$familymatch,]) +
 # Facet columns -- Family and peakedness of data 
 # Background shading trick
 tp <- unique(tempS2[,c("dmix.mmix","familypeak","datamodelmatch")])
-# pdf("pdet_cater_correct.pdf", width=7.75, height=5.1)
+# pdf(paste0("Misc/Cater",fileID,"mixtures.pdf"), width=9.25, height=6.1)
 print(ggplot(data=subset(tempS2, variable %in% c("X2.5.","X97.5."))) + 
         geom_line(aes(x=value, y=as.factor(Rep), group=Rep)) + 
         geom_rect(aes(fill = datamodelmatch), data=tp,
                   xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = 0.15) +
         scale_fill_manual(values = c("red", "gray90")) + 
-        facet_grid(dmix.mmix~familypeak) + ylab("Simulation") + xlab("Probability") +
-        geom_line(aes(x=value, y=as.factor(Rep), group=Rep), size=I(0.85), color="orange",
+        facet_grid(dmix.mmix~familypeak) + ylab("Simulation Replicate") + xlab("Probability") + 
+        geom_line(aes(x=value, y=as.factor(Rep), group=Rep), color="orange", size=I(0.6), 
                   data=subset(tempS2,variable %in% c("X25.","X75."))) + 
-        geom_point(aes(x=value, y=as.factor(Rep)), data=subset(tempS2,variable %in% "X50.")) +
-        theme(axis.text.x=element_text(angle=45)) + geom_vline(xintercept=truepdet, linetype=1, color="blue") +
-        scale_shape_manual(values=c(2)) + theme(legend.position="none")
+        geom_point(aes(x=value, y=as.factor(Rep)), color="blue", size=I(0.85), data=subset(tempS2,variable %in% "X50."))  +
+        geom_vline(xintercept=truepdet, linetype=1, color="white", size=I(1.0)) +
+        scale_shape_manual(values=c(2)) + theme_bw() +
+        theme(axis.text.x=element_text(angle=45), axis.ticks.y=element_blank(), axis.text.y=element_blank(), legend.position="none")
       )
 # dev.off()
 
 # There used to be a caterpillar plot of just lognormal data/models to provide an example for the Oral Prelim
 
-
+print(ggplot(data=subset(tempS2, variable %in% c("X2.5.","X97.5."))) + 
+        geom_line(aes(x=value, y=as.factor(Rep), group=Rep)) + 
+        theme(axis.title.x=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank()))
+      
 ##### Testing family misspecification
 ### Quick overview histograms of Posterior p-values for each model fit.  All models are from the correct family.
 # Correct model is 'blue'.  Incorrect model is 'red'.
@@ -117,22 +123,21 @@ ggplot(data=p_glob[p_glob$modelmix & p_glob$datamix,]) +
 # Background shading trick
 tempS3 <- subset(CD.melt, modelmix & datamix)
 tp2 <- unique(tempS3[,c("ModelFamily","familypeak","datamodelmatch")])
-# pdf("pdet_cater_family.pdf", width=7.75, height=5.1)
+# pdf(paste0("Misc/Cater",fileID,"families.pdf"), width=9.25, height=6.1)
 print(ggplot(data=subset(tempS3, variable %in% c("X2.5.","X97.5."))) +
         geom_line(aes(x=value, y=as.factor(Rep), group=Rep)) + 
         geom_rect(aes(fill = datamodelmatch), data=tp2,
                   xmin = -Inf,xmax = Inf, ymin = -Inf,ymax = Inf,alpha = 0.15) +
         scale_fill_manual(values = c("red", "gray90")) + 
-        facet_grid(ModelFamily~familypeak) + ylab("Simulation") + xlab("Probability") +
-        geom_line(aes(x=value, y=as.factor(Rep)), size=I(0.85),color="orange",
+        facet_grid(ModelFamily~familypeak) + ylab("Simulation Replicate") + xlab("Probability") +
+        geom_line(aes(x=value, y=as.factor(Rep)), size=I(0.6),color="orange",
                   data=subset(tempS3,variable %in% c("X25.","X75."))) + 
-        geom_point(aes(x=value, y=as.factor(Rep)), data=subset(tempS3,variable %in% "X50.")) +
-        # geom_point(aes(x=value, y=as.factor(Rep), shape=variable), color="blue", data=subset(tempS3,variable %in% "True")) +
-        # ggtitle("Posterior Estimates of Detection Probability") +
-        theme(axis.text.x=element_text(angle=45)) + geom_vline(xintercept=truepdet, linetype=1, color="blue") +
-        scale_shape_manual(values=c(2)) + theme(legend.position="none"))
+        geom_point(aes(x=value, y=as.factor(Rep)), color="blue", data=subset(tempS3,variable %in% "X50.")) +
+        geom_vline(xintercept=truepdet, linetype=1, color="white", size=I(1.0)) +
+        scale_shape_manual(values=c(2)) + 
+        theme(axis.text.x=element_text(angle=45), axis.ticks.y=element_blank(), axis.text.y=element_blank(), legend.position="none")
+)
 # dev.off()
-
 # There used to be a caterpillar plot of just peaked mixture gamma data to provide an example for the Oral Prelim
 
 
@@ -140,7 +145,7 @@ print(ggplot(data=subset(tempS3, variable %in% c("X2.5.","X97.5."))) +
 ##### Plots of posterior parameter distributions
 ### Caterpillar plots of parameter estimates for all Reps of all correctly specified models... takes awhile to plot
 # Load true parameter values
-load(paste0("Simpars_", fileID, ".Rdata")) # Note: this used to call ParValues from the Sim_1 folder
+load(paste0("Simpars_p", fileID, ".Rdata")) # Note: this used to call ParValues from the Sim_1 folder
 Simpars <- Simpars[,-which(names(Simpars) %in% c("meanTTD", "pdet"))]
 
 # Posterior estimates
@@ -161,11 +166,12 @@ vline.data$parameter[vline.data$parameter %in% c("alpha", "shape_k", "sigma_det"
 levels(vline.data$parameter)[levels(vline.data$parameter)=="alpha"] <- "Shape"
 vline.data$parameter <- factor(vline.data$parameter)
 
+### Plots posteriors for all datasets from true models
 # # pdf(paste("Zero_Posteriors.pdf",sep=""), width=6.45, height=8.5)
-# print(qplot(value, as.factor(Rep), geom="line", group=Rep, data=subset(tempS4, variable %in% c("X2.5.","X97.5.")), ylab="Simulation") + 
-#         facet_grid(simdat~parameter, scales="free_x") + 
+# print(qplot(value, as.factor(Rep), geom="line", group=Rep, data=subset(tempS4, variable %in% c("X2.5.","X97.5.")), ylab="Simulation") +
+#         facet_grid(simdat~parameter, scales="free_x") +
 #         geom_line(aes(x=value, y=as.factor(Rep)), size=I(0.85),color="orange",
-#                   data=subset(tempS4,variable %in% c("X25.","X75.")))  + 
+#                   data=subset(tempS4,variable %in% c("X25.","X75.")))  +
 #         geom_point(aes(x=value, y=as.factor(Rep)), data=subset(tempS4,variable %in% "X50.")) +
 #         # ggtitle("Caterpillar Plots of Parameter Posteriors - Models Correctly Specified") +
 #         geom_vline(aes(xintercept = z), size=1.2, color="skyblue", vline.data))
@@ -275,9 +281,11 @@ names(Tbl.mix) <- c("Dataset", "50%.nm", "90%.nm", "p_det quantile.nm", "Mean pd
                     "50%.m", "90%.m", "p_det quantile.m", "Mean pdet.m", "CI Ratio", "DIC Diff")
 Tbl.mix <- Tbl.mix[match(c("GFF", "LFF", "WFF", "EFF", "GFT", "LFT", "WFT", "GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.mix$Dataset), 
                    c(1,5,4,2,3,9,8,6,7,10,11)]
+Tbl.mix$Dataset <- rep(c("Gamma", "Lognormal", "Weibull", "Exponential", "Gamma", "Lognormal", "Weibull"),2)
 
 library(xtable)
-print(xtable(Tbl.mix[,1:(ncol(Tbl.mix)-2)]), include.rownames=FALSE)
+# The blanks pad the table for easier cut-and-paste into LaTex
+print(xtable(cbind(a="", b="", c="", Tbl.mix[,1:(ncol(Tbl.mix)-2)])), include.rownames=FALSE)
 
 
 
@@ -330,8 +338,8 @@ Tbl.1a <- Tbl.1a[,c(1,5,4,2,3,6,10,9,7,8,11)]; Tbl.1b <- Tbl.1b[,c(1,5,4,2,3,6,1
 Tbl.1a$Dataset <- Tbl.1b$Dataset <- c("Gamma","Lognormal","Weibull","Exponential","Gamma","Lognormal","Weibull")
 
 library(xtable)
-print(xtable(Tbl.1a[,!grepl("DIC", names(Tbl.1a))]), include.rownames=FALSE) #, floating.environment="sidewaystable")
-print(xtable(Tbl.1b[,!grepl("DIC", names(Tbl.1a))]), include.rownames=FALSE)
+print(xtable(cbind(a="", b="", Tbl.1a[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE) #, floating.environment="sidewaystable")
+print(xtable(cbind(a="", b="", Tbl.1b[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE)
 
 
 

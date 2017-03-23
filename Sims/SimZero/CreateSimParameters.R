@@ -69,9 +69,9 @@ wmix.id.pdet.n <- function(pdet, p2, gamma=0.65) w.id.pdet.n((pdet-(1-gamma))/ga
 
 ########## Start constructing Simpars for the models of interest to me
 ### Set simulation targets
-pdet.cand  <- c(0.5, 0.6, 0.8, 0.95)
-gamma.cand <- c(5/6, 4/5, 0.65, 1/2)  # To get smaller pdet, gamma must be larger
-cand  <- 1    # Choose which set of simulations to establish
+pdet.cand  <- c(0.5, 0.6, 0.65, 0.8, 0.95)
+gamma.cand <- c(5/6, 4/5, 3/4, 0.65, 1/2)  # To get smaller pdet, gamma must be larger
+cand  <- 3    # Choose which set of simulations to establish
 pdet  <- pdet.cand[cand]
 gamma <- gamma.cand[cand]
 mode  <- 5

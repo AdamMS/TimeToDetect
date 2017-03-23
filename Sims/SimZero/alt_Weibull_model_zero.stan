@@ -67,8 +67,8 @@ for (s in 1:n_sites) for (i in 1:n_ints) long_log_mu[ii[s]+i] = log_mu_ab[i];
 
 
 model {
-intcpt_a ~ normal(1,1);
-intcpt_d ~ normal(1.6,0.5);
+intcpt_a ~ normal(1.6,0.5);
+intcpt_d ~ normal(-2.7,2.25);
 shape_k ~ cauchy(0,1);
 
 # Data models
