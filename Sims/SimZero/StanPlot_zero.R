@@ -46,6 +46,8 @@ for(Rep in 1:Reps){
     outtable[[1]] <- summary(stanobject, pars=params[[parmcode[i]]])$summary
     
     # outtable[[2]]: uncounted birds and overall detection probability
+    # Note: here, p_global is the posterior distribution of the estimated _realized_ detection probability,
+    #       which is a quantity generated from parameter estimates; it should be unbiased wrt those parameter estimates
     outtable[[2]] <- summary(stanobject, pars=c("uncounted", "p_global"))$summary
     
     # Read in correct simulated data
@@ -56,8 +58,10 @@ for(Rep in 1:Reps){
     outtable[[3]] <- NULL
     
     ##### Code to calculate posterior p-values for model parameters and quantitities
-    # Note: 'pTruth' below is the posterior p-value relative to the true parameter values.  We want this one.
-    # 'p_global' below is the posterior p-value relative to the realized detection probability from the dataset.
+    # Note: 'pTruth' below is the posterior Pr(True pdet < counted/total abundance).  We want this one, but it's difficult
+    #       to compute True pdet when there are random effects.  At large sample sizes, the difference is negligible.
+    # 'p_global' below is the posterior Pr(pdet for simulated dataset < counted/total abundance).
+    #       This is less exact but easier to compute.  At large sample sizes, the difference is negligible.
     # ALL P-VALUES ARE Pr(ACTUAL < SIMULATED)
     load("../Simpars.Rdata")   # True parameter values used in simulations
     Pval.param <- rep(NA,(nrow(outtable[[1]])+8))
@@ -67,12 +71,12 @@ for(Rep in 1:Reps){
     tot.unc   <- sum(uncounted[[datacode[i]]])                      # Total uncounted from simulated dataset
     p_global  <- rstan::extract(stanobject, "p_global")$p_global    # Posterior samples of detection probability
     NumDraws <- length(unc.draws)                                   # Number of posterior draws
-    # Posterior Pr( E[Abundance] < posterior abundance ), where E[...] calculated from simulation parameters
+    # Posterior Pr( E[Abundance] < posterior abundance ), where E[...] is calculated from simulation parameters
     Pval.param[1] <- sum( nrow(dat$y)*exp(Simpars$intcpt_a[datacode[i]]) < counted + unc.draws ) / NumDraws
     # Posterior Pr( realized pdet from simulation < posterior p_global )
-    Pval.param[2] <- sum( counted/(counted+tot.unc) < p_global ) / NumDraws
+    Pval.param[2] <- sum( counted/(counted+tot.unc) < p_global ) / NumDraws  # p_global
     # Posterior Pr( E[pdet] < posterior p_global ), where E[...] calculated from simulation parameters
-    Pval.param[3] <- sum( Simpars$pdet[datacode[i]] < p_global ) / NumDraws
+    Pval.param[3] <- sum( Simpars$pdet[datacode[i]] < p_global ) / NumDraws  # pTruth
 
     # Proportion of the posterior for p_global is greater than fixed percentiles
     for(k in 4:8) Pval.param[k] <- sum( c(0.4, 0.5, 0.6, 0.7, 0.8)[k-3] < p_global) / NumDraws

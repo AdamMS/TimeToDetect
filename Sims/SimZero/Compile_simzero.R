@@ -66,7 +66,7 @@ for(Rep in 1:nReps){
     # For parameters, we only calculate posterior p-values when the inference model matches data model
     if(datamodelmatch[i]) posteriordist <- rbind(posteriordist, cbind(pval=outtable[[4]], 
                                           Rep=Rep, indx=i, simtable[i,]))
-    post.unc.p <- rbind(post.unc.p, df.process(data.frame(pval=outtable[[4]][1:3]), i, simtable))
+    post.unc.p <- rbind(post.unc.p, df.process(data.frame(pval=outtable[[4]][1:8]), i, simtable))
     
     # DIC Tables
     dic <- rbind(dic, df.process(outtable[[5]][[1]], i, simtable))
