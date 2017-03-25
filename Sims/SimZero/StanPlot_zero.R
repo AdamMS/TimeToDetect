@@ -56,11 +56,11 @@ for(Rep in 1:Reps){
     outtable[[3]] <- NULL
     
     ##### Code to calculate posterior p-values for model parameters and quantitities
-    # Note: 'p80' below is the posterior p-value relative to the true parameter values.  We want this one.
+    # Note: 'pTruth' below is the posterior p-value relative to the true parameter values.  We want this one.
     # 'p_global' below is the posterior p-value relative to the realized detection probability from the dataset.
     # ALL P-VALUES ARE Pr(ACTUAL < SIMULATED)
     load("../Simpars.Rdata")   # True parameter values used in simulations
-    Pval.param <- rep(NA,(nrow(outtable[[1]])+3))
+    Pval.param <- rep(NA,(nrow(outtable[[1]])+8))
     # Posterior p-values for total abundance and global detection probability
     unc.draws <- rstan::extract(stanobject, "uncounted")$uncounted  # Posterior samples of total uncounted
     counted   <- sum(dat$y)                                         # Total count from simulated dataset
@@ -73,13 +73,15 @@ for(Rep in 1:Reps){
     Pval.param[2] <- sum( counted/(counted+tot.unc) < p_global ) / NumDraws
     # Posterior Pr( E[pdet] < posterior p_global ), where E[...] calculated from simulation parameters
     Pval.param[3] <- sum( Simpars$pdet[datacode[i]] < p_global ) / NumDraws
-    names(Pval.param) <- c("Uncounted", "p_global", "p80")
-    
+
+    # Proportion of the posterior for p_global is greater than fixed percentiles
+    for(k in 4:8) Pval.param[k] <- sum( c(0.4, 0.5, 0.6, 0.7, 0.8)[k-3] < p_global) / NumDraws
+
     if(datamodelmatch[i]){
       ### Posterior p-values for all model parameters noted in 'params' up top
       load("TrueParams.Rdata")
       param.extract <- rstan::extract(stanobject, pars=params[[parmcode[i]]]) # Posterior draws
-      counter <- 4
+      counter <- 9
       for (j in 1:length(param.extract)) {
         # The if() statement is TRUE for one-dimensional parameters (e.g. 'intcpt_a') but
         # is FALSE for multi-dimensional parameters (e.g. 'ba' when there are multiple predictors)
@@ -95,7 +97,9 @@ for(Rep in 1:Reps){
           counter <- counter + 1
         }
       }
-      names(Pval.param) <- c("Uncounted", "p_global", "p80", rownames(outtable[[1]]))
+      names(Pval.param) <- c("Uncounted", "p_global", "pTruth",   # 1:3
+                             paste0("Pval", c(40,50,60,70,80)),   # 4:8
+                             rownames(outtable[[1]]))             # 9:end
     }
     outtable[[4]] <- Pval.param
     

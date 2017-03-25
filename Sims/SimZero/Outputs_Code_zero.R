@@ -32,7 +32,7 @@ for(i in 1:length(outputs)) assign(names(outputs)[i], outputs[[i]]) # Convert mo
 ###### Posterior p-values for global estimates of pdet
 # There's a choice here. 
 # Choice one: use the p-values associated with "p_global".  Estimate = est(nobs) / (est(nobs) + ebs(abund))
-# Choice two: use the p-values associated with (misnamed) "p80".  Estimate = cdf of F(t) at time = 10.
+# Choice two: use the p-values associated with "pTruth".  Estimate = cdf of F(t) at time = 10.
 # The latter is actually more flexible, because the former is difficult to calculate across hetergeneous sites
 #   especially if there are random effects.
 # At large sample size, there is no practical difference between the two.
