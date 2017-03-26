@@ -2,8 +2,8 @@
 # As input, it needs: S0_simtable.csv, "Outputs_p##.Rdata", "Simpars_p##.Rdata"
 
 # Specify which pdet we're analyzing
-truepdet <- 0.50
-fileID   <- "50"
+truepdet <- 0.65
+fileID   <- "65"
 
 library(ggplot2)
 library(reshape2)

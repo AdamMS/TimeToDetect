@@ -64,7 +64,7 @@ for(Rep in 1:Reps){
     #       This is less exact but easier to compute.  At large sample sizes, the difference is negligible.
     # ALL P-VALUES ARE Pr(ACTUAL < SIMULATED)
     load("../Simpars.Rdata")   # True parameter values used in simulations
-    Pval.param <- rep(NA,(nrow(outtable[[1]])+8))
+    Pval.param <- rep(NA,8)
     # Posterior p-values for total abundance and global detection probability
     unc.draws <- rstan::extract(stanobject, "uncounted")$uncounted  # Posterior samples of total uncounted
     counted   <- sum(dat$y)                                         # Total count from simulated dataset
@@ -81,6 +81,9 @@ for(Rep in 1:Reps){
     # Proportion of the posterior for p_global is greater than fixed percentiles
     for(k in 4:8) Pval.param[k] <- sum( c(0.4, 0.5, 0.6, 0.7, 0.8)[k-3] < p_global) / NumDraws
 
+    names(Pval.param) <- c("Uncounted", "p_global", "pTruth",
+                           paste0("Pval", c(40,50,60,70,80)))
+                           
     if(datamodelmatch[i]){
       ### Posterior p-values for all model parameters noted in 'params' up top
       load("TrueParams.Rdata")
@@ -101,10 +104,10 @@ for(Rep in 1:Reps){
           counter <- counter + 1
         }
       }
-      names(Pval.param) <- c("Uncounted", "p_global", "pTruth",   # 1:3
-                             paste0("Pval", c(40,50,60,70,80)),   # 4:8
-                             rownames(outtable[[1]]))             # 9:end
+      names(Pval.param) <- c(names(Pval.param), 
+                             rownames(outtable[[1]]))
     }
+    
     outtable[[4]] <- Pval.param
     
     ##### Calculate Geweke diagnostics
@@ -151,8 +154,8 @@ for(Rep in 1:Reps){
     
     ### Calculate D(\theta_{median})
     # Functions for each TTDD -- redundant variables (gamma, shape) make it easier to call later
-    # Note: I wrote these strangely... pfxn = p.det(hard-to-detect) - (1-gamma)I(t==0)
-    #  but it's okay, since the function is only used for pdet differences for calculating interval-specific probs
+    # Note: I intentionally wrote these strangely... pfxn = p.det(hard-to-detect) - (1-gamma)I(t==0)
+    #   but it's okay, since the function is mainly used for pdet differences toward calculating interval-specific probs
     if (modeloutput[i]=="f.exp9") pfxn <- function(time, intcpt_d, shape, gamma) pexp(time, exp(intcpt_d))
     if (modeloutput[i]=="f.expmix9") pfxn <- function(time, intcpt_d, shape, gamma)
       gamma*pexp(time, exp(intcpt_d)) - (1-gamma)*(time==0)
