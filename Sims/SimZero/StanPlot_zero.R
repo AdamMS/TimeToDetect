@@ -104,7 +104,7 @@ for(Rep in 1:Reps){
           counter <- counter + 1
         }
       }
-      names(Pval.param) <- c(names(Pval.param), 
+      names(Pval.param) <- c(names(Pval.param)[1:8], 
                              rownames(outtable[[1]]))
     }
     
