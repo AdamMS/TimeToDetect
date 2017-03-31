@@ -5,6 +5,8 @@ load("../../OVEN/Data9.Rdata")    # To get covariate values from actual values a
 load("../SimZero/Simpars.Rdata")  # I'm just taking the intercpts (plural) and shape parms for peaked distributions
   # from the SimZero values.
 
+set.seed(NULL)
+
 ######### Keeping for historical purposes.  Once run, it needn't be run again.
 ##### Simulation parameters for ALL models
 ##### We are using the 3-interval estimates (for time-saving and detection rate reasons)
@@ -168,3 +170,4 @@ for(Rep in 1:1){
   
 }
 
+q(ifelse(interactive(), "ask", "no"))
