@@ -2,8 +2,8 @@
 # As input, it needs: S0_simtable.csv, "Outputs_p##.Rdata", "Simpars_p##.Rdata"
 
 # Specify which pdet we're analyzing
-truepdet <- 0.65
-fileID   <- "65"
+truepdet <- 0.5
+fileID   <- "50"
 
 library(ggplot2)
 library(reshape2)
@@ -22,7 +22,7 @@ data.handle <- function(df){
   return(df)
 }
 
-simtable <- read.csv("S0_simtable.csv")     # Load simtable
+simtable <- read.csv("S0_simtable.csv")    # Load simtable
 load(paste0("Outputs", fileID, ".Rdata"))  # Load model fits
 for(i in 1:length(outputs)) assign(names(outputs)[i], outputs[[i]]) # Convert model fits from list into objects
 
@@ -51,7 +51,8 @@ p_glob$MixPeakLabel  <- with(p_glob, paste(datamixlabel, datapeaklabel))      # 
 # Posterior estimates of detection probabilities -- By mix/non-mix and by family
 CD.melt <- melt(subset(count.det, parameter=="p_global"), id.vars=11:ncol(count.det)) # Exclude 'uncounted' estimates
 CD.melt <- CD.melt[,-which(names(CD.melt) %in% c("indx"))]
-pglobs  <- join(true.pglobal, simtable)  # Construct a table of true pdet values with same variables as posterior estimates
+pglobs  <- join(true.pglobal, simtable)  # Construct a table of "true pdet values" with same variables as posterior estimates
+                                         # These pdet values are realizations from each simulated dataset
 pglobs$parameter <- "p_global"
 pglobs$variable  <- "True"
 CD.melt <- rbind(CD.melt, pglobs)
@@ -99,12 +100,8 @@ print(ggplot(data=subset(tempS2, variable %in% c("X2.5.","X97.5."))) +
 
 # There used to be a caterpillar plot of just lognormal data/models to provide an example for the Oral Prelim
 
-print(ggplot(data=subset(tempS2, variable %in% c("X2.5.","X97.5."))) + 
-        geom_line(aes(x=value, y=as.factor(Rep), group=Rep)) + 
-        theme(axis.title.x=element_blank(),
-              axis.text.x=element_blank(),
-              axis.text.y=element_blank()))
-      
+
+
 ##### Testing family misspecification
 ### Quick overview histograms of Posterior p-values for each model fit.  All models are from the correct family.
 # Correct model is 'blue'.  Incorrect model is 'red'.
@@ -339,6 +336,184 @@ Tbl.1a$Dataset <- Tbl.1b$Dataset <- c("Gamma","Lognormal","Weibull","Exponential
 library(xtable)
 print(xtable(cbind(a="", b="", Tbl.1a[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE) #, floating.environment="sidewaystable")
 print(xtable(cbind(a="", b="", Tbl.1b[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE)
+
+
+
+
+
+########## Code to combine all simulation studies
+# Make tables summarizing output across all 4 levels of pdet
+library(ggplot2)
+library(reshape2)
+library(plyr)
+
+# Combine tables of estimates of pdet & posterior p-values from across pdets
+oest <- op <- NULL
+fileID   <- c("50", "65", "80", "95")
+for (j in 1:4){
+  load(paste0("Outputs", fileID[j], ".Rdata"))
+  outputs$count.det$pdet  <- fileID[j]
+  outputs$post.unc.p$pdet <- fileID[j]
+  oest <- rbind(oest, subset(outputs$count.det, parameter=="p_global")) # Overall (across true pdet values) estimates of pdet
+  op   <- rbind(op, outputs$post.unc.p)                                 # Overall summary of posterior p-values
+}
+
+# Compile values across reps and combine tables
+# The tables are 'rbind'-ed instead of 'join'-ed, because that facilitates the 'dcast' step
+oci  <- ddply(oest, .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), summarize,  # Used later to explore CIs
+              q2.5 = round(mean(X2.5.),2), q25 = round(mean(X25.),2), q50 = round(mean(X50.),2), q75 = round(mean(X75.),2), q97.5 = round(mean(X97.5.),2)) 
+oest <- ddply(oest, .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), summarize, value = round(mean(X50.),2))  # Average of medians
+op   <- ddply(subset(op, parameter=="p_global"), .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), summarize, 
+              value = sum(abs(pval-0.5) < 0.25)/length(pval))  # Coverage of 50% credible intervals
+oest$statistic <- "Med.p"
+op$statistic   <- "C50"
+ov   <- rbind(oest, op)  
+ov.c <- dcast(ov, fname+simdat+modelmix+datamix+datamodelmatch ~ statistic + pdet, value.var="value")
+
+##### Make Output Tables
+# Data handling
+ov.c <- data.handle(ov.c)
+ov.c$datapeaked <- as.logical(last(ov.c$simdat))
+ov.c$datapeaked[ov.c$DataFamily=="Exponential"] <- TRUE
+ov.c <- ov.c[with(ov.c, order(datamix, datapeaked, DataFamily)),]  # Sort data in correct order for output tables
+
+# Subset the ov.c to obtain correctly arranged chunks of the final publishable table
+ov.subs <- list(
+  mix.left.cov   = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^C50", names(ov.c)))),
+  mix.left.medp  = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^Med", names(ov.c)))),
+  mix.right.cov  = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^C50", names(ov.c)))),
+  mix.right.medp = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^Med", names(ov.c)))),
+  fam.ul.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^C50", names(ov.c)))),
+  fam.ul.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^Med", names(ov.c)))),
+  fam.ll.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^C50", names(ov.c)))),
+  fam.ll.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^Med", names(ov.c)))),
+  fam.ur.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^C50", names(ov.c)))),
+  fam.ur.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^Med", names(ov.c)))),
+  fam.lr.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^C50", names(ov.c)))),
+  fam.lr.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^Med", names(ov.c))))
+)
+
+# Bind the chunks together to create the final tables
+tbl1  <- with(ov.subs, cbind(mix.left.medp, mix.left.cov[,-1], mix.right.medp[,-1], mix.right.cov[,-1]))
+tbl2a <- with(ov.subs, cbind(fam.ul.medp, fam.ul.cov[,-1], fam.ur.medp[,-1], fam.ur.cov[,-1]))
+tbl2b <- with(ov.subs, cbind(fam.ll.medp, fam.ll.cov[,-1], fam.lr.medp[,-1], fam.lr.cov[,-1]))
+
+library(xtable)
+print(xtable(cbind(a="", b="", c="", tbl1)), include.rownames=FALSE)
+
+print(xtable(cbind(a="", b="", tbl2a)), include.rownames=FALSE)
+print(xtable(cbind(a="", b="", tbl2b)), include.rownames=FALSE)
+
+##### Make Output Plots
+ov          <- data.handle(ov)
+ov$peaked   <- substr(ov$simdat,3,3)
+ov$peaked2  <- factor(ov$peaked, labels=c("Nonpeaked", "Peaked"))
+ov$peaked[ov$DataFamily=="Exponential"] <- "E"
+ov$peaked2[ov$DataFamily=="Exponential"] <- "Peaked"
+ov$datamix  <- factor(ov$datamix, labels=c("Non-Mixed", "Mixed"))
+ov$peaked   <- factor(ov$peaked, labels=c("Exponential", "Nonpeaked", "Peaked"))
+ov$peaked   <- factor(ov$peaked, levels=levels(ov$peaked)[c(2,1,3)])
+ov$mt       <- with(ov, paste0(modelmix, ModelFamily))
+ov$mt       <- factor(ov$mt, labels=c("Non-mix Expo", "Non-mix Gamma", "Non-mix Lognormal", "Non-mix Weibull",
+                                      "Mix Expo", "Mix Gamma", "Mix Lognormal", "Mix Weibull"))
+
+# Mix - NoMix plots
+library(gridExtra)
+# pdf("mixture_fig.pdf", width=9.25, height=6.1)
+lp <- ggplot(subset(ov, statistic=="Med.p" & familymatch)) + 
+  geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
+  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
+  facet_grid(datamix~peaked) +
+  scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
+  scale_x_continuous(breaks = seq(50, 95, 15)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.2)) +
+  theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
+# dev.off()
+
+# pdf("mixture_cov.pdf", width=9.25, height=6.1)
+rp <- ggplot(subset(ov, statistic=="C50" & familymatch)) + 
+  geom_hline(aes(yintercept=0), linetype=1, size=0.6) +
+  geom_hline(aes(yintercept=1), linetype=1, size=0.6) +
+  geom_hline(aes(yintercept=0.4), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.5), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.6), linetype=2, size=1, color="gray50") +
+  geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
+  facet_grid(datamix~peaked) +
+  scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
+  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
+# dev.off()
+
+pdf("mixture_fig.pdf", width=10, height=4.7)
+grid.arrange(lp, rp, ncol=2, widths=c(4.4,3))
+dev.off()
+
+# Family comparison plots
+# pdf("family_fig.pdf", width=9.25, height=6.1)
+lf <- ggplot(subset(ov, statistic=="Med.p" & datamix=="Mixed" & modelmix)) + 
+  geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
+  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
+  facet_grid(DataFamily~peaked2) +
+  scale_shape_manual(values=c(0,1,2,5), name="Inference Model") +
+  scale_x_continuous(breaks = seq(50, 95, 15)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.2)) +
+  theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
+# dev.off()
+
+# pdf("family_cov.pdf", width=9.25, height=6.1)
+rf <- ggplot(subset(ov, statistic=="C50" & datamix=="Mixed" & modelmix)) + 
+  geom_hline(aes(yintercept=0), linetype=1, size=0.6) +
+  geom_hline(aes(yintercept=1), linetype=1, size=0.6) +
+  geom_hline(aes(yintercept=0.4), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.5), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.6), linetype=2, size=1, color="gray50") +
+  geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
+  facet_grid(DataFamily~peaked2) +
+  scale_shape_manual(values=c(0,1,2,5), name="Inference Model") +
+  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
+# dev.off()
+
+pdf("family_fig.pdf", width=10, height=4.7)
+grid.arrange(lf, rf, ncol=2, widths=c(4.2,3))
+dev.off()
+ 
+ 
+########## Looking at CI Widths
+
+# RESULTS:
+# (1) CI widths don't much change b/t pdet50 and pdet 65.  NP/NM, NP/Mix, and Pk/Mix
+#     In these scenarios, Mix CI's at low pdets are wider by about 5, 5, and 10 percent, respectively
+# (2) For expo and Peaked distributions, the widths do decrease.
+#     There's little difference between Mix and NM widths, except in the Expo/Mix data scenario
+# (3)
+ 
+ 
+oci   <- data.handle(oci)
+oci$peaked   <- substr(oci$simdat,3,3)
+oci$peaked2  <- factor(oci$peaked, labels=c("Nonpeaked", "Peaked"))
+oci$peaked[oci$DataFamily=="Exponential"] <- "E"
+oci$peaked2[oci$DataFamily=="Exponential"] <- "Peaked"
+oci$datamix  <- factor(oci$datamix, labels=c("Non-Mixed", "Mixed"))
+oci$peaked   <- factor(oci$peaked, labels=c("Exponential", "Nonpeaked", "Peaked"))
+oci$peaked   <- factor(oci$peaked, levels=levels(oci$peaked)[c(2,1,3)])
+oci$mt       <- with(oci, paste0(modelmix, ModelFamily))
+oci$mt       <- factor(oci$mt, labels=c("NM Expo", "NM Gamma", "NM Lognormal", "NM Weibull",
+                                        "Mix Expo", "Mix Gamma", "Mix Lognormal", "Mix Weibull"))
+oci$width95  <- oci$q97.5 - oci$q2.5
+oci$width50  <- oci$q75 - oci$q25
+
+ggplot(subset(oci, familymatch)) + 
+  # geom_point(aes(x=as.numeric(pdet), y=width50, shape=mt), size=2) +
+  geom_point(aes(x=as.numeric(pdet), y=q2.5, shape=mt), size=2) +
+  geom_point(aes(x=as.numeric(pdet), y=q50, shape=mt), size=2, color="orange") +
+  geom_point(aes(x=as.numeric(pdet), y=q97.5, shape=mt), size=2) +
+  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2) +
+  facet_grid(datamix~peaked) +
+  scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
+  theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
+
+
 
 
 

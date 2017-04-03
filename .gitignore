@@ -12,6 +12,9 @@
 *.Rproj
 .Rproj.user/
 
+# Stan files
+*.rda
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
