@@ -72,7 +72,7 @@ Also, we specifically investigate non-constant detection distributions, which ha
 
 \item In Section 3.4, models are built where the various TTDDs considered are linked to covariates via the rate parameter. It was not clear to me why the rate parameter was chosen to be modeled as a function of covariates, as opposed to the mean of the TTDD. For example, in gamma GLMs, the mean is modeled as a function of covariates, with the shape parameter fixed (the latter as done also in the present work). Basically I'm now wondering a) why the rate rather than the mean was modeled, and b) if that matters at all. In 3.1, a justification seems to be given, but I do not follow the reasoning here – why would the inclusion of random and fixed effects be any different if not the rate but the mean would be used? Sorry if I'm just missing the obvious.
 \begin{quote}
-We have added the following in Section \ref{M-sec:exact_time} to clarify: ``We employ a log link for $\varphi$, and therefore our model is equivalent to a generalized linear model with a log link on the mean detection time."
+We have added the following in Section \ref{M-sec:exact_time} to clarify: ``We employ a log link to model $\varphi$, and therefore our model is equivalent to a generalized linear model with a log link on the mean detection time."
 
 We feel the rate conceptualization resonates more with the framing of the problem, though perhaps the distinction is mainly aesthetic.
 Our view might be more explicit if we were to define the time-to-detection distribution from its hazard function rather than from a traditional distributional family. 
@@ -112,7 +112,7 @@ We have prefaced the statement with the clause: ``Based on simulation analyses, 
 
 Line 40-41.  Also worth mentioning caveats - e.g., greater imprecision and computation times.
 \begin{quote}
-\adam{Address this point}
+\adam{Address this point in the abstract}
 \end{quote}
 
 Introduction\\
@@ -124,9 +124,10 @@ We have made the equivalence more explicit: ``We analyze times to first detectio
 3.1 \\
 Line 60: In the context of estimating abundance of wildlife, justifying the inclusion of the Weibull and lognormal distributions because they are often used in survival analysis is weak.  Are there biologically plausible scenarios in which these distributions are appropriate given this type of data?  Justify here similar to the Gamma distribution.  Otherwise, omit.
 \begin{quote}
-We have added the following sentences to \ref{M-sec:exact_time}: ``Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to either increase or decrease during the survey; however, the shapes of these distributions differ, most notably in tail probability.
-All three may be reasonable TTDD choices if, for instance, detection rates vary among individuals.
-This leads to marginal detection rates that decrease over time as individuals with higher detection rates are removed from the population."
+We have added the following sentences to \ref{M-sec:exact_time}: ``Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to increase or decrease during the survey.
+All three TTDDs may provide reasonable empirical approximations of non-constant detection, though the shapes of the distributions differ, potentially leading to differing inference.
+For instance, when detection rates vary across individuals, the result is a marginal detection rate that decreases over time.
+Whether the marginal rate is best approximated by a gamma, lognormal, or Weibull TTDD depends on just how rates vary across individuals."
 
 We appreciate the importance of providing biological justification for statistical assumptions.
 It is always a good foundation.
@@ -151,9 +152,9 @@ As a potential user of such a model presented in this manuscript, I find the sim
 \begin{enumerate}
 \item Users will most certainly not bother using such complex modeling approach to model an intercept only - and thus, evaluating TTDDs based on intercept-only models seems overly simple and not very informative. \begin{quote}
 We agree that an intercept-only model is simplistic and will not be of much practical use in an applied setting.
-However, the intercept-only simulation is informative, because models that perform poorly in simple applications can hardly be trusted in more complex applications.
+However, the intercept-only simulation is informative all the same, because models that perform poorly in simple applications can hardly be trusted in more complex applications.
 
-Meanwhile, a simulation study involving effects on abundance and detection is computationally expensive. \adam{Reference exact duration required}.
+Meanwhile, as disscussed later, a simulation study involving effects on abundance and detection is computationally expensive.
 Fortunately, while simulation studies are hampered by long computation times, the typical user of this model will only apply it to a small number of datasets, so computation time will not be prohibitive.
 \end{quote}
 
@@ -174,16 +175,13 @@ We have separated out a paragraph in the Discussion posing some design-related q
 
 \item Providing computation times for scenarios that vary by model complexity and sample size (including the computer used for analyses) may also provide a gauge for users as to whether this method is feasible for their needs.
 \begin{quote}
-\adam{Because of improvements in Stan, I want to run more simulation reps before quantifying this.}
+Average run times for the different simulation studies are now discussed in the second paragraph of Section \ref{M-sec:simfull}.
 \end{quote}
 
 \item I don’t fully appreciate the need for both 50\% and 90\% coverage estimates.  It seems one estimate would be sufficient, and typically 90\% or 95\% credible intervals are used with these types of analyses?
 \begin{quote}
 We agree that using both is redundant.
-The two measures are largely the same, and we note where they differ in Sections \ref{M-sec:mixture} and \ref{M-sec:family}.
-We now choose to report only 50\% credible intervals.
-This choice more effectively highlights over/undercoverage in figures \ref{M-fig:mixture_fig} and \ref{M-fig:family_fig}.
-
+We now choose to report only 90\% credible intervals.
 \end{quote}
 \end{enumerate}
 
@@ -260,7 +258,7 @@ We answer this comments in two parts.
 First, we agree that the number of simulations was inadequate for diagnosing model accuracy.
 We have therefore increased to 100 the number of simulations in Sections \ref{M-sec:mixture} and \ref{M-sec:family}.
 This has been made possible by improvements to Stan \citep{Rstan2016} and by streamlining our code for homogeneous surveys.
-\adam{Add reference to summary of run times vis-a-vis the third simulation study}
+See the second paragraph of Section \ref{M-sec:simfull} for a summary of run times for the models currently.
 
 Second, although the original number of simulations was inadequate for characterizing model accuracy, it nonetheless highlighted scenarios of gross inaccuracy, such as: (i) omitting a mixture component in modeling a peaked mixture dataset, or (ii) assuming constant detection when the rate varies during the survey period.
 \end{quote}
@@ -328,18 +326,15 @@ Writing: The multiplicity of mathematical explicit meanings for the word ``mixtu
 \begin{quote}
 In the Introduction, we now clearly refer to a practice of modeling the TTDD ``as a mixture of two distributions --- a continuous-time distribution and a point mass for increased detection probability in the initial observation period."
 We define our use of `mixture model' later in the paragraph:  ``We apply the term `mixture model' to any model with a mixture TTDD."
-This is contrasted in our definition of `N-mixture model' in the next paragraph: ``a hierarchical framework for multinomial counts called an N-mixture model [\dotso], which is an entirely different use of `mixture' from the mixture models in the previous paragraph."
+This is contrasted in our definition of `N-mixture model' in the next paragraph: ``a hierarchical framework for multinomial counts called an N-mixture model [\dotso] --- which is an entirely different use of `mixture' from the mixture models in the previous paragraph."
 \end{quote}
 
 One thing that the authors could do is to take the reader by the hand by building equation 1 bit by bit: present first the simplest version of equation 1 and what is customary to date, and then add modifications/hierarchies plus text and build the model with explicit equations and little by little arrive to the final product, which is the current equation 1. Nothing better than clear simple math aided by short explanations to present a model unambiguously.
 \begin{quote}
 \adam{
-This potentially requires a lot of rewiring.  Two options are: (i) highlight each component of Equation (1) as we address it in the text, because we do address them all, or (ii) at the end of Section 3.2, provide a simpler summary of the model without mixtures and without covariates.
-I do think we provide the model pieces one-by-one, but we could be more heavy-handed (in a good way).
+To avoid potentially a lot of rewriting, I think we should add an abbreviated version of Equation (1) at the end of Section 3.2.
+I am struggling with this at present.
 }
-\jarad{But it appears the reviewer wants it up front. 
-I need to go back and reread to determine if this seems feasible. 
-I thought we did start without mixtures and without covariates.}
 \end{quote}
 
 Write self-contained paragraphs, with one main idea, not two or three (and each one half developed). As a reviewer, I enjoyed verifying that the cited papers in the introduction and in the discussion were indeed meaningful (by downloading them and reading those that I was not familiar with). However, when many papers are cited, it is useful to expand in the text why the different papers are being cited.  Doing so not only clarifies your intentions, but does proper justice to the papers being referred to. It is also a useful exercise because it allows you to tell whether you have more than one clear ideas and hence, material for more than one paragraph.  For instance, I think that the paragraph in the introduction, line 34, page 3, could be expanded and/or broken into two paragraphs.  One introducing the time-to-detection as is done in survival analysis, and one presenting to the reader how data that seem not to conform to the constant-detection assumption is dealt with by
@@ -347,13 +342,11 @@ using the idea of the increased detection probability via a mixture component. T
 \begin{quote}
 We have reviewed the entire manuscript with these points in mind.
 We have split the cited paragraph and a few others.
-\adam{The only times I feel I have cited many articles en masse is when I've said ``Many authors have done this.'}
 \end{quote}
 
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
 \begin{quote}
 We have added this as Figure \ref{M-fig:schematic}.
-\adam{I have not cited the figure in the text.  I am not convinced I need to.}
 \end{quote}
 
 
@@ -362,17 +355,21 @@ the process from the observation variance lies within the structure of the tempo
 if you think it's worthwhile.
 
 \begin{quote}
-\adam{
-The main application I've encountered before is \citet{Borchers2013}.
-There are technical differences between that approach and our parameteric survival analysis approach, mainly due to the continuous and interval-censored handling of time.
-For instance, I suspect that for analysis, as with \citet{Farnsworth2002} and its derivatives, the hidden Markov model would require an artificial division of the observation period into equal-intervals intervals.
-One cool feature of that approach is that it directly handles bout-singing through an availability state (which may be stochastically `available' or `not available') in conjunction with a detection model.
-I am not sure that model would serve well for a problem like ours where we are looking for systematic non-constant detection --- i.e., the Markov model would require time-dependent transition matrices.
-Additionally, at least in the case of \citet{Borchers2013}, the model utilizes separate observations of animal behaviors to estimate transitions among hidden states (e.g., moving/singing/etc.).
-In their case, they analyzed radio-tagged whales to estimate transitions for diving states.
+The reviewer's comments are thought-provoking but ultimately lead to a set of analytical strategies that are different than those we investigate in our manuscript.
 
-Those are just some preliminary thoughts.
-I think the reviewer's comment is thought-provoking but not applicable to the manuscript we have crafted.}
+Within the world of survey sampling, one of the better known Markov models is \citet{Borchers2013}.
+They model marine mammal surveys, where the biological states correspond to depth zones of diving, and only mammals in the surface state are detectable.
+One strength of their approach is how easily it handles transitions between behavioral states during the survey.
+For non-constant detection in avian point-count surveys, Markov models appear particularly well-suited to account for bout singing --- i.e., when a bird alternates between periods of calling and silence.
+Our parametric survival analysis only handles bout singing marginally.
+
+However, for other forms of non-constant detection (e.g. observer effects), it is not clear that Markov models offer an advantage.
+A Markov model would feature presumably at least three classes (unavailable, available, and detected), with the chief focus of inference being estimation of the time-dependent transition matrix.
+Assumptions about the form of that matrix would pose similar modeling challenges to those we faced in parametric survival analysis.
+Markov models do enable the incorporation of supplementary behavioral observations --- for example, \citet{Borchers2013} use data from radio-tagged whales to estimate transition matrices --- but we have no such data to supplement our avian counts.
+In one regard, the Markov model is a little more inelegant in that it requires discrete-time observations, whereas the parametric survival analysis in our presentation can utilize exact time-to-detection data.
+
+We reiterate: the comments about Markov models are thought-provoking but are ultimately something different than what we examine in this manuscript.
 \end{quote}
 
 

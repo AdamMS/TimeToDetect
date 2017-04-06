@@ -220,122 +220,122 @@ print(
 
 
 
-########## Generate Summary Tables -- Mix versus Non-Mix
-# Table of coverages for each dataset and inference model combo (averaged over reps) plus average posterior p-value
-cover.p <- ddply(p_glob, .(simdat, ModelFamily, DataFamily, modelmix), summarize, 
-                 C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), 
-                 C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), avg.postp=mean(pval_pglob))
-
-Tbl.mix.m  <- subset(cover.p, DataFamily==ModelFamily & modelmix)[,c("simdat", "C50", "C90", "avg.postp")]  # Table for mixture inference models
-Tbl.mix.nm <- subset(cover.p, DataFamily==ModelFamily & !modelmix)[,c("simdat", "C50", "C90", "avg.postp")] # Table for non-mixture inference models
-# Mix.mean and NM.mean are average p.values, not average detection probabilities
-# Mix50, Mix90, etc. are coverage proportions
-names(Tbl.mix.m)[2:4] <- c("Mix50", "Mix90", "Mix.avg.postp")
-names(Tbl.mix.nm)[2:4] <- c("NM50", "NM90", "NM.avg.postp")
-Tbl.mix <- join(Tbl.mix.nm, Tbl.mix.m, by=c("simdat"))
-
-# Average median(gamma) across Reps.
-# This table consists only of mixture inference models (but all data models). 
-# Note: the true value of gamma is 5/6 for the p50 simulations
-parmests  <- data.handle(parmests)
-avggamma  <- ddply(subset(parmests, parameter=="gamma" & DataFamily==ModelFamily),
-                  .(simdat), summarize, avg.med.gamma = mean(X50.))
-# Tbl.mix <- join(Tbl.mix, avggamma) # No longer reporting this optional column
-
-### Average posterior median estimate of pdet ###
-count.det <- data.handle(count.det)
-avgpdet <- ddply(subset(count.det, parameter=="p_global" & DataFamily==ModelFamily),
-                  .(simdat, modelmix), summarize, avg.med.pdet = mean(X50.))
-avgpdet <- join(subset(avgpdet, !modelmix), subset(avgpdet, modelmix), by="simdat")[,-c(2,4)] # Discard 'modelmix' columns
-names(avgpdet) <- c("simdat", "NM_pdet", "Mix_pdet")
-# Note that 'NM_pdet' and 'Mix_pdet' are equal to: mean(median(pdet))
-Tbl.mix <- join(Tbl.mix, avgpdet)[,c("simdat", "NM50", "NM90", "NM.avg.postp", "NM_pdet", 
-                                     "Mix50", "Mix90", "Mix.avg.postp", "Mix_pdet")] # Sort columns appropriately
-
-# Instead of standard error (code deleted), we can alternatively use ratios of credible interval widths for p_det.  
-# The results are about the same.
-# Only for models where family matches data (mixture may or may not)
-Tbl.ciw <- subset(count.det, parameter=="p_global" & DataFamily==ModelFamily)[, c("X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
-Tbl.ciw$width <- Tbl.ciw$X97.5. - Tbl.ciw$X2.5.
-# Join mixture and non-mixture fits onto same rows
-Tbl.ciw.wide <- join(Tbl.ciw[!Tbl.ciw$modelmix,-c(1,2,5)], Tbl.ciw[Tbl.ciw$modelmix,-c(1,2,5)], by=c("Rep", "simdat"))[,-3]
-names(Tbl.ciw.wide)[3:5] <- c("ciw.nomix", "datamix", "ciw.mix")
-Tbl.ciw <- ddply(Tbl.ciw.wide, .(simdat, datamix), summarize, m.div.nm = mean(ciw.mix/ciw.nomix), 
-                 nm.div.m = mean(ciw.nomix/ciw.mix))
-# Arrange so that ciw.ratio is the ratio of incorrect:correct
-Tbl.ciw$ciw.ratio <- Tbl.ciw$m.div.nm
-Tbl.ciw$ciw.ratio[Tbl.ciw$datamix] <- Tbl.ciw$nm.div.m[Tbl.ciw$datamix]
-# Joining the incorrect:correct ratio.  Can also join the mix:non-mix ratio or vice versa.
-Tbl.mix <- join(Tbl.mix, Tbl.ciw[,c("simdat","ciw.ratio")])
-
-Tbl.dic <- subset(dicdiff, familymatch & dicmethod=="ThetaMed" & !datamodelmatch)
-Tbl.dic <- ddply(Tbl.dic, .(simdat), summarize, Dic_diff=mean(dicdiff))
-Tbl.mix <- join(Tbl.mix, Tbl.dic)
-
-# Reorder...
-names(Tbl.mix) <- c("Dataset", "50%.nm", "90%.nm", "p_det quantile.nm", "Mean pdet.nm", 
-                    "50%.m", "90%.m", "p_det quantile.m", "Mean pdet.m", "CI Ratio", "DIC Diff")
-Tbl.mix <- Tbl.mix[match(c("GFF", "LFF", "WFF", "EFF", "GFT", "LFT", "WFT", "GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.mix$Dataset), 
-                   c(1,5,4,2,3,9,8,6,7,10,11)]
-Tbl.mix$Dataset <- rep(c("Gamma", "Lognormal", "Weibull", "Exponential", "Gamma", "Lognormal", "Weibull"),2)
-
-library(xtable)
-# The blanks pad the table for easier cut-and-paste into LaTex
-print(xtable(cbind(a="", b="", c="", Tbl.mix[,1:(ncol(Tbl.mix)-2)])), include.rownames=FALSE)
-
-
-
-########## Generate Summary Tables -- Compare Families
-cover.p2 <- ddply(subset(p_glob, datamix & modelmix), .(simdat, ModelFamily), summarize, 
-                  C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), #C75=sum(abs(pval_pglob-0.5)<0.375),
-                  C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), average=mean(pval_pglob))
-cover.p2 <- melt(cover.p2, id.vars=.(simdat, ModelFamily))
-
-# Average median(gamma) across Reps.  True value is 5/6.
-# No surprise, this is most volatile for exponential mixture models.
-tempparm <- subset(parmests, parameter=="gamma" & modelmix & datamix)
-tempparm <- data.handle(tempparm)
-avggamma2 <- ddply(tempparm, .(simdat, ModelFamily, parameter), summarize, value = mean(X50.))
-# cover.p2 <- rbind(cover.p2, avggamma2)
-
-# Average estimate of pdet for mixture data/models
-avgpdet.mix <- ddply(subset(count.det, parameter=="p_global" & modelmix & datamix), .(simdat, ModelFamily), 
-                     summarize, variable="median.pdet", value = mean(X50.))
-cover.p2 <- rbind(cover.p2, avgpdet.mix)
-
-# Create table of credible interval widths
-Tbl.ciw2 <- subset(count.det, parameter=="p_global" & datamix & modelmix)[,
-                              c("fname","X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
-Tbl.ciw2$width <- Tbl.ciw2$X97.5. - Tbl.ciw2$X2.5.
-Tbl.ciw2 <- data.handle(Tbl.ciw2)
-Tbl.ciw.true <- Tbl.ciw2[Tbl.ciw2$datamodelmatch,]
-names(Tbl.ciw.true)[match("width", names(Tbl.ciw.true))] <- "truewidth"
-Tbl.ciw2 <- join(Tbl.ciw2, Tbl.ciw.true[,c("simdat","Rep","truewidth")], by=c("simdat", "Rep"))
-Tbl.ciw2 <- ddply(Tbl.ciw2, .(fname, simdat, datamodelmatch, ModelFamily, DataFamily), summarize, ciw.ratio = mean(width/truewidth))
-
-# Calculate Delta DIC
-Tbl.dic2 <- subset(dicdiff, modelmix & datamix & dicmethod=="ThetaMed")
-Tbl.dic2 <- ddply(Tbl.dic2, .(simdat, ModelFamily), summarize, variable="dicdiff", value=mean(dicdiff))
-cover.p2 <- rbind(cover.p2, Tbl.dic2)
-
-# Combine the above into a single table
-Tbl.fam <- dcast(cover.p2, simdat ~ ModelFamily + variable, fun.aggregate=mean, value.var="value")
-
-# Reorder rows and columns...
-Tbl.fam <- Tbl.fam[match(c("GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.fam$simdat),]
-# Doing this now avoids some re-naming that R does with duplicate col. names and slicing...
-# Tbl.1a: Exponential and Gamma inference models
-# Tbl.1b: Lognormal and Weibull inference models
-Tbl.1a  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "E", "G"))]   
-Tbl.1b  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "L", "W"))]   
-names(Tbl.1a) <- names(Tbl.1b) <- c("Dataset", rep(c("50%", "90%", "Q(p_det)", "Median p_det", "DIC Diff"),2))
-# Reorder columns
-Tbl.1a <- Tbl.1a[,c(1,5,4,2,3,6,10,9,7,8,11)]; Tbl.1b <- Tbl.1b[,c(1,5,4,2,3,6,10,9,7,8,11)]
-Tbl.1a$Dataset <- Tbl.1b$Dataset <- c("Gamma","Lognormal","Weibull","Exponential","Gamma","Lognormal","Weibull")
-
-library(xtable)
-print(xtable(cbind(a="", b="", Tbl.1a[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE) #, floating.environment="sidewaystable")
-print(xtable(cbind(a="", b="", Tbl.1b[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE)
+# ########## Generate Summary Tables -- Mix versus Non-Mix
+# # Table of coverages for each dataset and inference model combo (averaged over reps) plus average posterior p-value
+# cover.p <- ddply(p_glob, .(simdat, ModelFamily, DataFamily, modelmix), summarize, 
+#                  C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), 
+#                  C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), avg.postp=mean(pval_pglob))
+# 
+# Tbl.mix.m  <- subset(cover.p, DataFamily==ModelFamily & modelmix)[,c("simdat", "C50", "C90", "avg.postp")]  # Table for mixture inference models
+# Tbl.mix.nm <- subset(cover.p, DataFamily==ModelFamily & !modelmix)[,c("simdat", "C50", "C90", "avg.postp")] # Table for non-mixture inference models
+# # Mix.mean and NM.mean are average p.values, not average detection probabilities
+# # Mix50, Mix90, etc. are coverage proportions
+# names(Tbl.mix.m)[2:4] <- c("Mix50", "Mix90", "Mix.avg.postp")
+# names(Tbl.mix.nm)[2:4] <- c("NM50", "NM90", "NM.avg.postp")
+# Tbl.mix <- join(Tbl.mix.nm, Tbl.mix.m, by=c("simdat"))
+# 
+# # Average median(gamma) across Reps.
+# # This table consists only of mixture inference models (but all data models). 
+# # Note: the true value of gamma is 5/6 for the p50 simulations
+# parmests  <- data.handle(parmests)
+# avggamma  <- ddply(subset(parmests, parameter=="gamma" & DataFamily==ModelFamily),
+#                   .(simdat), summarize, avg.med.gamma = mean(X50.))
+# # Tbl.mix <- join(Tbl.mix, avggamma) # No longer reporting this optional column
+# 
+# ### Average posterior median estimate of pdet ###
+# count.det <- data.handle(count.det)
+# avgpdet <- ddply(subset(count.det, parameter=="p_global" & DataFamily==ModelFamily),
+#                   .(simdat, modelmix), summarize, avg.med.pdet = mean(X50.))
+# avgpdet <- join(subset(avgpdet, !modelmix), subset(avgpdet, modelmix), by="simdat")[,-c(2,4)] # Discard 'modelmix' columns
+# names(avgpdet) <- c("simdat", "NM_pdet", "Mix_pdet")
+# # Note that 'NM_pdet' and 'Mix_pdet' are equal to: mean(median(pdet))
+# Tbl.mix <- join(Tbl.mix, avgpdet)[,c("simdat", "NM50", "NM90", "NM.avg.postp", "NM_pdet", 
+#                                      "Mix50", "Mix90", "Mix.avg.postp", "Mix_pdet")] # Sort columns appropriately
+# 
+# # Instead of standard error (code deleted), we can alternatively use ratios of credible interval widths for p_det.  
+# # The results are about the same.
+# # Only for models where family matches data (mixture may or may not)
+# Tbl.ciw <- subset(count.det, parameter=="p_global" & DataFamily==ModelFamily)[, c("X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
+# Tbl.ciw$width <- Tbl.ciw$X97.5. - Tbl.ciw$X2.5.
+# # Join mixture and non-mixture fits onto same rows
+# Tbl.ciw.wide <- join(Tbl.ciw[!Tbl.ciw$modelmix,-c(1,2,5)], Tbl.ciw[Tbl.ciw$modelmix,-c(1,2,5)], by=c("Rep", "simdat"))[,-3]
+# names(Tbl.ciw.wide)[3:5] <- c("ciw.nomix", "datamix", "ciw.mix")
+# Tbl.ciw <- ddply(Tbl.ciw.wide, .(simdat, datamix), summarize, m.div.nm = mean(ciw.mix/ciw.nomix), 
+#                  nm.div.m = mean(ciw.nomix/ciw.mix))
+# # Arrange so that ciw.ratio is the ratio of incorrect:correct
+# Tbl.ciw$ciw.ratio <- Tbl.ciw$m.div.nm
+# Tbl.ciw$ciw.ratio[Tbl.ciw$datamix] <- Tbl.ciw$nm.div.m[Tbl.ciw$datamix]
+# # Joining the incorrect:correct ratio.  Can also join the mix:non-mix ratio or vice versa.
+# Tbl.mix <- join(Tbl.mix, Tbl.ciw[,c("simdat","ciw.ratio")])
+# 
+# Tbl.dic <- subset(dicdiff, familymatch & dicmethod=="ThetaMed" & !datamodelmatch)
+# Tbl.dic <- ddply(Tbl.dic, .(simdat), summarize, Dic_diff=mean(dicdiff))
+# Tbl.mix <- join(Tbl.mix, Tbl.dic)
+# 
+# # Reorder...
+# names(Tbl.mix) <- c("Dataset", "50%.nm", "90%.nm", "p_det quantile.nm", "Mean pdet.nm", 
+#                     "50%.m", "90%.m", "p_det quantile.m", "Mean pdet.m", "CI Ratio", "DIC Diff")
+# Tbl.mix <- Tbl.mix[match(c("GFF", "LFF", "WFF", "EFF", "GFT", "LFT", "WFT", "GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.mix$Dataset), 
+#                    c(1,5,4,2,3,9,8,6,7,10,11)]
+# Tbl.mix$Dataset <- rep(c("Gamma", "Lognormal", "Weibull", "Exponential", "Gamma", "Lognormal", "Weibull"),2)
+# 
+# library(xtable)
+# # The blanks pad the table for easier cut-and-paste into LaTex
+# print(xtable(cbind(a="", b="", c="", Tbl.mix[,1:(ncol(Tbl.mix)-2)])), include.rownames=FALSE)
+# 
+# 
+# 
+# ########## Generate Summary Tables -- Compare Families
+# cover.p2 <- ddply(subset(p_glob, datamix & modelmix), .(simdat, ModelFamily), summarize, 
+#                   C50=sum(abs(pval_pglob-0.5)<0.25)/length(unique(p_glob$Rep)), #C75=sum(abs(pval_pglob-0.5)<0.375),
+#                   C90=sum(abs(pval_pglob-0.5)<0.45)/length(unique(p_glob$Rep)), average=mean(pval_pglob))
+# cover.p2 <- melt(cover.p2, id.vars=.(simdat, ModelFamily))
+# 
+# # Average median(gamma) across Reps.  True value is 5/6.
+# # No surprise, this is most volatile for exponential mixture models.
+# tempparm <- subset(parmests, parameter=="gamma" & modelmix & datamix)
+# tempparm <- data.handle(tempparm)
+# avggamma2 <- ddply(tempparm, .(simdat, ModelFamily, parameter), summarize, value = mean(X50.))
+# # cover.p2 <- rbind(cover.p2, avggamma2)
+# 
+# # Average estimate of pdet for mixture data/models
+# avgpdet.mix <- ddply(subset(count.det, parameter=="p_global" & modelmix & datamix), .(simdat, ModelFamily), 
+#                      summarize, variable="median.pdet", value = mean(X50.))
+# cover.p2 <- rbind(cover.p2, avgpdet.mix)
+# 
+# # Create table of credible interval widths
+# Tbl.ciw2 <- subset(count.det, parameter=="p_global" & datamix & modelmix)[,
+#                               c("fname","X2.5.", "X97.5.", "Rep", "simdat", "modelmix", "datamodelmatch")]
+# Tbl.ciw2$width <- Tbl.ciw2$X97.5. - Tbl.ciw2$X2.5.
+# Tbl.ciw2 <- data.handle(Tbl.ciw2)
+# Tbl.ciw.true <- Tbl.ciw2[Tbl.ciw2$datamodelmatch,]
+# names(Tbl.ciw.true)[match("width", names(Tbl.ciw.true))] <- "truewidth"
+# Tbl.ciw2 <- join(Tbl.ciw2, Tbl.ciw.true[,c("simdat","Rep","truewidth")], by=c("simdat", "Rep"))
+# Tbl.ciw2 <- ddply(Tbl.ciw2, .(fname, simdat, datamodelmatch, ModelFamily, DataFamily), summarize, ciw.ratio = mean(width/truewidth))
+# 
+# # Calculate Delta DIC
+# Tbl.dic2 <- subset(dicdiff, modelmix & datamix & dicmethod=="ThetaMed")
+# Tbl.dic2 <- ddply(Tbl.dic2, .(simdat, ModelFamily), summarize, variable="dicdiff", value=mean(dicdiff))
+# cover.p2 <- rbind(cover.p2, Tbl.dic2)
+# 
+# # Combine the above into a single table
+# Tbl.fam <- dcast(cover.p2, simdat ~ ModelFamily + variable, fun.aggregate=mean, value.var="value")
+# 
+# # Reorder rows and columns...
+# Tbl.fam <- Tbl.fam[match(c("GTF", "LTF", "WTF", "ETF", "GTT", "LTT", "WTT"), Tbl.fam$simdat),]
+# # Doing this now avoids some re-naming that R does with duplicate col. names and slicing...
+# # Tbl.1a: Exponential and Gamma inference models
+# # Tbl.1b: Lognormal and Weibull inference models
+# Tbl.1a  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "E", "G"))]   
+# Tbl.1b  <- Tbl.fam[, which(substr(names(Tbl.fam),1,1) %in% c("s", "L", "W"))]   
+# names(Tbl.1a) <- names(Tbl.1b) <- c("Dataset", rep(c("50%", "90%", "Q(p_det)", "Median p_det", "DIC Diff"),2))
+# # Reorder columns
+# Tbl.1a <- Tbl.1a[,c(1,5,4,2,3,6,10,9,7,8,11)]; Tbl.1b <- Tbl.1b[,c(1,5,4,2,3,6,10,9,7,8,11)]
+# Tbl.1a$Dataset <- Tbl.1b$Dataset <- c("Gamma","Lognormal","Weibull","Exponential","Gamma","Lognormal","Weibull")
+# 
+# library(xtable)
+# print(xtable(cbind(a="", b="", Tbl.1a[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE) #, floating.environment="sidewaystable")
+# print(xtable(cbind(a="", b="", Tbl.1b[,!grepl("DIC", names(Tbl.1a))])), include.rownames=FALSE)
 
 
 
@@ -364,62 +364,89 @@ oci  <- ddply(oest, .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), s
               q2.5 = round(mean(X2.5.),2), q25 = round(mean(X25.),2), q50 = round(mean(X50.),2), q75 = round(mean(X75.),2), q97.5 = round(mean(X97.5.),2)) 
 oest <- ddply(oest, .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), summarize, value = round(mean(X50.),2))  # Average of medians
 op   <- ddply(subset(op, parameter=="p_global"), .(fname, simdat, modelmix, datamix, datamodelmatch, pdet), summarize, 
-              value = sum(abs(pval-0.5) < 0.25)/length(pval))  # Coverage of 50% credible intervals
+              value = sum(abs(pval-0.5) < 0.45)/length(pval))  # Coverage of 90% credible intervals
 oest$statistic <- "Med.p"
-op$statistic   <- "C50"
+op$statistic   <- "C90"
 ov   <- rbind(oest, op)  
 ov.c <- dcast(ov, fname+simdat+modelmix+datamix+datamodelmatch ~ statistic + pdet, value.var="value")
 
-##### Make Output Tables
-# Data handling
-ov.c <- data.handle(ov.c)
-ov.c$datapeaked <- as.logical(last(ov.c$simdat))
-ov.c$datapeaked[ov.c$DataFamily=="Exponential"] <- TRUE
-ov.c <- ov.c[with(ov.c, order(datamix, datapeaked, DataFamily)),]  # Sort data in correct order for output tables
-
-# Subset the ov.c to obtain correctly arranged chunks of the final publishable table
-ov.subs <- list(
-  mix.left.cov   = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^C50", names(ov.c)))),
-  mix.left.medp  = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^Med", names(ov.c)))),
-  mix.right.cov  = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^C50", names(ov.c)))),
-  mix.right.medp = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^Med", names(ov.c)))),
-  fam.ul.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^C50", names(ov.c)))),
-  fam.ul.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^Med", names(ov.c)))),
-  fam.ll.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^C50", names(ov.c)))),
-  fam.ll.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^Med", names(ov.c)))),
-  fam.ur.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^C50", names(ov.c)))),
-  fam.ur.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^Med", names(ov.c)))),
-  fam.lr.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^C50", names(ov.c)))),
-  fam.lr.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^Med", names(ov.c))))
-)
-
-# Bind the chunks together to create the final tables
-tbl1  <- with(ov.subs, cbind(mix.left.medp, mix.left.cov[,-1], mix.right.medp[,-1], mix.right.cov[,-1]))
-tbl2a <- with(ov.subs, cbind(fam.ul.medp, fam.ul.cov[,-1], fam.ur.medp[,-1], fam.ur.cov[,-1]))
-tbl2b <- with(ov.subs, cbind(fam.ll.medp, fam.ll.cov[,-1], fam.lr.medp[,-1], fam.lr.cov[,-1]))
-
-library(xtable)
-print(xtable(cbind(a="", b="", c="", tbl1)), include.rownames=FALSE)
-
-print(xtable(cbind(a="", b="", tbl2a)), include.rownames=FALSE)
-print(xtable(cbind(a="", b="", tbl2b)), include.rownames=FALSE)
+# ##### Make Output Tables
+# # Data handling
+# ov.c <- data.handle(ov.c)
+# ov.c$datapeaked <- as.logical(last(ov.c$simdat))
+# ov.c$datapeaked[ov.c$DataFamily=="Exponential"] <- TRUE
+# ov.c <- ov.c[with(ov.c, order(datamix, datapeaked, DataFamily)),]  # Sort data in correct order for output tables
+# 
+# # Subset the ov.c to obtain correctly arranged chunks of the final publishable table
+# ov.subs <- list(
+#   mix.left.cov   = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   mix.left.medp  = subset(ov.c, subset = familymatch & !modelmix, select = c(DataFamily, grep("^Med", names(ov.c)))),
+#   mix.right.cov  = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   mix.right.medp = subset(ov.c, subset = familymatch & modelmix,  select = c(DataFamily, grep("^Med", names(ov.c)))),
+#   fam.ul.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   fam.ul.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Exponential", select = c(DataFamily, grep("^Med", names(ov.c)))),
+#   fam.ll.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   fam.ll.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Gamma", select = c(DataFamily, grep("^Med", names(ov.c)))),
+#   fam.ur.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   fam.ur.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Lognormal", select = c(DataFamily, grep("^Med", names(ov.c)))),
+#   fam.lr.cov     = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^C90", names(ov.c)))),
+#   fam.lr.medp    = subset(ov.c, subset = datamix & modelmix & ModelFamily=="Weibull", select = c(DataFamily, grep("^Med", names(ov.c))))
+# )
+# 
+# # Bind the chunks together to create the final tables
+# tbl1  <- with(ov.subs, cbind(mix.left.medp, mix.left.cov[,-1], mix.right.medp[,-1], mix.right.cov[,-1]))
+# tbl2a <- with(ov.subs, cbind(fam.ul.medp, fam.ul.cov[,-1], fam.ur.medp[,-1], fam.ur.cov[,-1]))
+# tbl2b <- with(ov.subs, cbind(fam.ll.medp, fam.ll.cov[,-1], fam.lr.medp[,-1], fam.lr.cov[,-1]))
+# 
+# library(xtable)
+# print(xtable(cbind(a="", b="", c="", tbl1)), include.rownames=FALSE)
+# 
+# print(xtable(cbind(a="", b="", tbl2a)), include.rownames=FALSE)
+# print(xtable(cbind(a="", b="", tbl2b)), include.rownames=FALSE)
 
 ##### Make Output Plots
 ov          <- data.handle(ov)
 ov$peaked   <- substr(ov$simdat,3,3)
 ov$peaked2  <- factor(ov$peaked, labels=c("Nonpeaked", "Peaked"))
 ov$peaked[ov$DataFamily=="Exponential"] <- "E"
-ov$peaked2[ov$DataFamily=="Exponential"] <- "Peaked"
+ov$peaked2[ov$DataFamily=="Exponential"] <- "Nonpeaked"
 ov$datamix  <- factor(ov$datamix, labels=c("Non-Mixed", "Mixed"))
 ov$peaked   <- factor(ov$peaked, labels=c("Exponential", "Nonpeaked", "Peaked"))
 ov$peaked   <- factor(ov$peaked, levels=levels(ov$peaked)[c(2,1,3)])
 ov$mt       <- with(ov, paste0(modelmix, ModelFamily))
-ov$mt       <- factor(ov$mt, labels=c("Non-mix Expo", "Non-mix Gamma", "Non-mix Lognormal", "Non-mix Weibull",
-                                      "Mix Expo", "Mix Gamma", "Mix Lognormal", "Mix Weibull"))
+ov$mt       <- factor(ov$mt, labels=c("Non-mix Exponential", "Non-mix Gamma", "Non-mix Lognormal", "Non-mix Weibull",
+                                      "Mix Exponential", "Mix Gamma", "Mix Lognormal", "Mix Weibull"))
 
 # Mix - NoMix plots
 library(gridExtra)
-# pdf("mixture_fig.pdf", width=9.25, height=6.1)
+library(grid)
+# Following code from https://github.com/tidyverse/ggplot2/wiki/share-a-legend-between-two-ggplot2-graphs
+grid_arrange_shared_legend <- function(..., ncol = length(list(...)), nrow = 1, position = c("bottom", "right")) {
+  plots <- list(...)
+  position <- match.arg(position)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position = position))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height) # Legend height
+  lwidth <- sum(legend$width)   # Legend width
+  gl <- lapply(plots, function(x) x + theme(legend.position="none")) # List of 'plots' with legends removed
+  gl <- c(gl, ncol = ncol, nrow = nrow)
+  combined <- switch(position, # It's like an IF statment to run arrangeGrob 
+                     "bottom" = arrangeGrob(do.call(arrangeGrob, gl),
+                                            legend,
+                                            ncol = 1,
+                                            heights = unit.c(unit(1, "npc") - lheight, lheight)
+                                           ),
+                     "right"  = arrangeGrob(do.call(arrangeGrob, gl),
+                                            legend,
+                                            ncol = 2,
+                                            widths = unit.c(unit(1, "npc") - lwidth, lwidth)
+                                           )
+  )
+  grid.draw(combined)
+  # return gtable invisibly
+  invisible(combined)
+}
+
 lp <- ggplot(subset(ov, statistic=="Med.p" & familymatch)) + 
   geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
   geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
@@ -427,29 +454,24 @@ lp <- ggplot(subset(ov, statistic=="Med.p" & familymatch)) +
   scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
   scale_x_continuous(breaks = seq(50, 95, 15)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
-  theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
-# dev.off()
+  theme_bw() + 
+  ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
 
-# pdf("mixture_cov.pdf", width=9.25, height=6.1)
-rp <- ggplot(subset(ov, statistic=="C50" & familymatch)) + 
-  geom_hline(aes(yintercept=0), linetype=1, size=0.6) +
-  geom_hline(aes(yintercept=1), linetype=1, size=0.6) +
-  geom_hline(aes(yintercept=0.4), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.5), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.6), linetype=2, size=1, color="gray50") +
+rp <- ggplot(subset(ov, statistic=="C90" & familymatch)) + 
+  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray50") +
   geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
   facet_grid(datamix~peaked) +
   scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
-  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability") + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
-# dev.off()
+  scale_x_continuous(breaks = seq(50, 95, 15)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.5), limits=c(-0.05, 1.05)) +
+  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability")
 
 pdf("mixture_fig.pdf", width=10, height=4.7)
-grid.arrange(lp, rp, ncol=2, widths=c(4.4,3))
+grid_arrange_shared_legend(lp, rp, position="bottom")
 dev.off()
 
 # Family comparison plots
-# pdf("family_fig.pdf", width=9.25, height=6.1)
 lf <- ggplot(subset(ov, statistic=="Med.p" & datamix=="Mixed" & modelmix)) + 
   geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
   geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
@@ -458,24 +480,19 @@ lf <- ggplot(subset(ov, statistic=="Med.p" & datamix=="Mixed" & modelmix)) +
   scale_x_continuous(breaks = seq(50, 95, 15)) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
   theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
-# dev.off()
 
-# pdf("family_cov.pdf", width=9.25, height=6.1)
-rf <- ggplot(subset(ov, statistic=="C50" & datamix=="Mixed" & modelmix)) + 
-  geom_hline(aes(yintercept=0), linetype=1, size=0.6) +
-  geom_hline(aes(yintercept=1), linetype=1, size=0.6) +
-  geom_hline(aes(yintercept=0.4), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.5), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.6), linetype=2, size=1, color="gray50") +
+rf <- ggplot(subset(ov, statistic=="C90" & datamix=="Mixed" & modelmix)) + 
+  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray50") +
   geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
   facet_grid(DataFamily~peaked2) +
   scale_shape_manual(values=c(0,1,2,5), name="Inference Model") +
-  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability") + 
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position="none")
-# dev.off()
+  scale_x_continuous(breaks = seq(50, 95, 15)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.5), limits=c(-0.05, 1.05)) +
+  theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability")
 
 pdf("family_fig.pdf", width=10, height=4.7)
-grid.arrange(lf, rf, ncol=2, widths=c(4.2,3))
+grid_arrange_shared_legend(lf, rf, position="bottom")
 dev.off()
  
  
@@ -486,9 +503,7 @@ dev.off()
 #     In these scenarios, Mix CI's at low pdets are wider by about 5, 5, and 10 percent, respectively
 # (2) For expo and Peaked distributions, the widths do decrease.
 #     There's little difference between Mix and NM widths, except in the Expo/Mix data scenario
-# (3)
- 
- 
+
 oci   <- data.handle(oci)
 oci$peaked   <- substr(oci$simdat,3,3)
 oci$peaked2  <- factor(oci$peaked, labels=c("Nonpeaked", "Peaked"))

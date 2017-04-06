@@ -11,10 +11,14 @@
 \usepackage{adjustbox}
 \usepackage{multirow}
 \usepackage{setspace}
+\usepackage{url}
+\usepackage{xr}
 \usepackage{listings}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage{rotating}
+
+\externaldocument[M-]{Draft}
 
 \newcommand{\pdet}{p^{(det)}}
 \newcommand{\capt}[1]{Caterpillar plots of posterior parameter estimates from all models fit to the simulated #1 dataset (from simulations involving covariates and random effects).  Black and orange lines depict central 95\% and 50\% credible intervals, respectively.  The black dot is the posterior meadian.  The blue 'X' is the true parameter value and is positioned on the correctly specified model.  $\beta$'s are fixed effect parameters, $\sigma$'s are random effect standard deviations, and $\gamma$ is a mixing parameter.  Parameters designated with an 'A' are abundance parameters; those designated with a 'D' are detection parameters.}
@@ -39,19 +43,19 @@ Family & Mixture & Peaked & $\gamma$ & $\varphi$ & $\alpha$ \\
 Exponential & Non-mixture & &  & -1.827 &  \\ 
   & Mixture & & 0.65 & -2.138 &  \\ 
   \hline
-  Gamma & Non-mixture & Non-peaked &  & -3.279 & 0.257 \\ 
+  Gamma & Non-mixture & Nonpeaked &  & -3.279 & 0.257 \\ 
   & & Peaked &  & -0.746 & 3.371 \\ 
-  & Mixture & Non-peaked & 0.65 & -2.773 & 0.577 \\ 
+  & Mixture & Nonpeaked & 0.65 & -2.773 & 0.577 \\ 
   & & Peaked & 0.65 & -1.210 & 2.491 \\ 
   \hline
-  Lognormal & Non-mixture & Non-peaked &  & -0.341 & 2.330 \\ 
+  Lognormal & Non-mixture & Nonpeaked &  & -0.341 & 2.330 \\ 
   & & Peaked &  & -1.872 & 0.512 \\ 
-  & Mixture & Non-peaked & 0.65 & -1.462 & 1.674 \\ 
+  & Mixture & Nonpeaked & 0.65 & -1.462 & 1.674 \\ 
   & & Peaked & 0.65 & -1.992 & 0.618 \\ 
   \hline
-  Weibull & Non-mixture & Non-peaked &  & -1.165 & 0.418 \\ 
+  Weibull & Non-mixture & Nonpeaked &  & -1.165 & 0.418 \\ 
   & & Peaked &  & -2.042 & 1.829 \\ 
-  & Mixture & Non-peaked & 0.65 & -2.063 & 0.687 \\ 
+  & Mixture & Nonpeaked & 0.65 & -2.063 & 0.687 \\ 
   & & Peaked & 0.65 & -2.201 & 1.621 \\ 
    \hline
 \end{tabular}
@@ -66,17 +70,17 @@ Family & Mixture & Peak & $\beta^A_1$ & $\beta^A_2$ & $\beta^A_3$ & $\beta^A_4$ 
   \hline
 Exponential & Non-mixture & &0.122&0.002&0.094&-1.039&-0.01&-0.056&0.118&0.249&0.164 \\
 & Mixture & &0.124&0.012&0.064&-1.07&-0.068&-0.146&0.03&0.312&0.27 \\
-Gamma & Non-mixture & Non-peaked &0.129&-0.001&0.098&-1.039&0.048&-0.104&-0.12&0.141&0.129 \\
+Gamma & Non-mixture & Nonpeaked &0.129&-0.001&0.098&-1.039&0.048&-0.104&-0.12&0.141&0.129 \\
 & & Peaked &0.129&-0.001&0.098&-1.039&0.048&-0.104&-0.12&0.141&0.129 \\
-& Mixture & Non-peaked &0.128&-0.005&0.079&-1.051&-0.048&-0.126&-0.042&0.21&0.2 \\
+& Mixture & Nonpeaked &0.128&-0.005&0.079&-1.051&-0.048&-0.126&-0.042&0.21&0.2 \\
 & & Peaked &0.128&-0.005&0.079&-1.051&-0.048&-0.126&-0.042&0.21&0.2 \\
-Lognormal & Non-mixture & Non-peaked &0.126&0.031&0.096&-1.047&0.163&-0.099&-0.071&0.31&0.079 \\
+Lognormal & Non-mixture & Nonpeaked &0.126&0.031&0.096&-1.047&0.163&-0.099&-0.071&0.31&0.079 \\
 & & Peaked &0.126&0.031&0.096&-1.047&0.163&-0.099&-0.071&0.31&0.079 \\
-& Mixture & Non-peaked &0.126&0.017&0.07&-1.068&0.006&-0.14&-0.038&0.341&0.191 \\
+& Mixture & Nonpeaked &0.126&0.017&0.07&-1.068&0.006&-0.14&-0.038&0.341&0.191 \\
 & & Peaked &0.126&0.017&0.07&-1.068&0.006&-0.14&-0.038&0.341&0.191 \\
-Weibull & Non-mixture & Non-peaked &0.129&0.011&0.102&-1.04&0.101&-0.104&-0.127&0.204&0.086 \\
+Weibull & Non-mixture & Nonpeaked &0.129&0.011&0.102&-1.04&0.101&-0.104&-0.127&0.204&0.086 \\
 & & Peaked &0.129&0.011&0.102&-1.04&0.101&-0.104&-0.127&0.204&0.086 \\
-& Mixture & Non-peaked &0.129&-0.002&0.081&-1.049&-0.028&-0.122&-0.069&0.204&0.183 \\
+& Mixture & Nonpeaked &0.129&-0.002&0.081&-1.049&-0.028&-0.122&-0.069&0.204&0.183 \\
 & & Peaked &0.129&-0.002&0.081&-1.049&-0.028&-0.122&-0.069&0.204&0.183 \\
   \hline
 \end{tabular}\\
@@ -87,21 +91,21 @@ Family & Mixture & Peak & Intercept$^A$ & Intercept$^D$ & $\sigma_{A1}$ & $\sigm
 \hline
 Exponential & Non-mixture & &0.975&-1.146&0.139&0.094&0.242& & \\
 & Mixture & &1.097&-1.97&0.13&0.091&0.259&0.647& \\
-Gamma & Non-mixture & Non-peaked &1.383&-3.941&0.121&0.072&0.39& & 0.316 \\
+Gamma & Non-mixture & Nonpeaked &1.383&-3.941&0.121&0.072&0.39& & 0.316 \\
 & & Peaked &1.134&-0.746&0.121&0.072&0.39& & 3.371 \\
-& Mixture & Non-peaked &1.215&-2.7&0.121&0.079&0.332&0.79& 0.597 \\
+& Mixture & Nonpeaked &1.215&-2.7&0.121&0.079&0.332&0.79& 0.597 \\
 & & Peaked &1.134&-1.21&0.121&0.079&0.332&0.65& 2.491 \\
-Lognormal & Non-mixture & Non-peaked &1.613&-2.444&0.151&0.077&0.353& & 3.287 \\
+Lognormal & Non-mixture & Nonpeaked &1.613&-2.444&0.151&0.077&0.353& & 3.287 \\
 & & Peaked &1.134&-1.872&0.151&0.077&0.353& & 0.512 \\
-& Mixture & Non-peaked &1.282&-2.051&0.14&0.079&0.312&0.706& 1.467 \\
+& Mixture & Nonpeaked &1.282&-2.051&0.14&0.079&0.312&0.706& 1.467 \\
 & & Peaked &1.134&-1.992&0.14&0.079&0.312&0.65& 0.618 \\
-Weibull & Non-mixture & Non-peaked &1.57&-3.137&0.131&0.074&0.383& & 0.387 \\
+Weibull & Non-mixture & Nonpeaked &1.57&-3.137&0.131&0.074&0.383& & 0.387 \\
 & & Peaked &1.134&-2.042&0.131&0.074&0.383& & 1.829 \\
-& Mixture & Non-peaked &1.294&-2.354&0.122&0.078&0.344&0.814& 0.653 \\
+& Mixture & Nonpeaked &1.294&-2.354&0.122&0.078&0.344&0.814& 0.653 \\
 & & Peaked &1.134&-2.201&0.122&0.078&0.344&0.65& 1.621 \\
    \hline
 \end{tabular}
-\caption{\label{tbl:sim3}Table of parameter values used to generate data for simulations with covariates.  Here, $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\beta$'s are fixed effects, $\sigma$'s are random effect standard deviations, $\alpha$ is a shape parameter, and superscripts of $A$ and $D$ indicate abundance and detection parameters, respectively.}
+\caption{\label{tbl:sim3}Table of parameter values used to generate data for simulations with covariates (Section \ref{M-sec:simfull}).  Here, $\gamma$ is a mixing parameter for the proportion of `hard to detect' individuals, $\beta$'s are fixed effects, $\sigma$'s are random effect standard deviations, $\alpha$ is a shape parameter, and superscripts of $A$ and $D$ indicate abundance and detection parameters, respectively.}
 \end{sidewaystable}
 %\begin{sidewaystable}[ht]
 %\centering
@@ -111,17 +115,17 @@ Weibull & Non-mixture & Non-peaked &1.57&-3.137&0.131&0.074&0.383& & 0.387 \\
 %  \hline
 %Exponential & Non-mixture &  & 0.975 & 0.122 & 0.002 & 0.094 & -1.039 & -1.146 & -0.010 & -0.056 & 0.118 & 0.249 & 0.164 & 0.139 & 0.094 & 0.242 &  &  \\ 
 %   & Mixture &  & 1.097 & 0.124 & 0.012 & 0.064 & -1.070 & -1.970 & -0.068 & -0.146 & 0.030 & 0.312 & 0.270 & 0.130 & 0.091 & 0.259 & 0.647 &  \\ 
-%  Gamma & Non-mixture & Non-peaked & 1.383 & 0.129 & -0.001 & 0.098 & -1.039 & -3.941 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 0.316 \\ 
+%  Gamma & Non-mixture & Nonpeaked & 1.383 & 0.129 & -0.001 & 0.098 & -1.039 & -3.941 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 0.316 \\ 
 %   &  & Peaked & 1.134 & 0.129 & -0.001 & 0.098 & -1.039 & -0.746 & 0.048 & -0.104 & -0.120 & 0.141 & 0.129 & 0.121 & 0.072 & 0.390 &  & 3.371 \\ 
-%   & Mixture & Non-peaked & 1.215 & 0.128 & -0.005 & 0.079 & -1.051 & -2.700 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.790 & 0.597 \\ 
+%   & Mixture & Nonpeaked & 1.215 & 0.128 & -0.005 & 0.079 & -1.051 & -2.700 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.790 & 0.597 \\ 
 %   &  & Peaked & 1.134 & 0.128 & -0.005 & 0.079 & -1.051 & -1.210 & -0.048 & -0.126 & -0.042 & 0.210 & 0.200 & 0.121 & 0.079 & 0.332 & 0.650 & 2.491 \\ 
-%  Lognormal & Non-mixture & Non-peaked & 1.613 & 0.126 & 0.031 & 0.096 & -1.047 & -2.444 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 3.287 \\ 
+%  Lognormal & Non-mixture & Nonpeaked & 1.613 & 0.126 & 0.031 & 0.096 & -1.047 & -2.444 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 3.287 \\ 
 %   &  & Peaked & 1.134 & 0.126 & 0.031 & 0.096 & -1.047 & -1.872 & 0.163 & -0.099 & -0.071 & 0.310 & 0.079 & 0.151 & 0.077 & 0.353 &  & 0.512 \\ 
-%   & Mixture & Non-peaked & 1.282 & 0.126 & 0.017 & 0.070 & -1.068 & -2.051 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.706 & 1.467 \\ 
+%   & Mixture & Nonpeaked & 1.282 & 0.126 & 0.017 & 0.070 & -1.068 & -2.051 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.706 & 1.467 \\ 
 %   &  & Peaked & 1.134 & 0.126 & 0.017 & 0.070 & -1.068 & -1.992 & 0.006 & -0.140 & -0.038 & 0.341 & 0.191 & 0.140 & 0.079 & 0.312 & 0.650 & 0.618 \\ 
-%  Weibull & Non-mixture & Non-peaked & 1.570 & 0.129 & 0.011 & 0.102 & -1.040 & -3.137 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 0.387 \\ 
+%  Weibull & Non-mixture & Nonpeaked & 1.570 & 0.129 & 0.011 & 0.102 & -1.040 & -3.137 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 0.387 \\ 
 %   &  & Peaked & 1.134 & 0.129 & 0.011 & 0.102 & -1.040 & -2.042 & 0.101 & -0.104 & -0.127 & 0.204 & 0.086 & 0.131 & 0.074 & 0.383 &  & 1.829 \\ 
-%   & Mixture & Non-peaked & 1.294 & 0.129 & -0.002 & 0.081 & -1.049 & -2.354 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.814 & 0.653 \\ 
+%   & Mixture & Nonpeaked & 1.294 & 0.129 & -0.002 & 0.081 & -1.049 & -2.354 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.814 & 0.653 \\ 
 %   &  & Peaked & 1.134 & 0.129 & -0.002 & 0.081 & -1.049 & -2.201 & -0.028 & -0.122 & -0.069 & 0.204 & 0.183 & 0.122 & 0.078 & 0.344 & 0.650 & 1.621 \\ 
 %   \hline
 %\end{tabular}
@@ -163,6 +167,7 @@ In all cases, the inference model family matches the dataset family.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 100 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
+\label{tbl:mix50}
 
 \vspace{1.2cm}
 
@@ -197,7 +202,7 @@ In all cases, the inference model family matches the dataset family.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 100 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
-
+\label{tbl:mix65}
 \end{table}
 
 
@@ -234,7 +239,7 @@ In all cases, the inference model family matches the dataset family.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 100 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
-
+\label{tbl:mix80}
 
 \vspace{1.2cm}
 % Note: both tables are in the same 'table' environment.
@@ -270,6 +275,7 @@ In all cases, the inference model family matches the dataset family.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of 100 simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
+\label{tbl:mix95}
 \end{table}
 
 
@@ -313,7 +319,7 @@ All data and inference models have mixture components.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
-
+\label{tbl:fam50}
 
 \vspace{0.5cm}
 % Note: both tables are in the same 'table' environment.
@@ -354,7 +360,7 @@ All data and inference models have mixture components.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
-\label{tbl:sim2}
+\label{tbl:fam65}
 \end{table}
 
 
@@ -398,7 +404,7 @@ All data and inference models have mixture components.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
-\label{tbl:sim2}
+\label{tbl:fam80}
 
 \vspace{0.5cm}
 
@@ -438,6 +444,7 @@ All data and inference models have mixture components.
 Med $p$: average across simulations of the posterior median of $\pdet$.  
 Q($p$): average proportion of the posterior distribution of $\pdet$ that is larger than the true value.  
 50\% and 90\% coverage is expressed as the proportion of simulations for which the true value of $\pdet$ lies within the appropriate credible interval.}
+\label{tbl:fam95}
 \end{table}
 
 \FloatBarrier
@@ -447,14 +454,17 @@ Q($p$): average proportion of the posterior distribution of $\pdet$ that is larg
 \section{Figures}
 
 \begin{figure}[h!]\centering
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
-\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
-Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
-Each column presents one family of simulated dataset.  
-Upper plots show non-mixture datasets; lower plots show mixture datasets.  
-`X' marks the expected marginal probability of detection based on true parameter values.}
+%\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_correct.pdf}
+%\caption{\label{pdet_cater_correct} Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$.  
+%Inference models come from the same family as the dataset but may differ in the presence/absence of a mixture component.  
+%Each column presents one family of simulated dataset.  
+%Upper plots show non-mixture datasets; lower plots show mixture datasets.  
+%`X' marks the expected marginal probability of detection based on true parameter values.}
 \includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family.pdf}
-\caption{\label{pdet_cater_family}  Sim3 caterpillar plots of posterior 50\% and 95\% credible intervals for the marginal probability of detection $\pdet$. All data and inference models include mixtures.  
+\caption{\label{pdet_cater_family}  Simulation results from Section \ref{M-sec:simfull}.
+Caterpillar plots of posterior 50\% (orange) and 95\% (black) credible intervals for the probability of detection $\pdet$ across all surveys.
+Data and models include fixed and random effects for both abundance and detection processes.
+All data and inference models include mixture components.  
 Each plot presents one simulated dataset.  
 `X' marks the expected marginal probability of detection based on true parameter values.}
 \end{figure}
