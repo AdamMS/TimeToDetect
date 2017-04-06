@@ -112,7 +112,7 @@ We have prefaced the statement with the clause: ``Based on simulation analyses, 
 
 Line 40-41.  Also worth mentioning caveats - e.g., greater imprecision and computation times.
 \begin{quote}
-\adam{Address this point in the abstract}
+\adam{I certainly don't intend to address either of these in the Abstract.  Both are discussed in the text.  Computation times are not addressed in the Discussion.  Let me know if you think otherwise.}
 \end{quote}
 
 Introduction\\
@@ -154,7 +154,7 @@ As a potential user of such a model presented in this manuscript, I find the sim
 We agree that an intercept-only model is simplistic and will not be of much practical use in an applied setting.
 However, the intercept-only simulation is informative all the same, because models that perform poorly in simple applications can hardly be trusted in more complex applications.
 
-Meanwhile, as disscussed later, a simulation study involving effects on abundance and detection is computationally expensive.
+Meanwhile, as discussed later, a simulation study involving effects on abundance and detection is computationally expensive.
 Fortunately, while simulation studies are hampered by long computation times, the typical user of this model will only apply it to a small number of datasets, so computation time will not be prohibitive.
 \end{quote}
 
@@ -175,7 +175,11 @@ We have separated out a paragraph in the Discussion posing some design-related q
 
 \item Providing computation times for scenarios that vary by model complexity and sample size (including the computer used for analyses) may also provide a gauge for users as to whether this method is feasible for their needs.
 \begin{quote}
-Average run times for the different simulation studies are now discussed in the second paragraph of Section \ref{M-sec:simfull}.
+Average run times for the different simulation studies are now discussed in the third paragraph of Section \ref{M-sec:simfull}:
+
+``Computation times for this simulation study were much greater than for the other studies because partitions of the cdf, e.g. $\Fm(C_i|\alpha,\varphi_s)$, had to be calculated separately for every survey; also, sampling often required 2-8 as many iterations.
+Average times for exponential, lognormal, Weibull, and gamma model fits were 2.6, 5.1, 5.3, and 25+ hours, respectively, as compared to only 2, 3, 3.25, and 5.35 minutes for the intercept-only models.
+Due to the computation times involved, we fit each model only once."
 \end{quote}
 
 \item I don’t fully appreciate the need for both 50\% and 90\% coverage estimates.  It seems one estimate would be sufficient, and typically 90\% or 95\% credible intervals are used with these types of analyses?
@@ -205,33 +209,30 @@ This two- to three-fold scale of uncertainty is commensurate with other studies 
 Discussion\\
 Page 21, Lines 12-16:  I do not agree with this assessment.  I think these models are appropriate for a particular subset of data - single species discrete-count surveys with a large sample size and relatively low availability (i.e., whether the animal provides a cue to an observer during the survey)   
 \begin{quote}
-\adam{What is a `discrete-count survey'?  I have not found a clear reference.\\
-I accede the `large sample' point.  But based on our findings, I'd advocate against modeling abundance/perception from any small dataset, because analysis requires either a strong assumption about detection rates or a strong prior.  Any comment on this point would be strengthened if we ran small-dataset simulations.\\
-I think the low-availability stipulation is redundant.  If availability is really high, then a removal analysis is not necessary at all.}
-\jarad{But how do you know availability is high?}
+We hope that clarifications above about abundance estimates and uncertainty resolve some of the reviewer's hesitations.
+We have added single-species' to the draft.
+
+\adam{Perhaps more explanation is required here.}
 \end{quote}
 where non-constant detection through time is suspected based on the behavioral ecology of the species.
 \begin{quote}
 This last clause implies that a constant-rate model should be the default.
 We disagree.
-Based on our results, applying the precautionary principle, the burden of proof should rest with the analyst who wishes to assume constant detection.
+Based on our results and applying the precautionary principle, we believe the burden of proof should rest with the analyst who wishes to assume constant detection.
 This is a central point in our manuscript: the constant-rate assumption should not be the default.
 \end{quote}
-
 
 As the authors’ suggest, most point-count studies are designed to maximize availability, which is typically high for birds (e.g., 80-95\%) with perceptibility (e.g., the probability an observer detects a cue that is given by an animal) being the much larger source of bias.  Therefore, this model, without including a supplemental method to estimate perceptibility, is of limited use to many readers.
 \begin{quote}
 We agree.
 This manuscript applies to removal-only analyses.
-Still, the concept can be carried over to removal-distance analyses.
+Still, the concept can be carried over to removal-distance analyses, as we describe in a paragraph of the Discussion.
 The implementation will be more complicated and will vary depending on how removal- and distance-sampling are integrated.
 \end{quote}
 Further, although the method may be more accurate even for constant detection data, the loss in precision is such that users will likely not opt to use it unless they suspect non-constant detection through time.  Further, given its presumably arduous computation times (albeit unknown), adding a perceptibility component to the model would likely greatly increase computational demands with unknown implications to bias and precision.  Including a paragraph in the Discussion that outlines when the model would be most beneficial to users (e.g., what type of data, surveys, or sample sizes) and explicitly stating drawbacks (e.g., computation time, loss of precision) would greatly improve this section.  
 \begin{quote}
-\adam{This last recommendation seems feasible, though I think our final paragraph already addesses some of these issues.}
-\jarad{If we already address it, then you should just quote from the manuscript.}
+\adam{I do not deem this necessary.  We have not explicitly studied sample size.  The rest is addressed at various locations in the manuscript but does not, I think, require a dedication paragraph in the Discussion.}
 \end{quote}
-\vspace{1.5cm}
 
 \newpage
 
@@ -290,7 +291,6 @@ With the expansion of our simulations to include multiple true values for $\pdet
 We think the most informative way to present results on the abundance scale is to add them to the Figure \ref{M-fig:sim2typical} results on detection probabilities.
 This figure presents examples of entire posterior distributions rather than just median and coverage point estimates.
 The inclusion of abundance estimates in Figure \ref{M-fig:sim2typical} should convey much the same information as would profile likelihoods.
-\adam{Supplement Tables 1 \& 2 with some manner of confidence intervals for $\hat{N} / N$?  But averaging across replicates is not a trivial issue.}
 \end{quote}
 
 Lele et al 2010 (a frequent co-author of Solymos) propose a pretty neat diagnostic tool to assess
@@ -300,9 +300,8 @@ the estimability of your parameters.  Again, see Lele et al 2010.  Implementing 
 Thank you for pointing out \citet{Lele2010}.
 We found the article to be interesting and novel, using data cloning to exploit relationships among data likelihood, priors, and identifiability.
 While the approach could certainly be applied to our model in its more complex forms (e.g. with fixed and random effects), to do so in this manuscript would distract from our main objectives.
-We have introduced more discussion of identifiability and flat data likelihoods in \adam{location}, and we have cited \citep{Lele2010} there.
 
-\adam{YOU HAD BETTER DO THIS!}
+We agree that discussions of identifiability and the flatness of the likelihood is very relevant, and we have introduced an explicity discussion of them in the Discussion.
 
 As an informational note, the \texttt{R} package by Solymos was constructed for BUGS and JAGS, though it would not be difficult to adapt data cloning for Stan.
 \end{quote}
@@ -331,10 +330,10 @@ This is contrasted in our definition of `N-mixture model' in the next paragraph:
 
 One thing that the authors could do is to take the reader by the hand by building equation 1 bit by bit: present first the simplest version of equation 1 and what is customary to date, and then add modifications/hierarchies plus text and build the model with explicit equations and little by little arrive to the final product, which is the current equation 1. Nothing better than clear simple math aided by short explanations to present a model unambiguously.
 \begin{quote}
-\adam{
-To avoid potentially a lot of rewriting, I think we should add an abbreviated version of Equation (1) at the end of Section 3.2.
-I am struggling with this at present.
-}
+We have split the first section of the model exposition into two sections: `Distributions for exact times to detection' and `TTDDs in an N-mixture model'.
+We think this makes the flow of arguments clearer.
+We have also introduced a new Equation (1) --- precursor to the old Equation (1) --- that provides the basic data model for exact-time homogeneous survey data.
+This also should make the model progression more lucid.
 \end{quote}
 
 Write self-contained paragraphs, with one main idea, not two or three (and each one half developed). As a reviewer, I enjoyed verifying that the cited papers in the introduction and in the discussion were indeed meaningful (by downloading them and reading those that I was not familiar with). However, when many papers are cited, it is useful to expand in the text why the different papers are being cited.  Doing so not only clarifies your intentions, but does proper justice to the papers being referred to. It is also a useful exercise because it allows you to tell whether you have more than one clear ideas and hence, material for more than one paragraph.  For instance, I think that the paragraph in the introduction, line 34, page 3, could be expanded and/or broken into two paragraphs.  One introducing the time-to-detection as is done in survival analysis, and one presenting to the reader how data that seem not to conform to the constant-detection assumption is dealt with by

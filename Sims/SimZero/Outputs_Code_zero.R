@@ -449,7 +449,7 @@ grid_arrange_shared_legend <- function(..., ncol = length(list(...)), nrow = 1, 
 
 lp <- ggplot(subset(ov, statistic=="Med.p" & familymatch)) + 
   geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
-  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
+  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), color="gray60", linetype=2, size=0.5) +
   facet_grid(datamix~peaked) +
   scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
   scale_x_continuous(breaks = seq(50, 95, 15)) +
@@ -458,8 +458,8 @@ lp <- ggplot(subset(ov, statistic=="Med.p" & familymatch)) +
   ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
 
 rp <- ggplot(subset(ov, statistic=="C90" & familymatch)) + 
-  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray60") +
+  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray60") +
   geom_point(aes(x=as.numeric(pdet), y=value, shape=mt), size=2.25) +
   facet_grid(datamix~peaked) +
   scale_shape_manual(values=c(15,16,17,18,0,1,2,5), name="Inference Model") +
@@ -473,8 +473,8 @@ dev.off()
 
 # Family comparison plots
 lf <- ggplot(subset(ov, statistic=="Med.p" & datamix=="Mixed" & modelmix)) + 
+  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), color="gray60", linetype=2, size=0.5) +
   geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
-  geom_segment(aes(x=50 , y=0.5 , xend=95, yend=0.95), linetype=2, size=0.6) +
   facet_grid(DataFamily~peaked2) +
   scale_shape_manual(values=c(0,1,2,5), name="Inference Model") +
   scale_x_continuous(breaks = seq(50, 95, 15)) +
@@ -482,8 +482,8 @@ lf <- ggplot(subset(ov, statistic=="Med.p" & datamix=="Mixed" & modelmix)) +
   theme_bw() + ylab("Estimated Detection Probability") + xlab("Actual Detection Probability")
 
 rf <- ggplot(subset(ov, statistic=="C90" & datamix=="Mixed" & modelmix)) + 
-  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray50") +
-  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray50") +
+  geom_hline(aes(yintercept=0.835), linetype=2, size=1, color="gray60") +
+  geom_hline(aes(yintercept=0.955), linetype=2, size=1, color="gray60") +
   geom_point(aes(x=as.numeric(pdet), y=value, shape=ModelFamily), size=2.25) +
   facet_grid(DataFamily~peaked2) +
   scale_shape_manual(values=c(0,1,2,5), name="Inference Model") +
