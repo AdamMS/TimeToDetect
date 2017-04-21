@@ -53,9 +53,23 @@
 
 \newcommand{\pdet}{p^{(det)}}
 \newcommand{\ind}{\stackrel{ind}{\sim}}
+\newcommand{\dt}{\text{det}}
+\newcommand{\ftdt}{f_{T|\dt}(t|\dt)}
 \newcommand{\Fm}{F_T^{(M)}}
 
 \begin{document}
+
+
+\begin{quote}
+We thank the reviewers for their comments.
+We believe the manuscript is clearly a better document in consequence.
+In particular, the reviewers encouraged us to generate more simulations --- in terms of both the number of replicates and the variety in true detection probabilities.
+In pursuing these recommendations, we improved our simulation code to be more efficient by orders of magnitude for the covariate-free simulations.
+Our results now more fully describe model performance across a range of true detection probabilities, and the patterns observed are more compelling on account of the greater number of replicates.
+\end{quote}
+
+\newpage
+
 \itshape
 Associate Editor:
 
@@ -90,13 +104,47 @@ I have included several items for the authors to consider below and provide this
 Several pieces of information are lacking from the manuscript that will be relevant to users of this method.
 \begin{enumerate}
 \item What types of data are relevant to each examined distribution (e.g., gamma, Weibull)?
-\item What sample sizes (i.e., number of detections) are needed to obtain reliable estimates with CIs that are not so wide as to be meaningless?
-\item What are approximate computation times for models of different complexity (e.g., days? weeks?).
-\end{enumerate}
-\begin{quote}
-We address each of these in turn as they appear in the comments below. 
-\jarad{Answer them here even if it repeats information below.}
+
+\begin{quote}\label{ans:one}
+Thank you for raising this point.
+Unlike the exponential and gamma TTDDs, the lognormal and Weibull do not have an immediate biological mechanism for interpreting hazard rates.
+To address this issue, we have added to Section \ref{M-sec:exact_time}: ``Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to increase or decrease during the survey.
+All three TTDDs may provide reasonable empirical approximations of non-constant detection, though the shapes of the distributions differ, potentially leading to differing inference.
+For instance, when detection rates vary across individuals, the result is a marginal detection rate that decreases over time.
+Whether the marginal rate is best approximated by a gamma, lognormal, or Weibull TTDD depends on just how rates vary across individuals."
+
+We definitely appreciate the importance of providing biological justification for statistical assumptions.
+It is always a good foundation.
+That being said, the use of any time-to-detection distribution is a statistical approximation to empirical patterns.
+If the dynamics of the system are more complicated than we can directly model, the best we can do is find a TTDD that reasonably describes the observed pattern.
+For instance, if the arrival of the observer causes non-constant detection, we know neither how long that observer effects lasts nor how the degree of that effect changes over time.
+Gamma, lognormal, and Weibull TTDDs all provide different models for that detection pattern with different inferences for detection probability.
+
+If an analyst does have a clear detection rate mechanism in mind, they can always fit our model using the appropriate hazard function and the relationship between it and its corresponding TTDD: $h(t) = f_T(t) / [1-F_T(t)]$.
 \end{quote}
+
+\item What sample sizes (i.e., number of detections) are needed to obtain reliable estimates with CIs that are not so wide as to be meaningless?
+
+\begin{quote}
+We fear the original version of Figure \ref{M-ovenposteriors} was confusing and led the reviewer to believe that CIs were larger than they in fact are.
+It showed posterior credible intervals for \textit{uncounted} abundance, rather than the more intuitive \textit{total} abundance.
+We have fixed the figure.
+We hope the reviewer will agree that CIs are not always so wide as to be meaningless.
+
+One reviewer recommended we simulate across multiple sample sizes; another reviewer recommended that we simulate across a variety of true detection probabilities.
+Both are useful suggestions.
+However, we decided to prioritize the simulation across detection probabilities, since papers on N-mixture models more often emphasize this side of model performance.
+\end{quote}
+
+\item What are approximate computation times for models of different complexity (e.g., days? weeks?).
+\begin{quote}
+Thanks to the encouragement from the reviewers to run more simulations, we revisited our code and improved efficiency by orders of magnitude for fitting interval-only models.
+So, the first two simulation studies now use 100 replicates rather than then original 16.
+We cannot realize such savings for models with heterogeneous detection across surveys.
+We now cite runtime statistics in Section \ref{M-sec:simfull}: ``Average times for exponential, lognormal, Weibull, and gamma [heterogeneous] model fits were 2.6, 5.1, 5.3, and 25+ hours, respectively, as compared to only 2, 3, 3.25, and 5.35 minutes for the intercept-only models.''
+\end{quote}
+
+\end{enumerate}
 
 
 Abstract
@@ -113,10 +161,12 @@ We have prefaced the statement with the clause: ``Based on simulation analyses, 
 
 Line 40-41.  Also worth mentioning caveats - e.g., greater imprecision and computation times.
 \begin{quote}
-\adam{I certainly don't intend to address either of these in the Abstract.  Both are discussed in the text.  Computation times are not addressed in the Discussion.  Let me know if you think otherwise.}
-\jarad{I think that's fine. In responding to the review, we can state our 
-opinion that the abstract is not the appropriate place and point the reviewer
-to where the content can be found.} 
+
+As noted above, we think imprecision appeared more exaggerated in our first submission than it in fact was, and we have improved computation times.
+We address both issues in the text but feel that neither quite belongs in the Abstract.
+
+We address computation times in Section \ref{M-sec:simfull}.
+We address imprecision multiple places in the simulation results, Ovenbird results, and Discussion.
 \end{quote}
 
 Introduction\\
@@ -129,28 +179,16 @@ We have made the equivalence more explicit: ``We analyze times to first detectio
 3.1 \\
 Line 60: In the context of estimating abundance of wildlife, justifying the inclusion of the Weibull and lognormal distributions because they are often used in survival analysis is weak.  Are there biologically plausible scenarios in which these distributions are appropriate given this type of data?  Justify here similar to the Gamma distribution.  Otherwise, omit.
 \begin{quote}
-We have added the following sentences to \ref{M-sec:exact_time}: ``Like the gamma TTDD, Weibull and lognormal TTDDs offer the flexibility of a two-parameter form and allow rates to increase or decrease during the survey.
-All three TTDDs may provide reasonable empirical approximations of non-constant detection, though the shapes of the distributions differ, potentially leading to differing inference.
-For instance, when detection rates vary across individuals, the result is a marginal detection rate that decreases over time.
-Whether the marginal rate is best approximated by a gamma, lognormal, or Weibull TTDD depends on just how rates vary across individuals."
-
-We appreciate the importance of providing biological justification for statistical assumptions.
-It is always a good foundation.
-That being said, the use of any time-to-detection distribution is a statistical approximation to empirical patterns.
-If the dynamics of the system are more complicated than we can directly model, the best we can do is find a TTDD that reasonably describes the observed pattern.
-For instance, if the arrival of the observer causes non-constant detection, we know neither how long that observer effects lasts nor how the degree of that effect changes over time.
-Gamma, lognormal, and Weibull TTDDs all provide different models for that detection pattern with different inferences detection probability.
+See the answer to Item 1 on Page~\pageref{ans:one} above for our full response.
 \end{quote}
 
 Simulation Analyses\\
 Line 57-59: This is the first mention of peaked and non-peaked TTDDs.  Please define these terms and how they are manifested during point-count surveys in the Introduction - including a biological justification that warrants their inclusion in simulation studies.
 \begin{quote}
-We have given the definitions of peaked/nonpeaked their own paragraph in the Simulation Studies methodology (Section \ref{M-sec:sim}):
+We have separated the definitions of peaked/nonpeaked into own paragraph in the Simulation Studies methodology (Section \ref{M-sec:sim}):
 ``In the following analyses we distinguish two categories of purely continuous TTDDs: peaked and nonpeaked.  
 Detection rates $h(t)$ of peaked distributions generally increase over time, while detection rates of nonpeaked distributions generally decrease over time.
 More formally, we define a peaked TTDD as having a mode greater than zero (or $C_1$ for lognormal) while a non-peaked TTDD has a mode of zero (or less than $C_1$), but we consider exponential TTDDs to be neither peaked nor nonpeaked."
-
-\jarad{We should probably remove TTDD from the introduction.}
 
 We do not believe this distinction requires a separate explanation in the Introduction.  It distinguishes between scenarios but is not essential to framing the problem of non-constant detection.
 \end{quote}
@@ -167,13 +205,10 @@ Fortunately, while simulation studies are hampered by long computation times, th
 
 \item Simulations incorporating variable sample sizes to evaluate relative bias and precision would be very useful in terms of study design and applicability.  
 \begin{quote}
-\jarad{I think we can thank reviewers here for the push to do more simulation 
-studies that resulted in our realization of a computational savings allowing
-us to do more analyses.}
-We have extended our simulation study to include a variety of detection probabilities rather than a variety of sample sizes.
+We thank the reviewers for pushing us to expand our simulation studies.
+It led us to improvements in our simulation code, more compelling results (through increased replication), and characterization of model performance across more scenarios.
+One reviewer asked us to simulated across a variety of detection probabilities, while the other asked us to simulation across sample sizes.
 Both affect estimation and are worthy of investigation, but since the performance of unknown-$N$ binomial models generally deteriorates as values of $\pdet$ decrease, we chose to direct our attentions there.
-\jarad{Don't we have different sample sizes due to the variation in detection
-probabilities?}
 Sections \ref{M-sec:mixture} and \ref{M-sec:family} have been reworked to detail the updated findings.
 \end{quote}
 
@@ -182,8 +217,7 @@ Sections \ref{M-sec:mixture} and \ref{M-sec:family} have been reworked to detail
 These are important decision in the design of surveys, but they are beyond the scope we have defined for this study.
 Not having explicitly investigated them, we prefer not to speculate.
 %\citet{Petit1995, Johnson2008, LeeMarsden2008} and \citet{Reidy2011} all address the effects of duration.
-We have separated out a paragraph in the Discussion posing some design-related questions.
-\jarad{Be more specific.}
+We have separated out a paragraph in the Discussion posing some design-related issues: (i) longer surveys, (ii) introduction of settling down periods, and (iii) collection of complete detection histories (not just first detections).
 \end{quote}
 
 \item Providing computation times for scenarios that vary by model complexity and sample size (including the computer used for analyses) may also provide a gauge for users as to whether this method is feasible for their needs.
@@ -191,8 +225,7 @@ We have separated out a paragraph in the Discussion posing some design-related q
 Average run times for the different simulation studies are now discussed in the third paragraph of Section \ref{M-sec:simfull}:
 
 ``Computation times for this simulation study were much greater than for the other studies because partitions of the cdf, e.g. $\Fm(C_i|\alpha,\varphi_s)$, had to be calculated separately for every survey; also, sampling often required 2-8 as many iterations.
-Average times for exponential, lognormal, Weibull, and gamma model fits were 2.6, 5.1, 5.3, and 25+ hours, respectively, as compared to only 2, 3, 3.25, and 5.35 minutes for the intercept-only models.
-\jarad{Too many significant digits.}
+Average times for exponential, lognormal, Weibull, and gamma model fits were 2.6, 5.1, 5.3, and 25+ hours, respectively, as compared to only 2.0, 3.0, 3.3, and 5.3 minutes for the intercept-only models.
 Due to the computation times involved, we fit each model only once."
 \end{quote}
 
@@ -200,20 +233,16 @@ Due to the computation times involved, we fit each model only once."
 \begin{quote}
 We agree that using both is redundant.
 We now choose to report only 90\% credible intervals.
-\jarad{Are 50\% included in supplement?}
+We still report 50\% intervals in the supplement.
 \end{quote}
 \end{enumerate}
 
 Results\\
 Page 18, Figure 2:  Holy moly, the CIs of the mixture distributions are exceedingly wide given a sample size of 381 detections (which is a lot relative to many studies).
 \begin{quote}
-Clarification: We have 947 detections at 381 sites (which is \textit{really} a lot of detections).
+Clarification: We actually have 947 detections at 381 sites (which is \textit{really} a lot).
 We now clearly state in Section \ref{M-sec:data}: ``This dataset includes 947 Ovenbirds counted in 381 surveys at 65 sites with site-specific variables including site age,  stock density, and an indicator of select-/partial-cut logging during the 1990s."
-
-We believe this uncertainty accurately reflects the uncertainty in estimation
-of detection probability and abundance. 
-The apparent certainty in previously published studies relies heavily on the 
-assumption of constant detection rate.
+We address CI widths in the next response.
 \end{quote}
 
 For example, The Gamma distribution, touted as the most accurate based on the simulation study, suggests 95\% CIs of p ranges from ~ 0.3 to 1?  And subsequently CIs around N are from ~1.75 to 3.25 so we can say there are somewhere between 56 and 1,778  birds?
@@ -230,11 +259,11 @@ Discussion\\
 Page 21, Lines 12-16:  I do not agree with this assessment.  I think these models are appropriate for a particular subset of data - single species discrete-count surveys with a large sample size and relatively low availability (i.e., whether the animal provides a cue to an observer during the survey)   
 \begin{quote}
 We hope that clarifications above about abundance estimates and uncertainty resolve some of the reviewer's hesitations.
-We have added single-species' to the draft.
-
-\adam{Perhaps more explanation is required here.}
+We have added `single-species' to the manuscript.
 \end{quote}
+
 where non-constant detection through time is suspected based on the behavioral ecology of the species.
+
 \begin{quote}
 This last clause implies that a constant-rate model should be the default.
 We disagree.
@@ -248,7 +277,7 @@ We agree.
 This manuscript applies to removal-only analyses.
 Still, the concept can be carried over to removal-distance analyses, as we describe in a paragraph of the Discussion.
 The implementation will be more complicated and will vary depending on how removal- and distance-sampling are integrated.
-\jarad{This is ongoing work for us.}
+This is ongoing work for us.
 \end{quote}
 Further, although the method may be more accurate even for constant detection data, the loss in precision is such that users will likely not opt to use it unless they suspect non-constant detection through time.  Further, given its presumably arduous computation times (albeit unknown), adding a perceptibility component to the model would likely greatly increase computational demands with unknown implications to bias and precision.  Including a paragraph in the Discussion that outlines when the model would be most beneficial to users (e.g., what type of data, surveys, or sample sizes) and explicitly stating drawbacks (e.g., computation time, loss of precision) would greatly improve this section.  
 \begin{quote}
@@ -278,14 +307,9 @@ modifications I request or she (he) successfully convinces me otherwise.
 
 Diagnostics: Coverage. The idea of testing coverage is fantastic, but poorly implemented. First, the number of simulations (16 in Table 1) is exceedingly low to be able to reliably diagnose the patterns in coverage or the statistical explanation of these patterns. 
 \begin{quote}
-We answer this comments in two parts.
-First, we agree that the number of simulations was inadequate for diagnosing model accuracy.
-We have therefore increased to 100 the number of simulations in Sections \ref{M-sec:mixture} and \ref{M-sec:family}.
+We agree that the number of simulations was inadequate for diagnosing model accuracy.
+We have increased to 100 the number of simulations in Sections \ref{M-sec:mixture} and \ref{M-sec:family}.
 This has been made possible by improvements to Stan \citep{Rstan2016} and by streamlining our code for homogeneous surveys.
-See the second paragraph of Section \ref{M-sec:simfull} for a summary of run times for the models currently.
-
-Second, although the original number of simulations was inadequate for characterizing model accuracy, it nonetheless highlighted scenarios of gross inaccuracy, such as: (i) omitting a mixture component in modeling a peaked mixture dataset, or (ii) assuming constant detection when the rate varies during the survey period.
-\jarad{Is the second point necessary?}
 \end{quote}
 
 Second, the statistical properties of the estimator of p(det) are likely depending on the size of the true value of p(det). Therefore, I think Table 1 should have been repeated for a whole range of values of the true value of p(det).
@@ -295,19 +319,20 @@ tropics (low N's, low p's very often) as well as in temperate forests (large N's
 \begin{quote}
 We have repeated the simulations in Sections \ref{M-sec:mixture} and \ref{M-sec:family} at true detection probabilities $\pdet = 0.50, 0.65, 0.80$, and 0.95.
 The findings have significantly added to our results and conclusions.
-\jarad{Should we summarize the results here?}
+The extra simulations demonstrate that, for nonpeaked datasets, the model returns similar detection estimates whether the true value of $\pdet$ is 0.50 or 0.65 or even somewhat 0.80.
+For exponential and peaked datasets, the model is more able to return unbiased estimates.
+Other major findings of our original manuscript -- the inadequacy of non-mixture or constant-rate models in many cases -- remain true across wide ranges of true values for $\pdet$.
 
-With reference to Olkin's finding that point estimates of $N_s$ are unstable unless $\pdet>0.41$, it is not a hard boundary.  
-It varies by context, but the boundary is a general property of estimating $N$ in binomial unknown-$N$, unknown-$p$ problems.
-Olkin's calculation derives from the relative sample mean and sample variance of repeated large samples with the same values of $N$ and $\pdet$.
-As such, it is a best-case scenario.
-Similar thresholds continue to recur in various abundance-estimating contexts, as demonstrated in these recent articles: 
-\begin{itemize}
-\item \citet{Veech2016}: advise caution when $p<0.5$ in the context of individual-level detection effects (no time-to-detection data). 
-\item \citet{Field2016}: plots indicate uncertainty in $\hat{N}$ increase rapidly as $\pdet$ decreases below 0.40.  Methods include removal, double-observer, distance, and multiple-visit.
-\item \citet{Davis2016}: report accurate $\hat{N}$ at $\pdet >0.40$ in a traditional removal-sampling context, though for small abundance ($N<50$) they required $\pdet > 0.7$.
-\end{itemize}
-\jarad{I don't think this parameter is necessary.}
+%With reference to Olkin's finding that point estimates of $N_s$ are unstable unless $\pdet>0.41$, it is not a hard boundary.  
+%It varies by context, but the boundary is a general property of estimating $N$ in binomial unknown-$N$, unknown-$p$ problems.
+%Olkin's calculation derives from the relative sample mean and sample variance of repeated large samples with the same values of $N$ and $\pdet$.
+%As such, it is a best-case scenario.
+%Similar thresholds continue to recur in various abundance-estimating contexts, as demonstrated in these recent articles: 
+%\begin{itemize}
+%\item \citet{Veech2016}: advise caution when $p<0.5$ in the context of individual-level detection effects (no time-to-detection data). 
+%\item \citet{Field2016}: plots indicate uncertainty in $\hat{N}$ increase rapidly as $\pdet$ decreases below 0.40.  Methods include removal, double-observer, distance, and multiple-visit.
+%\item \citet{Davis2016}: report accurate $\hat{N}$ at $\pdet >0.40$ in a traditional removal-sampling context, though for small abundance ($N<50$) they required $\pdet > 0.7$.
+%\end{itemize}
 \end{quote}
 
 Diagnostics: relation of the target parameter to other parameters in the models. Precisely because, as the authors mention, the statistical properties of the estimator of p(det) are tightly linked with the statistical properties of the abundance estimator, then the author(s) should detail explicitly how a bad coverage in p(det), for instance, affects the estimation of abundances. The author(s) mention that bias in p translates into a bias in abundance estimation, I would like to see diagnostics for the realized N values too. And to do that, two words come to mind: profile likelihoods. 
@@ -327,10 +352,17 @@ Thank you for pointing out \citet{Lele2010}.
 We found the article to be interesting and novel, using data cloning to exploit relationships among data likelihood, priors, and identifiability.
 While the approach could certainly be applied to our model in its more complex forms (e.g. with fixed and random effects), to do so in this manuscript would distract from our main objectives.
 
-We agree that discussions of identifiability and the flatness of the likelihood is very relevant, and we have introduced an explicit discussion of them in the Discussion.
+We agree that discussions of identifiability and the flatness of the likelihood is very relevant, and we have introduced an explicit discussion of them in the Discussion:
 
-As an informational note, the \texttt{R} package by Solymos was constructed for BUGS and JAGS, though it would not be difficult to adapt data cloning for Stan.
-\jarad{Remove paragraph.}
+``Reduced model performance in the presence of low detection probabilities is common among abundance models.
+We recommend the discussion in \citet{CoullAgresti1999}, elaborating key points here.
+The essential problem is a flat log-likelihood.
+For single-pass surveys, we cannot rely on repeated counts to improve our estimates.
+Instead, the strategy of removal sampling is to use the observed pattern of detection times to estimate the proportion of individuals that would be detected if only the observation period lasted longer.  
+As such, it is entirely reliant upon extrapolation based on an accurate fit of $\ftdt$.
+When true detection probabilities are low, $\ftdt$ for nonpeaked data becomes flat.
+Such a flat observed pattern provides little information and is well approximated by a wide variety of TTDDs, which vary greatly in their tail probabilities.
+An assumption of constant detection limits the shape of $\ftdt$ and thereby constrains uncertainty but at the cost of potentially sizable bias.''
 \end{quote}
 
 Generalized Pareto: In another area in biology, in evolutionary genetics, the ``fitness" of individual variant strains has been modeled as coming from an exponential distribution.  For various reasons having to do with the biology of the system, such model was quickly challenged and pretty soon papers questioning the validity of this or this other model for data akin to your waiting times abounded. There is one pretty interesting paper by Beisel et al, 2007 (Genetics, 10.1534/genetics.106.068585), written towards the epiloge of such discussions, that posits that a particular parameterization of the Generalized Pareto distribution, with a single stroke, encompassed many suitable probabilistic models in the Weibull, Gumbel and Freched domain of attraction.  I wonder if the authors could write a general parameterization so that changing from one distribution to the other would simply amount to dialing a given parameter, much like Beisel et al do?  This would be just a practical
@@ -373,8 +405,9 @@ We have split the cited paragraph and a few others.
 
 The authors could have crafted a beautiful and very telling graph (Figure 1) representing the multinomial intervals, the TTDD, the right censoring due to the end of the observation period, and the increased detection probability mixture component. Such figure (which is what I did by hand as I was reading the manuscript) would be a very useful guide in the reading of the paper.
 \begin{quote}
+Thank you for the suggestion.
 We have added this as Figure \ref{M-fig:schematic}.
-\jarad{Thank the reviewer for the suggestion.}
+We agree that the figure is quite effective and should be a useful guide to readers of the paper.
 \end{quote}
 
 
