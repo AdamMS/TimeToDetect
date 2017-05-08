@@ -247,7 +247,8 @@ where $\textbf{t}_s$ is a vector of observed times at survey $s$.
 Due to the harried process of avian point counts, times to first detection are typically not recorded exactly, but are instead censored into $I$ intervals. 
 Let $C_i$ for $i=1,\dots,I$ indicate the right endpoint of the $i$th interval then $C_I$ is the total survey duration and, letting $C_0=0$, the $i$th interval is $(C_{i-1},C_{i}]$. 
 Let $n_{si}$ be the number of individuals counted during interval $i$ on survey $s$, $\nobs_s = \sum_{i=1}^I n_{si}$, and $\vn_{s}=(n_{s1},\dots,n_{sI})$.
-Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(\nobs_s, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and is calculated from the TTDD: $p_{si} = F_{T|\dt}(C_i|\dt) - F_{T|\dt}(C_{i-1}|\dt)$.  
+Assuming independence amongst individuals and sites, we have $\vn_{s} \ind \Mult \left(\nobs_s, \vp_{s}\right)$, where $\vp_{s}=(p_{s1},\dots,p_{sI})$ and $p_{si} = F_{T|\dt}(C_i|\dt) - F_{T|\dt}(C_{i-1}|\dt) = \int_{C_{i-1}}^{C_i} f_{T|\dt}(t) dt$, 
+see Figure \ref{fig:schematic}.  
 
 \subsection{Detection heterogeneity across subgroups} \label{s:subgroups}
 
