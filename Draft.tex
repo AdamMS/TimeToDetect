@@ -6,7 +6,7 @@
 \usepackage{parskip}
 \usepackage{natbib}
 \usepackage{color}
-% \usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \usepackage[margin=1cm]{caption}
 %\usepackage{tabularx, booktabs}
 %\usepackage{float}
@@ -30,7 +30,7 @@
 \renewcommand{\floatpagefraction}{0.8}  % Changes settings for when a figure hogs a page all to itself
 
 \newcommand{\adam}[1]{{\color{blue} ADAM: #1}}
-% \newcommand{\jarad}[1]{{\color{Orange} JARAD: #1}}
+\newcommand{\jarad}[1]{{\color{Orange} JARAD: #1}}
 
 \newenvironment{indpar}[1]%
      {\begin{list}{}%
@@ -128,11 +128,12 @@ We refer to the distribution of $T$ as a time-to-detection distribution (TTDD).
 
 One common strategy to deal with data that do not fit a constant-detection assumption is to model the TTDD as a mixture of two distributions --- a continuous-time distribution and a point mass for increased detection probability in the initial observation period \citep{Farnsworth2002, Farnsworth2005, EffordDawson2009, Etterson2009, Reidy2011}.
 However, this is not yet the standard \citep{Solymos2013, Amundson2014, Reidy2016}. 
-We consider the choice of whether to include a mixture component in conjunction with TTDDs with non-constant rates.
-We apply the term `mixture model' to any model with a mixture TTDD.
+We consider the choice of whether to include a mixture component in conjunction with TTDDs with non-constant rates
+and apply the term \emph{mixture TTDD} when the TTDD has a discrete and continuous component.
 
 Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
-We embed the TTDD in a hierarchical framework for multinomial counts called an N-mixture model \citep{Wyatt2002, Royle2004NMixture} --- which is an entirely different use of `mixture' from the mixture models in the previous paragraph.
+We embed the TTDD in a hierarchical framework for multinomial counts called an N-mixture model \citep{Wyatt2002, Royle2004NMixture} --- which is an entirely different use of `mixture' from the mixture models in the previous paragraph. 
+\jarad{I think we should remove the ---.}
 For our purposes, the N-mixture framework provides three clear benefits: 1) it handles counts within a flexible multinomial data framework \citep{RoyleDorazio2006} which accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data  \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}.  
@@ -256,7 +257,7 @@ It is common in avian point counts to observe increased detections in the first 
 This is often understood to reflect unmodeled detection heterogeneity across behavioral groups in the study population.
 Failure to account for such heterogeneity in the constant-detection scenario leads to negative bias in abundance estimates \citep{Otis1978}.
 To accommodate this empirical observation, many models of interval-censored removal times define a TTDD with a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Alldredge2007, Etterson2009, Reidy2011}.
-We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$.  
+We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$. \jarad{Why is the superscript M?}  
 The mixture TTDD cdf is defined: $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
 If $\gamma=1$, the non-mixture model is recovered.
 
@@ -797,7 +798,7 @@ For the detection half of our model, we used covariates for: (a) Julian date, (b
 We associated random effects with each observer.  
 Preliminary model fits did not support the inclusion of quadratic terms for any detection covariates.  
 We centered and standardized all continuous covariates prior to fitting models.
-We ran chains 250,000-375,000 iterations; Geweke diagnostics showed no indication of lack of fit, and effecive sample sizes were over 1000 for all parameters.
+We ran chains 250,000-375,000 iterations; Geweke diagnostics showed no indication of lack of fit, and effective sample sizes were over 1000 for all parameters.
 
 
 % Effects: * - means signif
