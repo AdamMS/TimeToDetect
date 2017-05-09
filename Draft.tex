@@ -55,7 +55,7 @@
 
 \newcommand{\pdet}{p^{(det)}}
 \newcommand{\ind}{\stackrel{ind}{\sim}}
-\newcommand{\Fm}{F_T^{(M)}}
+\newcommand{\Fm}{F_T^{(C)}}
 \newcommand{\dt}{\text{det}}
 \newcommand{\ftdt}{f_{T|\dt}(t|\dt)}
 \newcommand{\nobs}{n^{(obs)}}
@@ -132,8 +132,7 @@ We consider the choice of whether to include a mixture component in conjunction 
 and apply the term \emph{mixture TTDD} when the TTDD has a discrete and continuous component.
 
 Unlike most survival analyses, the number of individuals $N$ present at a survey is unknown and may be the primary quantity of interest.  
-We embed the TTDD in a hierarchical framework for multinomial counts called an N-mixture model \citep{Wyatt2002, Royle2004NMixture} --- which is an entirely different use of `mixture' from the mixture models in the previous paragraph. 
-\jarad{I think we should remove the ---.}
+We embed the TTDD in a hierarchical framework for multinomial counts called an N-mixture model \citep{Wyatt2002, Royle2004NMixture}, which is an entirely different use of `mixture' from the mixture models in the previous paragraph. 
 For our purposes, the N-mixture framework provides three clear benefits: 1) it handles counts within a flexible multinomial data framework \citep{RoyleDorazio2006} which accords with the interval-censored data collection that is customary in point-count surveys \citep{Ralph1995}, 2) the hierarchical structure readily lends itself to including abundance- and detection-related covariates and random effects \citep{Dorazio2005, Etterson2009, Amundson2014}, and 3) for a Bayesian analysis, we can sample the posterior joint distribution of N-mixture parameters straight-forwardly using Markov chain Monte Carlo (MCMC).  
 The N-mixture framework models abundance as a latent variable with a Poisson or other discrete distribution and independently models detection probabilities.  
 Several previous studies have employed the N-mixture framework to analyze removal sampled point-count data  \citep{Royle2004Generalized, Dorazio2005, Etterson2009, Solymos2013, Amundson2014, Reidy2016}.  
@@ -257,7 +256,7 @@ It is common in avian point counts to observe increased detections in the first 
 This is often understood to reflect unmodeled detection heterogeneity across behavioral groups in the study population.
 Failure to account for such heterogeneity in the constant-detection scenario leads to negative bias in abundance estimates \citep{Otis1978}.
 To accommodate this empirical observation, many models of interval-censored removal times define a TTDD with a mixture component to increase the probability of observing individuals in the first interval \citep{Farnsworth2002, Royle2004Generalized, Farnsworth2005, Alldredge2007, Etterson2009, Reidy2011}.
-We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$. \jarad{Why is the superscript M?}  
+We specify a mixture TTDD with mixing parameter $\gamma\in[0,1]$, a point-mass during the first observation interval, and a continuous-time detection distribution $\Fm(t)$.
 The mixture TTDD cdf is defined: $F_T(t) = (1-\gamma) + \gamma \Fm(t)$ for $t>0$.
 If $\gamma=1$, the non-mixture model is recovered.
 
