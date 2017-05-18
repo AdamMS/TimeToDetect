@@ -172,8 +172,10 @@ We address imprecision multiple places in the simulation results, Ovenbird resul
 Introduction\\
 Line 36-41: I find mention of survival analyses here and later in the manuscript confusing for most readers - especially Ecologists, presuming this is the intended audience.  It may be due to the unorthodox use of time-to-detection instead of traditional time-to-event analyses often used to estimate survival.  I suggest either omitting the reference to survival analysis here and elsewhere in the manuscript, or using the time-to-event terminology in this sentence and providing citations for the cdf and pdfs outlined here for reference.  Then explain that within the manuscript you will subsequently refer to it as TTDD.  
 \begin{quote}
-We have made the equivalence more explicit: ``We analyze times to first detection as time-to-event data, as is done in parametric survival analysis, ..."
-\jarad{We probably need to add more, e.g. intended audience. Philip?} 
+Since we and the AE feel this comparison is useful, 
+we have retained the comparison. 
+But we have tried to make the equivalence more explicit: ``We analyze times to first 
+detection as time-to-event data, as is done in parametric survival analysis, ..."
 \end{quote}
 
 3.1 \\
@@ -281,9 +283,23 @@ This is ongoing work for us.
 \end{quote}
 Further, although the method may be more accurate even for constant detection data, the loss in precision is such that users will likely not opt to use it unless they suspect non-constant detection through time.  Further, given its presumably arduous computation times (albeit unknown), adding a perceptibility component to the model would likely greatly increase computational demands with unknown implications to bias and precision.  Including a paragraph in the Discussion that outlines when the model would be most beneficial to users (e.g., what type of data, surveys, or sample sizes) and explicitly stating drawbacks (e.g., computation time, loss of precision) would greatly improve this section.  
 \begin{quote}
-\adam{I do not deem this necessary.  We have not explicitly studied sample size.  The rest is addressed at various locations in the manuscript but does not, I think, require a dedication paragraph in the Discussion.}
-\jarad{I'll have to re-read, but overall providing a summary for the reader
-seems like a good idea.}
+We have attempted to address these comments in the discussion:
+``If the estimation of abundance is the primary interest, 
+then the choice of TTDD has large consequences ... we would be skeptical of 
+abundance estimates that indicate a nonpeaked TTDD with median posterior 
+estimates of $\pdet$ below 0.75 ...
+An assumption of constant detection limits the shape of $\ftdt$ and 
+thereby constrains uncertainty but at the cost of potentially sizable bias...
+all found constant-detection models to be flawed, 
+producing underestimates of abundance and too-narrow error estimates; 
+these resulted in inadequate coverage and also overstatement of effect 
+significance.''
+
+We have also included computation times in Section \ref{M-sec:simfull}: 
+``Average times for exponential, lognormal, Weibull, and gamma model fits were 
+2.6, 5.1, 5.3, and 25+ hours [when mixed effects were included in both abundance 
+and detection].'' Since these types of surveys are typically conducted yearly, 
+we do not feel even a one day runtime is arduous.
 \end{quote}
 
 \newpage
