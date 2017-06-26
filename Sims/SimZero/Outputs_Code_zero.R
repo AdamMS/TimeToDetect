@@ -531,110 +531,46 @@ ggplot(subset(oci, familymatch)) +
 
 
 
+########## Looking at posterior p-values associated with p= seq(0.4, 0.8, 0.1)
 
-
-
-
-
-
-
-# All of this abundance output is pretty old, but maybe it'll be useful!
-
-########## Intervals for Abundance
-# As with pdet, there are two ways to approach this.
-# I'm comparing to the ACTUAL abundance (estimated sum(N_s)), not the expected (sum(exp(\lambda_s)))
-# As before, the former is simpler once we add fixed and especially random effects
-# At large sample sizes, the differences are negligible
-Abund <- NULL
-cu <- function(u,p) p*u/(1-p)             # Calculate actual count from median estimates of pdet and uncounted
-exp.N <- 381 * exp(Simpars$intcpt_a[1])   # 381 sites.  Index is [1], b/c same intcpt_a was used for all simulations
-# Code to compile all datasets along with actual counts, actual abundance, and expected abundance
-# Involves re-creating these values of sum(nobs) and sum(N) from the output (instead of accessing the original dataset files)
-for(Rp in 1:length(unique(count.det$Rep))){
-  for(dc in unique(count.det$datacode)){
-    df           <- subset(count.det, Rep==Rp & datacode==dc)
-    actual.count <- with(df, cu(X50.[1], X50.[2]))
-    actual.N     <- actual.count / (true.pglobal$value[true.pglobal$Rep==Rep & true.pglobal$datacode==dc])
-    df           <- subset(df, parameter=="uncounted")
-    # Calculate the ratio of posterior estimated abundance (at several quantiles) to actual abundance for dataset
-    # Note: we're not comparing to expected abundance
-    df[, c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] <- 
-      (df[, c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.")] + actual.count) / actual.N
-    Abund <- rbind(Abund, cbind(df, actual.count=actual.count, actual.N=actual.N, exp.N=exp.N/actual.N))
-  }
+oqs <- ops <- oest <- NULL
+fileID     <- c("50", "65", "80", "95")
+for (j in 1:4){
+  load(paste0("Outputs", fileID[j], ".Rdata"))
+  outputs$post.unc.p$pdet <- fileID[j]
+  outputs$count.det$pdet  <- fileID[j]
+  oqs      <- rbind(oqs, subset(outputs$post.unc.p, parameter %in% c("Pval40", "Pval50", "Pval60", "Pval70", "Pval80")))
+  ops      <- rbind(ops, subset(outputs$post.unc.p, parameter %in% c("p_global")))
+  oest     <- rbind(oest, subset(outputs$count.det, parameter=="p_global"))
 }
-Abund$mixpeak   <- substr(Abund$simdat,2,3)
-Abund$datfamily <- substr(Abund$simdat,1,1)
-# Melt data
-Ab.long <- melt(Abund, id.vars=c("Rep", "simdat", "mixpeak", "ModelFamily", "datfamily", "modelmix", "datamix", "datamodelmatch"),
-                measure.vars=c("mean", "X2.5.", "X25.", "X50.", "X75.", "X97.5.", "exp.N"))
-# Summarize by data/model across Reps
-Ab.long.ply <- ddply(Ab.long, .(simdat, mixpeak, ModelFamily, datfamily, modelmix, datamix, datamodelmatch, variable), summarize,
-                     Ratio=round(mean(value),2), logRatio=round(mean(log(value)),2))
-# Add a factor level for 'NonMix' inference models
-Ab.long.ply$ModelFamily <- factor(Ab.long.ply$ModelFamily, levels=c(levels(Ab.long.ply$ModelFamily), "NonMix"))
-Ab.long.ply$ModelFamily[!Ab.long.ply$modelmix] <- "NonMix"
+rownames(oqs) <- rownames(ops) <- rownames(oest) <- NULL
 
-# Plots of CIs, median, and expected (abundance scale and log scale)
-ggplot() + 
-  geom_line(aes(ModelFamily, Ratio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X2.5.", "X97.5."),], color="black", size=1.25) +
-  geom_line(aes(ModelFamily, Ratio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X25.", "X75."),], color="orange", size=1.25) +
-  geom_point(aes(ModelFamily, Ratio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X50."),], color="dodgerblue3", size=2.5) +
-  geom_point(aes(ModelFamily, Ratio), data=Ab.long.ply[Ab.long.ply$variable %in% c("mean"),], color="chocolate2", size=2.5) +
-  geom_point(aes(ModelFamily, Ratio), data=Ab.long.ply[Ab.long.ply$variable %in% c("exp.N"),], color="maroon2", size=2.5) +
-  facet_grid(datfamily~mixpeak) + coord_flip()
+library(plyr)
+library(ggplot2)
+# Here's a plot of posterior p-values for p=(40, 50, 60, 70, 80), but I don't know what to make of it
+# or even how to define what is a good pattern
+# Problem is that the y-axis is a posterior p-value that should correlate with the x-axis
+oqs.sum <- ddply(oqs, .(fname, pdet, simdat, modelmix, datamix, datamodelmatch, parameter), summarize, M = mean(pval))
+qplot(pdet, M, geom="line", data=oqs.sum, group=parameter, color=parameter, facets=~fname)
 
-ggplot() + 
-  geom_line(aes(ModelFamily, logRatio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X2.5.", "X97.5."),], color="black", size=1.25) +
-  geom_line(aes(ModelFamily, logRatio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X25.", "X75."),], color="orange", size=1.25) +
-  geom_point(aes(ModelFamily, logRatio), data=Ab.long.ply[Ab.long.ply$variable %in% c("X50."),], color="dodgerblue3", size=2.5) +
-  geom_point(aes(ModelFamily, logRatio), data=Ab.long.ply[Ab.long.ply$variable %in% c("mean"),], color="chocolate2", size=2.5) +
-  geom_point(aes(ModelFamily, logRatio), data=Ab.long.ply[Ab.long.ply$variable %in% c("exp.N"),], color="maroon2", size=2.5) +
-  facet_grid(datfamily~mixpeak)
-
-Ab.wide.med   <- dcast(Ab.long.ply[Ab.long.ply$variable=="X50.",],   simdat ~ ModelFamily, value.var="Ratio")
-Ab.wide.lower <- dcast(Ab.long.ply[Ab.long.ply$variable=="X2.5.",],  simdat ~ ModelFamily, value.var="Ratio")
-Ab.wide.upper <- dcast(Ab.long.ply[Ab.long.ply$variable=="X97.5.",], simdat ~ ModelFamily, value.var="Ratio")
-
-# A function to plot caterpillar plots for Scaled Abundance... Jarad felt it was switching topics, but keep it in case
-# X-axis is scaled to the ACTUAL abundance for each Rep.  So, the actual value is at X=1 (or X=0 of LT=log-transform=TRUE)
-ab.plot <- function(Sdat, LT=FALSE){
-  d.Sdat <- subset(Ab.long, simdat %in% Sdat & modelmix)
-  levels(d.Sdat$variable)[c(1,4)] <- c("Mean", "Median")
-  names(d.Sdat)[names(d.Sdat)=="variable"] <- "Estimator"
-  Lab <- "Scaled Abundance"
-  if(LT){d.Sdat$value <- log(d.Sdat$value); Lab="log(Scaled Abundance)"}
-  print(
-    ggplot() + ylab("Inference Model") + xlab(Lab) +
-      geom_line(aes(x=value, y=Rep, group=as.factor(Rep)), 
-                data=subset(d.Sdat, Estimator %in% c("X2.5.", "X97.5."))) +
-      geom_line(aes(x=value, y=Rep, group=as.factor(Rep)), 
-                data=subset(d.Sdat, Estimator %in% c("X25.", "X75.")), color="orange", size=0.85) + 
-      geom_point(aes(x=value, y=Rep, color=Estimator, shape=Estimator), 
-                 data=subset(d.Sdat, Estimator %in% c("Median")), size=I(2)) + 
-      facet_grid(ModelFamily~simdat) + scale_color_manual(values=c("blue", "orchid3")) + theme_bw() +
-      ggtitle("Posterior Estimates of log10(Abundace)") + theme(legend.position='none')
-  )
-}
-# pdf("../../Oral Prelim/abund_cater_family_prelim.pdf", width=7.5, height=7)
-ab.plot(c("ETF","GTF", "GTT"), LT=T)
-# dev.off()
-
-# Plots from all Reps and Models... mixpeakmix = datamix--peak--modelmix
-Abund$ModelFamily <- factor(Abund$ModelFamily, levels=c(levels(Abund$ModelFamily), "NonMix"))
-Abund$ModelFamily[!Abund$modelmix] <- "NonMix"
-Abund$mixpeakmix <- paste0(Abund$mixpeak, substr(Abund$modelmix,1,1))
-qplot(X50., Rep, geom="point", data=Abund[Abund$datfamily==Abund$Letter,], color=modelmix) + 
-  geom_point(aes(x=X2.5., y=Rep), shape=I(4)) +
-  geom_point(aes(x=X97.5., y=Rep), shape=I(4)) +
-  facet_grid(datfamily~mixpeak, scale="free_x")
-
-Abund$ciw <- Abund$X97.5. - Abund$X2.5.
-smurf.mix <- Abund[Abund$modelmix & Abund$Letter==Abund$datfamily,]
-smurf.NM  <- Abund[!Abund$modelmix,]
-names(smurf.mix)[ncol(smurf.mix)] <- "ciw.mix"
-names(smurf.NM)[ncol(smurf.NM)]   <- "ciw.NM"
-smurf <- join(smurf.mix, smurf.NM[,c("Rep", "simdat", "ciw.NM")])
-smurf$Ratio <- smurf$ciw.NM/smurf$ciw.mix
-qplot(Ratio, Rep, geom="point", data=smurf) + facet_grid(datfamily~mixpeak, scale="free_x")
-ddply(smurf, .(datfamily, mixpeak), summarize, M=mean(Ratio))
+ops$TTDD <- substr(ops$fname,1,1)
+ops$TTDD[!ops$modelmix] <- "Non"
+ops      <- join(ops, subset(oest, select=c("fname", "Rep", "pdet", "X50.")), by=c("Rep", "fname", "pdet"))
+ops2     <- ddply(ops, .(simdat, TTDD, pdet), summarize, med=mean(X50.), pv=mean(pval))
+# Boxplots of posterior pvalues (across Reps) faceted by dataset and inference model... quite an eyeful
+qplot(pdet, pval, geom="boxplot", data=ops, facets=simdat~TTDD)
+# Point plot of pval vs. estimate of pdet
+# As usual, it shows that exponential models are not robust,
+# Peaked data are more accurately estimated,
+# and Nonpeaked data are a mess.
+# It's pretty, but kind of difficult to interpret.
+# Can change the 'data' option to look at peaked, nonpeaked, or both
+xpts <- c(0.5, 0.65, 0.8, 0.95)
+ypts <- rep(0.5, 4)
+qplot(X50., pval, geom="point", facets=simdat~TTDD, color=pdet, size=I(0.5), data=subset(ops, substr(simdat,3,3)=="F")) +
+  geom_point(aes(x=med, y=pv), data=subset(ops2, substr(simdat,3,3)=="F"), size=I(3)) +
+  geom_point(aes(x=xpts[1], y=ypts[1]), size=I(3), shape=I(4), color=1) + geom_point(aes(x=xpts[2], y=ypts[2]), size=I(3), shape=I(4), color=2) +
+  geom_point(aes(x=xpts[3], y=ypts[3]), size=I(3), shape=I(4), color=3) + geom_point(aes(x=xpts[4], y=ypts[4]), size=I(3), shape=I(4), color=4) +
+  geom_hline(aes(yintercept=0.5)) +
+  geom_hline(aes(yintercept=0.025), linetype=2) +
+  geom_hline(aes(yintercept=0.975), linetype=2)
