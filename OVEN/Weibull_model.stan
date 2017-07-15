@@ -123,7 +123,7 @@ real<lower=0> p_global;              # Estimated overall detection probability
 int<lower=0> unobserved[n_sites];    # Estimated uncounted birds
 int<lower=0> totN[n_sites];          # Estimated total birds
 # int<lower=0> yrep[n_sites,n_ints];   # Replicate data based on estimates of expected abundance and detection rates
-real dev1;
+real dev1;                           # Total deviance
 
 real lpn_BK[n_sites,n_ints];         # log(p(n|\beta's,\ksi's))
 # vector [n_ints+1] p_int;             # Holding vector for interval-specific p_det at current site
