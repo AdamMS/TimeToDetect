@@ -467,7 +467,8 @@ rp <- ggplot(subset(ov, statistic=="C90" & familymatch)) +
   scale_y_continuous(breaks = seq(0, 1, 0.5), limits=c(-0.05, 1.05)) +
   theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability")
 
-pdf("mixture_fig.pdf", width=10, height=4.7)
+#pdf("mixture_fig.pdf", width=10, height=4.7)
+jpeg("mixture_fig.jpg", width=10, height=4.7, units="in", res=300)
 grid_arrange_shared_legend(lp, rp, position="bottom")
 dev.off()
 
@@ -491,7 +492,8 @@ rf <- ggplot(subset(ov, statistic=="C90" & datamix=="Mixed" & modelmix)) +
   scale_y_continuous(breaks = seq(0, 1, 0.5), limits=c(-0.05, 1.05)) +
   theme_bw() + ylab("Coverage") + xlab("Actual Detection Probability")
 
-pdf("family_fig.pdf", width=10, height=4.7)
+#pdf("family_fig.pdf", width=10, height=4.7)
+jpeg("family_fig.jpg", width=10, height=4.7, units="in", res=300)
 grid_arrange_shared_legend(lf, rf, position="bottom")
 dev.off()
  
