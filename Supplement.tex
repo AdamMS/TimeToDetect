@@ -1,30 +1,14 @@
 \documentclass[useAMS,usenatbib,referee,12pt]{article}
 \usepackage[margin=1.0in]{geometry}
-%\usepackage{amsmath}
-%\usepackage{amssymb}
-%\usepackage{amsfonts}
-%\usepackage{parskip}
-%\usepackage[round]{natbib}
-%\usepackage{caption}
-%\usepackage{tabularx, booktabs}
-%\usepackage{float}
 \usepackage{placeins}     % Enables \FloatBarrier, which enforces a break between table/figures
-%\usepackage{adjustbox}
 \usepackage{multirow}     % Allows tables with vertically merged cells
-%\usepackage{setspace}
-%\usepackage{url}
 \usepackage{xr}    % Links to external document
-%\usepackage{listings}
-%\usepackage{verbatim}
-%\usepackage{graphicx}
 \usepackage{rotating}     % For landscape-oriented table
 
 \externaldocument[M-]{Draft}
 
 \newcommand{\pdet}{p^{(det)}}
-% Plug-in caption for figures created using \sfig
 \newcommand{\capt}[1]{Caterpillar plots of posterior parameter estimates from all models fit to the simulated #1 dataset (from simulations involving covariates and random effects).  Black and orange lines depict central 95\% and 50\% credible intervals, respectively.  The black dot is the posterior meadian.  The blue 'X' is the true parameter value and is positioned on the correctly specified model.  $\beta$'s are fixed effect parameters, $\sigma$'s are random effect standard deviations, and $\gamma$ is a mixing parameter.  Parameters designated with an 'A' are abundance parameters; those designated with a 'D' are detection parameters.}
-% Include graphics for posterior estimates of dataset parameters
 \newcommand{\sfig}[2]{\begin{figure}
   \includegraphics[width=1.0\textwidth]{Sims/SimFull/Posteriors_all_simdat#2.jpg} % Source file: Sims/SimFull/Outputs_Code_sf.R
   \caption{\capt{#1}}
@@ -220,7 +204,6 @@ Q($p$): average proportion of the posterior distribution of $\pdet$ that is larg
 \label{tbl:mix80}
 
 \vspace{1.2cm}
-% Note: both tables are in the same 'table' environment.
 
 \begin{tabular}{l|l|l|l|cccc|cccc}
  \multicolumn{4}{c|}{ } & \multicolumn{4}{c|}{\underline{Non-mixture model}} & \multicolumn{4}{c}{\underline{Mixture model}} \\
@@ -442,7 +425,7 @@ Each plot presents one simulated dataset.
 \end{figure}
 
 
-\subsection{Posteriors parameter estimates from simulations including covariates and random effects}\label{s:sim3}
+\subsection{Posterior parameter estimates from simulations including covariates and random effects}\label{s:sim3}
 \sfig{non-mixture exponential}{1}
 \sfig{exponential mixture}{2}
 \sfig{nonpeaked non-mixture gamma}{3}
