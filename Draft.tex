@@ -7,6 +7,8 @@
 \usepackage{setspace} % for \doublespacing
 \usepackage{xr} % for cross referencing to supplement
 
+\graphicspath{{"Oral Prelim/"}}
+
 \externaldocument[S-]{Supplement}
 
 \doublespacing
@@ -123,7 +125,7 @@ While we focus on the estimation of detection probability in avian populations, 
 The methodology allows the analysis of data with 1) recorded first (possible censored) detection of each individual, 2) site-specific explanatory variables, and 3) survey-specific explanatory variables.  
 
 \begin{figure}\centering
-\includegraphics[width=\textwidth]{"Oral Prelim/AMRO_JABES"} % Source file: Oral Prelim/TTDD_Demo.R
+\includegraphics[width=\textwidth]{AMRO_JABES} % Source file: Oral Prelim/TTDD_Demo.R
 \caption{\label{fig:schematic} 
 Illustration of fitting mixture exponential (left) and mixture gamma (right) time-to-detection distributions (TTDDs) to interval-censored removal-sampled observations (center).
 The mixture TTDD consists of a continuous TTDD (thick line) plus a mixture component of first-interval detections (light gray rectangle), constituting $\gamma$ and $1-\gamma$ proportions of the population, respectively.
