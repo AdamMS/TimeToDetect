@@ -7,7 +7,7 @@
 \usepackage{setspace} % for \doublespacing
 \usepackage{xr} % for cross referencing to supplement
 
-\graphicspath{{"Oral Prelim/"}}
+\graphicspath{{"Oral Prelim/"}{Sims/SimZero/}{OVEN/oven_sum/}}
 
 \externaldocument[S-]{Supplement}
 
@@ -282,7 +282,7 @@ This suggests that, when data are nonpeaked with true detection probabilities le
 In these cases, mixture inference models estimated higher detection probabilities than did non-mixture models.
 
 \begin{figure}\centering
-\includegraphics[width=\textwidth]{"Sims/SimZero/mixture_fig"} % Source file: Sims/SimZero/Outputs_Code_zero.R
+\includegraphics[width=\textwidth]{mixture_fig} % Source file: Sims/SimZero/Outputs_Code_zero.R
 \caption{
 Comparisons of mixture and non-mixture TTDDs.  \textit{Left}: Average posterior median detection probabilities across 100 replicate simulations.  Dashed lines show unbiased estimation.   \textit{Right}: Coverage of 90\% credible intervals across 100 replicate simulations.  Dashed lines depict a 95\% range of observed coverage that is consistent with nominal coverage.  \textit{Rows}: Data simulated from non-mixture (upper) or mixture (lower) TTDDs.  \textit{Columns}:  Data simulated from nonpeaked (left), exponential (center), or peaked (right) TTDDs.  Each inference model was fit only to datasets from the same TTDD family (e.g. lognormal to lognormal).
 }
@@ -298,7 +298,7 @@ Now we turn to model misspecification of the distribution family.
 We simulated 100 replicates of intercept-only datasets from the 7 different mixture TTDD models using the same detection probabilties and parameters as in the previous section, and we fit them with mixture models from each of exponential, gamma, lognormal, and Weibull families.
 
 \begin{figure}\centering
-\includegraphics[width=\textwidth]{"Sims/SimZero/Posteriors_Families_draft"} % Source file: Sims/SimZero/RepresentativePosteriors.R
+\includegraphics[width=\textwidth]{Posteriors_Families_draft} % Source file: Sims/SimZero/RepresentativePosteriors.R
 \caption{\label{fig:sim2typical} 
 Representative examples of posterior distributions for $\pdet$ (left panel) and survey-level log-scale abundance (right panel).
 Data are simulated from nonpeaked gamma (left column), exponential (center), and peaked gamma (right) mixture TTDDs.
@@ -318,7 +318,7 @@ In contrast, the exponential model typically overestimated detection probability
 However, exponential model estimates were both less biased and more precise when the data actually derived from an exponential mechanism.
 
 \begin{figure}\centering
-\includegraphics[width=\textwidth]{"Sims/SimZero/family_fig"} % Source file: Sims/SimZero/Outputs_Code_zero.R
+\includegraphics[width=\textwidth]{family_fig} % Source file: Sims/SimZero/Outputs_Code_zero.R
 \caption{
 Comparisons of TTDDs across families.  \textit{Left}: Average posterior median detection probabilities across 100 replicate simulations.  Dashed lines show unbiased estimation.   \textit{Right}: Coverage of 90\% credible intervals across 100 replicate simulations.  Dashed lines depict a 95\% range of observed coverage that is consistent with nominal coverage.  \textit{Rows}:  Data simulated from mixture exponential, gamma, lognormal, or Weibull TTDDs.  \textit{Columns}: Data simulated from nonpeaked or exponential (left) or peaked (right) TTDDs.  All data and inference models used mixture TTDDs.
 }
@@ -385,7 +385,7 @@ It is clear that the assumption of constant detection leads to much higher and m
 
 
 \begin{figure}[h!]\centering
-\includegraphics[width=0.95\textwidth]{OVEN/oven_sum/OVEN_Posteriors} % Source file: OVEN/Compile.R
+\includegraphics[width=0.95\textwidth]{OVEN_Posteriors} % Source file: OVEN/Compile.R
 \caption{\label{ovenposteriors} Posterior medians (black dots) with 50\% (wider line) and 95\% (narrowerline) credible intervals for the mixing parameter ($\gamma$), shape parameter ($\alpha$) as well as abundance (A) and detection (D) fixed effects and random effect standard deviations.
 Posteriors are also available for the overall probability of detection and the abundance across all sites.}
 \end{figure}
