@@ -5,12 +5,14 @@
 \usepackage{xr}    % Links to external document
 \usepackage{rotating}     % For landscape-oriented table
 
+\graphicspath{{Sims/SimFull/}}
+
 \externaldocument[M-]{Draft}
 
 \newcommand{\pdet}{p^{(det)}}
 \newcommand{\capt}[1]{Caterpillar plots of posterior parameter estimates from all models fit to the simulated #1 dataset (from simulations involving covariates and random effects).  Black and orange lines depict central 95\% and 50\% credible intervals, respectively.  The black dot is the posterior meadian.  The blue 'X' is the true parameter value and is positioned on the correctly specified model.  $\beta$'s are fixed effect parameters, $\sigma$'s are random effect standard deviations, and $\gamma$ is a mixing parameter.  Parameters designated with an 'A' are abundance parameters; those designated with a 'D' are detection parameters.}
 \newcommand{\sfig}[2]{\begin{figure}
-  \includegraphics[width=1.0\textwidth]{Sims/SimFull/Posteriors_all_simdat#2.jpg} % Source file: Sims/SimFull/Outputs_Code_sf.R
+  \includegraphics[width=1.0\textwidth]{Posteriors_all_simdat#2.jpg} % Source file: Sims/SimFull/Outputs_Code_sf.R
   \caption{\capt{#1}}
   \end{figure}
 }
@@ -415,7 +417,7 @@ Q($p$): average proportion of the posterior distribution of $\pdet$ that is larg
 \section{Figures}
 
 \begin{figure}[h!]\centering
-\includegraphics[width=0.98\textwidth]{Sims/SimFull/pdet_cater_family} % Source file: Sims/SimFull/Outputs_Code_sf.R
+\includegraphics[width=0.98\textwidth]{pdet_cater_family} % Source file: Sims/SimFull/Outputs_Code_sf.R
 \caption{\label{pdet_cater_family}  Simulation results from Section \ref{M-sec:simfull}.
 Caterpillar plots of posterior 50\% (orange) and 95\% (black) credible intervals for the probability of detection $\pdet$ across all surveys.
 Data and models include fixed and random effects for both abundance and detection processes.
